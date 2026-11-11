@@ -63,7 +63,9 @@ def find(texts, timeout=15, contains=False):
             vals = [n.get("text") or "", n.get("content-desc") or ""]
             for t in texts:
                 if any((t in v) if contains else (v == t) for v in vals):
-                    return n
+                    # Tra ve dict thuoc tinh: Element la la (khong co con) co gia tri bool False,
+                    # nen "if find(...)" se sai neu tra ve Element.
+                    return dict(n.attrib)
         time.sleep(1)
     return None
 
