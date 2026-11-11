@@ -55,8 +55,11 @@ public partial class ViewerPage : ContentPage
         _root.RowDefinitions.Add(new RowDefinition(GridLength.Star));
         _root.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
         _root.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+        _root.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        _root.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(0)));
         _root.Add(_topBar, 0, 0);
-        _root.Add(BuildCanvasArea(), 0, 1);
+        _canvasArea = BuildCanvasArea();
+        _root.Add(_canvasArea, 0, 1);
         _panel.Margin = new Thickness(12, 8, 12, 0);
         _root.Add(_panel, 0, 2);
         _root.Add(_toolbar, 0, 3);
@@ -82,12 +85,28 @@ public partial class ViewerPage : ContentPage
         _landscape = landscape;
         // Bảng công cụ không chiếm quá khoảng một phần ba màn hình, để vùng CAD luôn lớn nhất.
         // Màn hình ngang còn thấp hơn. Camera do CadCanvas tự giữ.
-        _panelMax = landscape ? Math.Min(132, height * 0.34) : Math.Min(280, height * 0.34);
+        _panelMax = landscape ? Math.Max(120, height * 0.55) : Math.Min(280, height * 0.34);
         _panel.MaximumHeightRequest = _panelMax + 24;
+        if (rotated) ApplyLayout(landscape);
         if (rotated && _tool != Tool.None) SelectTool(_tool);
     }
 
     private double _panelMax = 240;
+    private View _canvasArea = null!;
+
+    /// <summary>
+    /// Dọc: thanh trên, vùng CAD, bảng công cụ, thanh công cụ xếp chồng.
+    /// Ngang: vùng CAD chiếm bên trái toàn chiều cao; bảng và thanh công cụ ở cột phải, để bản vẽ không bị ép thấp.
+    /// </summary>
+    private void ApplyLayout(bool landscape)
+    {
+        _root.ColumnDefinitions[1].Width = landscape ? new GridLength(320) : new GridLength(0);
+        Grid.SetColumnSpan(_topBar, landscape ? 2 : 1);
+        Grid.SetRow(_canvasArea, 1); Grid.SetColumn(_canvasArea, 0); Grid.SetRowSpan(_canvasArea, landscape ? 3 : 1);
+        Grid.SetRow(_panel, landscape ? 1 : 2); Grid.SetColumn(_panel, landscape ? 1 : 0);
+        _panel.VerticalOptions = landscape ? LayoutOptions.Start : LayoutOptions.Fill;
+        Grid.SetRow(_toolbar, 3); Grid.SetColumn(_toolbar, landscape ? 1 : 0);
+    }
 
     /// <summary>Cuộn khi nội dung dài; chiều cao bằng nội dung, không vượt quá giới hạn bảng.</summary>
     private View Scrollable(View content)

@@ -19,7 +19,7 @@ namespace Microsoft.Maui {
   public interface IView {}
   public struct Thickness { public Thickness(double u) {} public Thickness(double h, double v) {} public Thickness(double l, double t, double r, double b) {} public static implicit operator Thickness(double d) => default; }
   public struct CornerRadius { public CornerRadius(double u) {} public static implicit operator CornerRadius(double d) => default; }
-  public struct GridLength { public static GridLength Auto, Star; }
+  public struct GridLength { public GridLength(double v) {} public static GridLength Auto, Star; }
   public enum SafeAreaRegions { None, All }
   public struct SafeAreaEdges { public static SafeAreaEdges All => default; }
   public enum TextAlignment { Start, Center, End }
@@ -79,10 +79,10 @@ namespace Microsoft.Maui.Controls {
   public class VerticalStackLayout : StackBase {}
   public class HorizontalStackLayout : StackBase {}
   public class RowDefinition { public RowDefinition(GridLength g) {} }
-  public class ColumnDefinition { public ColumnDefinition(GridLength g) {} }
+  public class ColumnDefinition { public ColumnDefinition(GridLength g) {} public GridLength Width { get; set; } }
   public class RowDefinitionCollection : List<RowDefinition> {}
   public class ColumnDefinitionCollection : List<ColumnDefinition> {}
-  public class Grid : Layout { public RowDefinitionCollection RowDefinitions { get; set; } = new(); public ColumnDefinitionCollection ColumnDefinitions { get; set; } = new(); public double ColumnSpacing { get; set; } public double RowSpacing { get; set; } }
+  public class Grid : Layout { public static void SetRow(BindableObject b, int v) {} public static void SetColumn(BindableObject b, int v) {} public static void SetRowSpan(BindableObject b, int v) {} public static void SetColumnSpan(BindableObject b, int v) {} public RowDefinitionCollection RowDefinitions { get; set; } = new(); public ColumnDefinitionCollection ColumnDefinitions { get; set; } = new(); public double ColumnSpacing { get; set; } public double RowSpacing { get; set; } }
   public static class GridExtensions { public static void Add(this Grid grid, IView view, int column = 0, int row = 0) {} }
   public class ScrollView : View { public View Content { get; set; } }
   public class ContentView : View { public View Content { get; set; } }
