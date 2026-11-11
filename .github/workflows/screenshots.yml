@@ -101,7 +101,7 @@ jobs:
 
   ios-shots:
     name: iOS simulator - build, chay va chup anh
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-dotnet@v5
