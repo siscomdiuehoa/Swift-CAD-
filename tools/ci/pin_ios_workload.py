@@ -11,10 +11,20 @@ xcode = subprocess.run(["xcodebuild", "-version"], capture_output=True, text=Tru
 xv = tuple(int(x) for x in re.search(r"Xcode (\d+)\.(\d+)", xcode).groups())
 sdk = subprocess.run(["dotnet", "--version"], capture_output=True, text=True).stdout.strip()
 major, minor, patch = sdk.split("-")[0].split(".")
-band = f"{major}.{minor}.{patch[0]}00"
-pkg = f"microsoft.net.sdk.ios.manifest-{band}"
-url = f"https://api.nuget.org/v3-flatcontainer/{pkg}/index.json"
-versions = json.load(urllib.request.urlopen(url, timeout=60))["versions"]
+print(f"::notice::dotnet SDK {sdk}")
+versions = None
+for feature in range(int(patch[0]), 0, -1):
+    band = f"{major}.{minor}.{feature}00"
+    pkg = f"microsoft.net.sdk.ios.manifest-{band}"
+    url = f"https://api.nuget.org/v3-flatcontainer/{pkg}/index.json"
+    try:
+        versions = json.load(urllib.request.urlopen(url, timeout=60))["versions"]
+        print(f"::notice::Tim thay {pkg}: {len(versions)} phien ban, moi nhat {versions[-1]}")
+        break
+    except Exception as e:
+        print(f"::notice::Khong co {pkg} ({e})")
+if versions is None:
+    sys.exit("Khong tim thay goi manifest iOS")
 
 
 def key(v):
