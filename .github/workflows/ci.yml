@@ -59,4 +59,8 @@ jobs:
       - run: dotnet workload install maui-ios
       - run: dotnet workload list
       - name: Build iOS simulator
-        run: dotnet build src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-ios -c Debug -p:SwiftCadPlatform=ios -p:RuntimeIdentifier=iossimulator-arm64
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -version; dotnet --version; dotnet workload list
+          dotnet build src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-ios -c Debug -p:SwiftCadPlatform=ios -p:RuntimeIdentifier=iossimulator-arm64 2>&1 | tee build.log || { grep -E ": (error|warning) " build.log | sort -u | head -40 | sed 's/^/::error::/'; exit 1; }
