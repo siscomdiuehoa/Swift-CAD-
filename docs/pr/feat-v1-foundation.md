@@ -12,7 +12,7 @@ Dựng mới hoàn toàn theo đặc tả trong Issue #1: lõi `SwiftCad.Core` (
 |---|---|
 | `SwiftCad.Core` build (.NET SDK 10.0.115, Linux) | Đạt |
 | Kiểm thử Core và tài nguyên dịch | Đạt 33/33 |
-| Mã `SwiftCad.App` kiểm tra kiểu | Đạt với stub API tự viết (không phải MAUI thật). Chữ ký hàm SkiaSharp 4.155.0 và MAUI 10.0.130 đã đối chiếu với mã nguồn hai thư viện. |
+| `SwiftCad.App` biên dịch bằng MAUI | **CHƯA xác nhận.** Mới chỉ kiểm tra kiểu sơ bộ với stub API tự viết (`tools/typecheck`); kết quả đó không phải bằng chứng app biên dịch được. |
 | Build Android | CHƯA chạy. Môi trường viết mã không truy cập được NuGet. Chờ CI. |
 | Build iOS simulator | CHƯA chạy. Chờ CI trên máy macOS. |
 | Chạy trên emulator / simulator | CHƯA chạy |
@@ -42,6 +42,7 @@ Xem `README.md`. Không có máy build: tab Actions → workflow `CI` → Artifa
 - Layer: tìm tên, bật/tắt, hiện tất cả. Kết quả tìm và bắt điểm bỏ qua layer đã tắt.
 - Ghi chú: ghim theo tọa độ bản vẽ, lưu tệp JSON riêng theo khóa nội dung tệp, xóa được.
 - Chọn tệp bằng trình chọn hệ thống, kiểm tra đuôi .dwg/.dxf, sao chép vào máy, ghi Gần đây. Hủy thì không đổi gì.
+- Thẻ Google Drive và Dropbox: hiện hướng dẫn chọn nhà cung cấp, rồi mở trình chọn tệp hệ thống thật (trên Android MAUI dùng `ACTION_OPEN_DOCUMENT`, nơi các nhà cung cấp đã cài như Drive xuất hiện làm vị trí). Tệp chọn xong đi cùng luồng với Chọn tệp. Hủy thì quay về, không ghi trạng thái kết nối.
 - Gần đây: lọc, đánh dấu Đã lưu, gỡ, chia sẻ bản sao, Chọn lại khi bản sao mất.
 - Đổi ngôn ngữ áp dụng ngay và lưu qua lần mở lại.
 
@@ -50,13 +51,13 @@ Xem `README.md`. Không có máy build: tab Actions → workflow `CI` → Artifa
 - **Đọc DWG/DXF thật: chưa làm.** Tệp người dùng chọn được sao chép và ghi vào Gần đây, nhưng màn hình xem chỉ báo "Chưa hiển thị nội dung bản vẽ". Không vẽ hình minh họa thay thế.
 - **Bản vẽ mẫu** là hình học do ứng dụng tự tạo (`DemoDrawing`), không đọc từ tệp. Có nhãn Demo và mục "Về bản Demo này".
 - **Đăng nhập**: danh tính mẫu, không có máy chủ.
-- **Google Drive / Dropbox**: chỉ hướng dẫn rồi mở trình chọn tệp hệ thống. Không OAuth, không trạng thái đã kết nối.
+- **Google Drive / Dropbox trực tiếp (OAuth/API)**: chưa làm. Phần đã làm là dẫn vào trình chọn tệp hệ thống, xem mục Hành vi thật.
 - **Thumbnail**: dùng biểu tượng loại tệp.
 - Chưa có: trạng thái thiếu font / thiếu xref / đối tượng bỏ qua (phụ thuộc bước đọc CAD thật), bắt điểm giao nhau, xuất PDF.
 
 ## Chỗ khác với thiết kế, cần Codex và Owner xem
 
-1. **Biểu tượng ứng dụng** là bản tạm tự vẽ. Chưa có tệp ảnh đã duyệt (`docs/design/swift-cad-approved.png` chưa tồn tại, link ChatGPT cần tài khoản Owner).
+1. **Biểu tượng ứng dụng** là bản tạm tự vẽ, CHƯA được nghiệm thu. Sẽ thay bằng icon đã duyệt ngay khi nhận được tệp ảnh. Chưa có tệp ảnh đã duyệt (`docs/design/swift-cad-approved.png` chưa tồn tại, link ChatGPT cần tài khoản Owner).
 2. **Logo Google Drive và Dropbox** không dùng. Thẻ hiện tên dịch vụ và biểu tượng đám mây trung tính, vì logo là nhãn hiệu của bên khác và Owner yêu cầu không dùng tài nguyên dính bản quyền.
 3. **Màn hình Chọn tệp** trong ảnh thiết kế không được dựng riêng. Dùng trình chọn tệp hệ thống đúng như phần chữ của đặc tả.
 4. **Bóng**: một bóng mềm cộng viền sáng, theo phương án dự phòng trong đặc tả.
