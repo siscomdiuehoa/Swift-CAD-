@@ -107,13 +107,12 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
-      - name: Chon Xcode moi nhat tren may chay
+      - name: Xcode tren may chay
         shell: bash
         run: |
           ls -d /Applications/Xcode*.app | sed 's/^/::notice::Co san: /'
-          X=$(ls -d /Applications/Xcode_*.app | grep -v -i beta | sort -V | tail -1)
-          sudo xcode-select -s "$X/Contents/Developer"
-          echo "::notice::Dung $X"; xcodebuild -version
+          # Dung Xcode mac dinh cua may chay; workload iOS duoc ghim theo phien ban nay o buoc sau.
+          echo "::notice::Xcode mac dinh: $(xcode-select -p) / $(xcodebuild -version | head -1)"
       - name: Cai workload iOS khop Xcode
         run: |
           tools/ci/run.sh python3 tools/ci/pin_ios_workload.py
