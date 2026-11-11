@@ -37,8 +37,10 @@ def pick_type(pred):
 
 
 import re as _re
-small = pick_type(lambda n: n.startswith("iPhone SE")) or pick_type(lambda n: n.endswith(" mini")) or pick_type(lambda n: _re.fullmatch(r"iPhone \d+e", n) is not None)
-regular = pick_type(lambda n: _re.fullmatch(r"iPhone \d+", n) is not None)
+small = pick_type(lambda n: n == "iPhone SE (3rd generation)") or pick_type(lambda n: n.startswith("iPhone SE")) or pick_type(lambda n: n.endswith(" mini")) or pick_type(lambda n: _re.fullmatch(r"iPhone \d+e", n) is not None)
+# Uu tien may rong ~393-402 pt (iPhone 16/17) gan voi muc 390 trong dac ta.
+regular = (pick_type(lambda n: n in ("iPhone 16", "iPhone 17", "iPhone 15")) or
+           pick_type(lambda n: _re.fullmatch(r"iPhone \d+", n) is not None))
 devices = [("se", small), ("std", regular)]
 
 SHOTS = ["welcome", "drawings", "drawings-empty", "settings", "viewer", "viewer-find", "viewer-measure",
@@ -59,6 +61,9 @@ for tag, dtype in devices:
     run("xcrun", "simctl", "status_bar", udid, "override", "--time", "9:41", "--batteryLevel", "100", check=False)
     run("xcrun", "simctl", "install", udid, APP)
     log.append(f"{tag}: {dtype['name']} udid={udid}")
+    # Lan mo dau tien cham hon (khoi tao runtime), chay khoi dong truoc de anh dau khong bi man hinh cho.
+    run("xcrun", "simctl", "launch", udid, BUNDLE, check=False)
+    time.sleep(20)
     for size_tag, content_size in [("font-default", "large"), ("font-large", "accessibility-medium")]:
         if tag == "std" and size_tag == "font-large":
             continue

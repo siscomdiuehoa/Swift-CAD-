@@ -24,6 +24,14 @@ def step(name, fn):
         results.append(f"DAT  {tag} {name} {detail}")
     except Exception as e:  # ghi lai va tiep tuc cac buoc sau
         results.append(f"LOI  {tag} {name}: {e}")
+        # Chan doan: ghi cay giao dien hien tai.
+        try:
+            adb("shell", "uiautomator", "dump", "/sdcard/ui.xml")
+            open(f"{OUT}/{tag}-{name}-ui.xml", "w").write(adb("shell", "cat", "/sdcard/ui.xml"))
+            texts = [t for t in screen_texts() if t != "|"]
+            results.append("     man hinh: " + " ; ".join(texts[:25]))
+        except Exception as e2:
+            results.append(f"     khong ghi duoc cay giao dien: {e2}")
     screencap(f"{OUT}/{tag}-{name}.png", settle=1.0)
     print(results[-1], flush=True)
 
