@@ -6,8 +6,8 @@ Dung: flow.py <thu_muc_apk>
 """
 import os, sys, time
 sys.path.insert(0, os.path.dirname(__file__))
-from android_common import (ACT, PKG, adb, find, focused_package, install, screen_texts, screencap,
-                            setup_device, tap)
+from android_common import (ACT, DUMP_ERRORS, PKG, adb, find, focused_package, install, rotate, screen_texts,
+                            screencap, setup_device, tap)
 
 APK_DIR = sys.argv[1]
 OUT = "artifacts/flow"
@@ -58,7 +58,7 @@ time.sleep(3)
 launch()
 step("welcome-hien-lan-dau", lambda: must(find("Use without an account", 20), "khong thay man hinh chao"))
 step("bam-dung-khong-tai-khoan", lambda: (tap("Use without an account"), must(find("Choose file", 15), "khong vao Ban ve")))
-step("khong-co-trang-thai-da-ket-noi", lambda: must(not any(("Connected" in t or "Syncing" in t) for t in screen_texts()), "co chu Connected/Syncing"))
+step("khong-co-trang-thai-da-ket-noi", lambda: must(len(screen_texts()) > 0, "khong doc duoc cay giao dien") or must(not any(("Connected" in t or "Syncing" in t) for t in screen_texts()), "co chu Connected/Syncing"))
 
 
 def drive_cancel():
@@ -131,9 +131,9 @@ step("mo-tep-mau", lambda: (tap("Open MEP-Floor-01.demo"), must(find("Demo", 10)
 for tool, check in [("Find", "Search text in the drawing"), ("Measure", "Pick the first point"),
                     ("Layers", "Show all"), ("Notes", "Tap the drawing to pin a note")]:
     step(f"cong-cu-{tool.lower()}", lambda tool=tool, check=check: (tap(tool), must(find(check, 8), f"bang {tool} khong mo")))
-step("xoay-ngang", lambda: (adb("shell", "settings", "put", "system", "user_rotation", "1"), time.sleep(3),
+step("xoay-ngang", lambda: (rotate(1), time.sleep(3),
                            must(find("Notes", 8), "mat thanh cong cu khi xoay")))
-adb("shell", "settings", "put", "system", "user_rotation", "0")
+rotate(0)
 time.sleep(2)
 step("quay-lai-ban-ve", lambda: (tap("Back"), must(find("Choose file", 10), "khong ve Ban ve")))
 step("doi-sang-tieng-viet", lambda: (tap("Settings"), tap("Tiếng Việt", 10), must(find("Ngôn ngữ", 10), "giao dien chua doi sang tieng Viet")))
@@ -141,6 +141,7 @@ step("ngon-ngu-giu-sau-khi-mo-lai", lambda: (restart(), must(find("Chọn tệp"
 step("doi-lai-theo-thiet-bi", lambda: (tap("Cài đặt"), tap("Theo thiết bị", 10), must(find("Language", 10), "khong ve tieng Anh theo thiet bi")))
 
 crash = adb("logcat", "-d", "-b", "crash")
+results.append("INFO loi uiautomator dump: " + (" || ".join(DUMP_ERRORS) or "khong co"))
 results.append("INFO logcat crash: " + ("trong" if not crash.strip() else crash[-3000:]))
 open(f"{OUT}/results.txt", "w").write("\n".join(results) + "\n")
 print("\n".join(results))

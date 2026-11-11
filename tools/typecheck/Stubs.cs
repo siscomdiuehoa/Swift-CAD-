@@ -66,7 +66,7 @@ namespace Microsoft.Maui.Controls {
     public Color BackgroundColor { get; set; } public double WidthRequest { get; set; } public double HeightRequest { get; set; }
     public double MinimumWidthRequest { get; set; } public double MinimumHeightRequest { get; set; } public double MaximumHeightRequest { get; set; }
     public bool IsVisible { get; set; } public bool InputTransparent { get; set; } public double Scale { get; set; } public Shadow Shadow { get; set; }
-    public double Width => 0; public double Height => 0;
+    public double Width => 0; public double Height => 0; public event EventHandler SizeChanged;
   }
   public class GestureRecognizer : Element {}
   public class TapGestureRecognizer : GestureRecognizer { public event EventHandler Tapped; }

@@ -5,7 +5,7 @@ Dung: shots.py <thu_muc_apk> <ten> <WxH> <density> <locale> <font_scale>
 """
 import os, sys, time
 sys.path.insert(0, os.path.dirname(__file__))
-from android_common import ACT, PKG, adb, install, screencap, setup_device, focused_package
+from android_common import ACT, PKG, adb, install, rotate, screencap, setup_device, focused_package
 
 APK_DIR, NAME, SIZE, DENSITY, LOCALE, FONT = sys.argv[1:7]
 OUT = "artifacts/shots"
@@ -35,12 +35,12 @@ SHOTS = [
 ]
 for label, shot, rotation in SHOTS:
     adb("shell", "am", "force-stop", PKG)
-    adb("shell", "settings", "put", "system", "user_rotation", str(rotation))
+    rotate(rotation)
     adb("shell", "am", "start", "-W", "-n", ACT, "--es", "swiftcad_shot", shot)
     time.sleep(9 if shot in ("picker", "cloud") else 6)
     screencap(f"{OUT}/{NAME}-{label}.png")
     log.append(f"{label}: focus={focused_package()}")
-adb("shell", "settings", "put", "system", "user_rotation", "0")
+rotate(0)
 
 crash = adb("logcat", "-d", "-b", "crash")
 log.append("logcat crash buffer: " + ("trong" if not crash.strip() else "\n" + crash[-4000:]))

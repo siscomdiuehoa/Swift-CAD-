@@ -20,7 +20,7 @@ public partial class ViewerPage : ContentPage
     private readonly Grid _root = new();
     private readonly View _topBar;
     private readonly SoftSurface _toolbar;
-    private readonly SoftSurface _panel = new(null, Theme.RadiusBlock, new Thickness(12)) { IsVisible = false, MaximumHeightRequest = 280 };
+    private readonly SoftSurface _panel = new(null, Theme.RadiusBlock, new Thickness(12)) { IsVisible = false, MaximumHeightRequest = 264 };
     private readonly Dictionary<Tool, ToolButton> _toolButtons = new();
     private readonly Grid _fullscreenHost = new();
     private Tool _tool = Tool.None;
@@ -76,11 +76,28 @@ public partial class ViewerPage : ContentPage
     protected override void OnSizeAllocated(double width, double height)
     {
         base.OnSizeAllocated(width, height);
+        if (width <= 0 || height <= 0) return;
         var landscape = width > height;
-        if (landscape == _landscape) return;
+        var rotated = landscape != _landscape;
         _landscape = landscape;
-        // Màn hình ngang ưu tiên vùng CAD: bảng công cụ thấp hơn. Camera do CadCanvas tự giữ.
-        _panel.MaximumHeightRequest = landscape ? 132 : 280;
+        // Bảng công cụ không chiếm quá khoảng một phần ba màn hình, để vùng CAD luôn lớn nhất.
+        // Màn hình ngang còn thấp hơn. Camera do CadCanvas tự giữ.
+        _panelMax = landscape ? Math.Min(132, height * 0.34) : Math.Min(280, height * 0.34);
+        _panel.MaximumHeightRequest = _panelMax + 24;
+        if (rotated && _tool != Tool.None) SelectTool(_tool);
+    }
+
+    private double _panelMax = 240;
+
+    /// <summary>Cuộn khi nội dung dài; chiều cao bằng nội dung, không vượt quá giới hạn bảng.</summary>
+    private View Scrollable(View content)
+    {
+        var sv = new ScrollView { Content = content };
+        content.SizeChanged += (_, _) =>
+        {
+            if (content.Height > 0) sv.HeightRequest = Math.Min(content.Height, _panelMax);
+        };
+        return sv;
     }
 
     // ---------- Khung ----------
@@ -276,7 +293,7 @@ public partial class ViewerPage : ContentPage
         row.Add(new PrimaryButton(L.T("measure_set_unit"), () => _ = ConfirmUnitAsync(), secondary: true), 1);
         col.Add(row);
         UpdateMeasure();
-        return new ScrollView { Content = col };
+        return Scrollable(col);
     }
 
     private void UpdateAim(SnapResult? aim)
@@ -349,7 +366,7 @@ public partial class ViewerPage : ContentPage
         col.Add(top);
         col.Add(list);
         FillLayers(list);
-        return new ScrollView { Content = col };
+        return Scrollable(col);
     }
 
     private void FillLayers(VerticalStackLayout list)
@@ -398,7 +415,7 @@ public partial class ViewerPage : ContentPage
             row.Add(Ui.IconButton(Icons.Trash, L.F("a11y_delete_note", i + 1), () => _ = DeleteNoteAsync(n), Theme.Danger), 2);
             col.Add(row);
         }
-        return new ScrollView { Content = col };
+        return Scrollable(col);
     }
 
     private async Task AddNoteAsync(Point2 at)

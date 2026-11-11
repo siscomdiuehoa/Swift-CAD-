@@ -21,13 +21,31 @@ def screencap(path, settle=1.5):
         f.write(data)
 
 
+DUMP_ERRORS = []
+
+
 def dump():
-    adb("shell", "uiautomator", "dump", "/sdcard/ui.xml")
-    xml = adb("shell", "cat", "/sdcard/ui.xml")
-    try:
-        return ET.fromstring(xml[xml.find("<"):])
-    except ET.ParseError:
-        return None
+    """Lay cay giao dien. Thu lai va ghi lai thong bao loi cua uiautomator de chan doan."""
+    for attempt in range(3):
+        adb("shell", "rm", "-f", "/sdcard/ui.xml")
+        r = subprocess.run(["adb", "shell", "uiautomator", "dump", "--compressed", "/sdcard/ui.xml"] if attempt == 1
+                           else ["adb", "shell", "uiautomator", "dump", "/sdcard/ui.xml"],
+                           capture_output=True, text=True, timeout=60)
+        xml = adb("shell", "cat", "/sdcard/ui.xml")
+        start = xml.find("<?xml")
+        if start < 0:
+            start = xml.find("<hierarchy")
+        if start >= 0:
+            try:
+                return ET.fromstring(xml[start:])
+            except ET.ParseError as e:
+                msg = f"parse: {e}"
+        else:
+            msg = (r.stdout + r.stderr).strip()[:300]
+        if len(DUMP_ERRORS) < 10:
+            DUMP_ERRORS.append(msg)
+        time.sleep(1.5)
+    return None
 
 
 def nodes():
@@ -82,11 +100,6 @@ def setup_device(size, density, font, locale):
     adb("root")
     time.sleep(3)
     adb("wait-for-device")
-    adb("shell", "wm", "size", size)
-    adb("shell", "wm", "density", density)
-    adb("shell", "settings", "put", "system", "font_scale", font)
-    adb("shell", "settings", "put", "system", "accelerometer_rotation", "0")
-    adb("shell", "settings", "put", "system", "user_rotation", "0")
     current = adb("shell", "getprop", "persist.sys.locale").strip()
     if current != locale:
         # Doi ngon ngu he thong roi khoi dong lai framework.
@@ -99,6 +112,11 @@ def setup_device(size, density, font, locale):
         while time.time() < end and adb("shell", "getprop", "sys.boot_completed").strip() != "1":
             time.sleep(3)
         time.sleep(15)
+    # Dat sau khi doi ngon ngu: khoi dong lai framework lam mat font_scale.
+    adb("shell", "wm", "size", size)
+    adb("shell", "wm", "density", density)
+    adb("shell", "settings", "put", "system", "font_scale", font)
+    rotate(0)
     adb("shell", "input", "keyevent", "KEYCODE_WAKEUP")
     adb("shell", "wm", "dismiss-keyguard")
     return adb("shell", "getprop", "persist.sys.locale").strip()
@@ -111,3 +129,10 @@ def install(apk_dir):
         raise FileNotFoundError(f"Khong co APK trong {apk_dir}")
     print(adb("install", "-r", "-g", apks[0], check=True, timeout=300))
     return apks[0]
+
+
+def rotate(r):
+    """Khoa huong man hinh: 0 doc, 1 ngang."""
+    adb("shell", "settings", "put", "system", "accelerometer_rotation", "0")
+    adb("shell", "settings", "put", "system", "user_rotation", str(r))
+    adb("shell", "wm", "user-rotation", "lock", str(r))

@@ -23,7 +23,9 @@ def run(*args, env=None, check=True):
 runtimes = [r for r in json.loads(run("xcrun", "simctl", "list", "runtimes", "-j"))["runtimes"]
             if r.get("isAvailable") and r["identifier"].startswith("com.apple.CoreSimulator.SimRuntime.iOS")]
 runtime = sorted(runtimes, key=lambda r: [int(x) for x in r["version"].split(".")])[-1]
-types = json.loads(run("xcrun", "simctl", "list", "devicetypes", "-j"))["devicetypes"]
+# Chi chon loai thiet bi ma runtime nay ho tro (iPhone SE doi dau khong chay iOS moi).
+types = runtime.get("supportedDeviceTypes") or json.loads(run("xcrun", "simctl", "list", "devicetypes", "-j"))["devicetypes"]
+log.append("ho tro: " + ", ".join(t["name"] for t in types if t["name"].startswith("iPhone")))
 log.append(f"runtime={runtime['name']}")
 
 
@@ -34,8 +36,9 @@ def pick_type(pred):
     return None
 
 
-small = pick_type(lambda n: n.startswith("iPhone SE"))
-regular = pick_type(lambda n: n.startswith("iPhone 1") and n.split()[-1].isdigit())
+import re as _re
+small = pick_type(lambda n: n.startswith("iPhone SE")) or pick_type(lambda n: n.endswith(" mini")) or pick_type(lambda n: _re.fullmatch(r"iPhone \d+e", n) is not None)
+regular = pick_type(lambda n: _re.fullmatch(r"iPhone \d+", n) is not None)
 devices = [("se", small), ("std", regular)]
 
 SHOTS = ["welcome", "drawings", "drawings-empty", "settings", "viewer", "viewer-find", "viewer-measure",
@@ -46,7 +49,11 @@ for tag, dtype in devices:
     if dtype is None:
         log.append(f"{tag}: khong co loai thiet bi phu hop")
         continue
-    udid = run("xcrun", "simctl", "create", f"swiftcad-{tag}", dtype["identifier"], runtime["identifier"]).strip()
+    try:
+        udid = run("xcrun", "simctl", "create", f"swiftcad-{tag}", dtype["identifier"], runtime["identifier"]).strip()
+    except Exception as e:
+        log.append(f"LOI tao simulator {dtype['name']}: {e}")
+        continue
     run("xcrun", "simctl", "boot", udid)
     run("xcrun", "simctl", "bootstatus", udid, "-b")
     run("xcrun", "simctl", "status_bar", udid, "override", "--time", "9:41", "--batteryLevel", "100", check=False)
