@@ -9,7 +9,7 @@ public enum Tool { None, Find, Measure, Layers, Notes }
 /// Màn hình xem. Với tệp mẫu: hình học Demo do ứng dụng tự tạo, các công cụ Tìm/Đo/Layer/Ghi chú chạy thật trên hình học đó.
 /// Với tệp DWG/DXF của người dùng: bản này CHƯA đọc nội dung, chỉ hiện trạng thái trung thực.
 /// </summary>
-public class ViewerPage : ContentPage
+public partial class ViewerPage : ContentPage
 {
     private readonly RecentFile? _file;
     private readonly DrawingModel? _model;

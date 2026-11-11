@@ -139,7 +139,7 @@ public class CadCanvas : SKCanvasView
 
     private void SetAim(SnapResult? aim) { Aim = aim; AimChanged?.Invoke(aim); }
 
-    private void PlaceMeasurePoint(SnapResult p)
+    internal void PlaceMeasurePoint(SnapResult p)
     {
         if (MeasureA is null || MeasureB is not null) { MeasureA = p; MeasureB = null; }
         else MeasureB = p;
@@ -182,12 +182,12 @@ public class CadCanvas : SKCanvasView
                     canvas.DrawLine(S(l.A), S(l.B), stroke);
                     break;
                 case PolylineEntity p when p.Points.Count > 1:
-                    using (var path = new SKPath())
+                    using (var path = new SKPathBuilder())
                     {
                         path.MoveTo(S(p.Points[0]));
                         for (var i = 1; i < p.Points.Count; i++) path.LineTo(S(p.Points[i]));
                         if (p.Closed) path.Close();
-                        canvas.DrawPath(path, stroke);
+                        using (var built = path.Detach()) canvas.DrawPath(built, stroke);
                     }
                     break;
                 case CircleEntity ci:
@@ -195,11 +195,11 @@ public class CadCanvas : SKCanvasView
                     break;
                 case ArcEntity a:
                     var ctr = S(a.Center); var r = (float)(a.Radius * Camera.Scale);
-                    using (var path = new SKPath())
+                    using (var path = new SKPathBuilder())
                     {
                         // Trục Y màn hình lật so với bản vẽ nên góc đổi dấu.
                         path.AddArc(new SKRect(ctr.X - r, ctr.Y - r, ctr.X + r, ctr.Y + r), (float)-a.StartDeg, (float)-a.SweepDeg);
-                        canvas.DrawPath(path, stroke);
+                        using (var built = path.Detach()) canvas.DrawPath(built, stroke);
                     }
                     break;
                 case TextEntity t:
@@ -299,10 +299,10 @@ public class CadCanvas : SKCanvasView
                 canvas.DrawRect(new SKRect(o.X - s, o.Y - s, o.X + s, o.Y + s), stroke);
                 break;
             case SnapKind.Midpoint:
-                using (var path = new SKPath())
+                using (var path = new SKPathBuilder())
                 {
                     path.MoveTo(o.X, o.Y - s); path.LineTo(o.X + s, o.Y + s); path.LineTo(o.X - s, o.Y + s); path.Close();
-                    canvas.DrawPath(path, stroke);
+                    using (var built = path.Detach()) canvas.DrawPath(built, stroke);
                 }
                 break;
             case SnapKind.Center:

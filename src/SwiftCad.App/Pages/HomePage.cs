@@ -3,7 +3,7 @@ using SwiftCad.Core;
 namespace SwiftCad.App.Pages;
 
 /// <summary>Ba tab Bản vẽ / Đã lưu / Cài đặt với thanh dưới nổi mềm. Nội dung cuộn, thanh dưới không che danh sách.</summary>
-public class HomePage : ContentPage
+public partial class HomePage : ContentPage
 {
     private HomeTab _tab;
     private readonly Grid _root = new() { RowDefinitions = { new RowDefinition(GridLength.Star), new RowDefinition(GridLength.Auto) } };

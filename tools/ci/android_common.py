@@ -1,0 +1,113 @@
+"""Ham dung chung cho script chup anh va kiem tra luong tren Android emulator (adb + uiautomator)."""
+import os, re, subprocess, time
+import xml.etree.ElementTree as ET
+
+PKG = "com.swiftcad.app"
+ACT = f"{PKG}/{PKG}.MainActivity"
+
+
+def adb(*args, check=False, timeout=120):
+    r = subprocess.run(["adb", *args], capture_output=True, text=True, timeout=timeout)
+    if check and r.returncode != 0:
+        raise RuntimeError(f"adb {' '.join(args)} -> {r.returncode}: {r.stderr.strip()}")
+    return r.stdout
+
+
+def screencap(path, settle=1.5):
+    time.sleep(settle)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    data = subprocess.run(["adb", "exec-out", "screencap", "-p"], capture_output=True, timeout=60).stdout
+    with open(path, "wb") as f:
+        f.write(data)
+
+
+def dump():
+    adb("shell", "uiautomator", "dump", "/sdcard/ui.xml")
+    xml = adb("shell", "cat", "/sdcard/ui.xml")
+    try:
+        return ET.fromstring(xml[xml.find("<"):])
+    except ET.ParseError:
+        return None
+
+
+def nodes():
+    root = dump()
+    return [] if root is None else list(root.iter("node"))
+
+
+def find(texts, timeout=15, contains=False):
+    """Tim phan tu theo text hoac content-desc. texts: chuoi hoac danh sach chuoi."""
+    if isinstance(texts, str):
+        texts = [texts]
+    end = time.time() + timeout
+    while time.time() < end:
+        for n in nodes():
+            vals = [n.get("text") or "", n.get("content-desc") or ""]
+            for t in texts:
+                if any((t in v) if contains else (v == t) for v in vals):
+                    return n
+        time.sleep(1)
+    return None
+
+
+def center(n):
+    x1, y1, x2, y2 = map(int, re.findall(r"\d+", n.get("bounds")))
+    return (x1 + x2) // 2, (y1 + y2) // 2
+
+
+def tap_node(n):
+    x, y = center(n)
+    adb("shell", "input", "tap", str(x), str(y))
+
+
+def tap(texts, timeout=15, contains=False):
+    n = find(texts, timeout, contains)
+    if n is None:
+        raise LookupError(f"Khong tim thay: {texts}")
+    tap_node(n)
+    return n
+
+
+def focused_package():
+    out = adb("shell", "dumpsys", "window")
+    m = re.search(r"mCurrentFocus=Window\{[^ ]+ [^ ]+ ([^/ }]+)", out)
+    return m.group(1) if m else ""
+
+
+def screen_texts():
+    return [(n.get("text") or "") + "|" + (n.get("content-desc") or "") for n in nodes()]
+
+
+def setup_device(size, density, font, locale):
+    adb("root")
+    time.sleep(3)
+    adb("wait-for-device")
+    adb("shell", "wm", "size", size)
+    adb("shell", "wm", "density", density)
+    adb("shell", "settings", "put", "system", "font_scale", font)
+    adb("shell", "settings", "put", "system", "accelerometer_rotation", "0")
+    adb("shell", "settings", "put", "system", "user_rotation", "0")
+    current = adb("shell", "getprop", "persist.sys.locale").strip()
+    if current != locale:
+        # Doi ngon ngu he thong roi khoi dong lai framework.
+        adb("shell", "setprop", "persist.sys.locale", locale)
+        adb("shell", "setprop", "sys.boot_completed", "0")
+        adb("shell", "stop")
+        time.sleep(2)
+        adb("shell", "start")
+        end = time.time() + 240
+        while time.time() < end and adb("shell", "getprop", "sys.boot_completed").strip() != "1":
+            time.sleep(3)
+        time.sleep(15)
+    adb("shell", "input", "keyevent", "KEYCODE_WAKEUP")
+    adb("shell", "wm", "dismiss-keyguard")
+    return adb("shell", "getprop", "persist.sys.locale").strip()
+
+
+def install(apk_dir):
+    import glob
+    apks = sorted(glob.glob(os.path.join(apk_dir, "*-Signed.apk"))) or sorted(glob.glob(os.path.join(apk_dir, "*.apk")))
+    if not apks:
+        raise FileNotFoundError(f"Khong co APK trong {apk_dir}")
+    print(adb("install", "-r", "-g", apks[0], check=True, timeout=300))
+    return apks[0]

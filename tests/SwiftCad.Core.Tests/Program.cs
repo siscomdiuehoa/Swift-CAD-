@@ -285,6 +285,8 @@ else
         foreach (var f in Directory.EnumerateFiles(appDir, "*.cs", SearchOption.AllDirectories))
         {
             if (f.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar)) continue;
+            // Dữ liệu kiểm thử của chế độ chụp ảnh (chỉ có trong bản dựng CI) được phép chứa chữ tiếng Việt.
+            if (f.EndsWith("ShotMode.cs") || f.EndsWith(".Shots.cs")) continue;
             foreach (Match m in Regex.Matches(File.ReadAllText(f), "\"(?:[^\"\\\\]|\\\\.)*\""))
                 if (Regex.IsMatch(m.Value, @"[À-ỹ]") && !m.Value.Contains("Tiếng Việt")) bad.Add(Path.GetFileName(f) + ": " + m.Value);
         }

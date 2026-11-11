@@ -1,15 +1,42 @@
-name: Anh chay that tren Android emulator
+name: Anh chay that va kiem tra luong
 
-# Chay tay tu tab Actions. Workflow nay CHUA duoc chay thu lan nao; xem docs/pr/feat-v1-foundation.md.
+# Chay tren pull request va chay tay. Dung ban build co ShotMode (-p:SwiftCadShots=true), khong phai ban phat hanh.
 on:
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: shots-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  shots:
+  android-apk:
+    name: Android - build APK chup anh
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: dotnet workload install maui-android
+      - run: dotnet publish src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-android -c Release -p:SwiftCadPlatform=android -p:SwiftCadShots=true -p:AndroidPackageFormat=apk -o artifacts/android
+      - uses: actions/upload-artifact@v5
+        with:
+          name: apk-shots
+          path: artifacts/android/*.apk
+          if-no-files-found: error
+
+  android-shots:
+    name: Android emulator - ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: android-apk
     strategy:
       fail-fast: false
       matrix:
@@ -18,18 +45,14 @@ jobs:
           - { name: w360-vi, size: 1080x2340, density: 480, locale: vi-VN, font: '1.0' }
           - { name: w390-en, size: 1170x2532, density: 480, locale: en-US, font: '1.0' }
           - { name: w390-vi, size: 1170x2532, density: 480, locale: vi-VN, font: '1.0' }
+          - { name: w360-en-font130, size: 1080x2340, density: 480, locale: en-US, font: '1.3' }
           - { name: w360-vi-font130, size: 1080x2340, density: 480, locale: vi-VN, font: '1.3' }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
-          global-json-file: global.json
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - run: dotnet workload install maui-android
-      - run: dotnet publish src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-android -c Release -p:AndroidPackageFormat=apk -o artifacts/android
+          name: apk-shots
+          path: artifacts/android
       - name: Bat KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -42,8 +65,59 @@ jobs:
           target: google_apis
           disable-animations: true
           script: python3 tools/ci/shots.py artifacts/android "${{ matrix.name }}" "${{ matrix.size }}" "${{ matrix.density }}" "${{ matrix.locale }}" "${{ matrix.font }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
-          name: shots-${{ matrix.name }}
+          name: android-shots-${{ matrix.name }}
           path: artifacts/shots
+
+  android-flow:
+    name: Android emulator - kiem tra luong thao tac that
+    runs-on: ubuntu-latest
+    needs: android-apk
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: apk-shots
+          path: artifacts/android
+      - name: Bat KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: python3 tools/ci/flow.py artifacts/android
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: android-flow
+          path: artifacts/flow
+
+  ios-shots:
+    name: iOS simulator - build, chay va chup anh
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - run: dotnet workload install maui-ios
+      - name: Build iOS simulator co ShotMode
+        run: dotnet build src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-ios -c Debug -p:SwiftCadPlatform=ios -p:SwiftCadShots=true -p:RuntimeIdentifier=iossimulator-arm64
+      - name: Chup anh
+        run: |
+          APP=$(find src/SwiftCad.App/bin/Debug -name "*.app" -maxdepth 4 -type d | head -1)
+          echo "App: $APP"
+          xcodebuild -version
+          python3 tools/ci/ios_shots.py "$APP"
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: ios-shots
+          path: artifacts/ios-shots

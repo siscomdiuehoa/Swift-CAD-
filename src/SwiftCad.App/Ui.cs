@@ -29,8 +29,8 @@ public static class Ui
         return new Path
         {
             Data = (Geometry)GeometryConverter.ConvertFromInvariantString(data)!,
-            Stroke = filled ? null : c,
-            Fill = filled ? c : null,
+            Stroke = filled ? Brush.Transparent : c,
+            Fill = filled ? c : Brush.Transparent,
             StrokeThickness = 2,
             StrokeLineCap = PenLineCap.Round,
             StrokeLineJoin = PenLineJoin.Round,

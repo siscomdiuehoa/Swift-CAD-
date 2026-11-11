@@ -56,7 +56,7 @@ namespace Microsoft.Maui.ApplicationModel.DataTransfer {
 namespace Microsoft.Maui.Controls {
   public class BindableObject {}
   public class Element : BindableObject {}
-  public class Brush : Element {}
+  public class Brush : Element { public static SolidColorBrush Transparent => null; }
   public class SolidColorBrush : Brush { public SolidColorBrush(Color c) {} }
   public class Shadow : Element { public Brush Brush { get; set; } public Point Offset { get; set; } public float Radius { get; set; } public float Opacity { get; set; } }
   public class LayoutOptions { public static LayoutOptions Start, Center, End, Fill; }
@@ -96,7 +96,7 @@ namespace Microsoft.Maui.Controls {
   public class BoxView : View { public Color Color { get; set; } public CornerRadius CornerRadius { get; set; } }
   public static class SemanticProperties { public static void SetDescription(BindableObject b, string v) {} public static void SetHeadingLevel(BindableObject b, SemanticHeadingLevel v) {} }
   public interface INavigation { Task PushAsync(Page p); Task<Page> PopAsync(); }
-  public class Page : VisualElement {
+  public class Page : VisualElement { public event EventHandler Loaded;
     public string Title { get; set; } public INavigation Navigation => null;
     public Task DisplayAlertAsync(string title, string message, string cancel) => null;
     public Task<bool> DisplayAlertAsync(string title, string message, string accept, string cancel) => null;
@@ -105,7 +105,7 @@ namespace Microsoft.Maui.Controls {
     protected virtual void OnAppearing() {} protected virtual void OnSizeAllocated(double w, double h) {}
   }
   public class ContentPage : Page { public View Content { get; set; } public SafeAreaEdges SafeAreaEdges { get; set; } }
-  public class NavigationPage : Page { public NavigationPage(Page root) {} public Color BarBackgroundColor { get; set; } public Color BarTextColor { get; set; } public static void SetHasNavigationBar(BindableObject p, bool v) {} }
+  public class NavigationPage : Page { public NavigationPage(Page root) {} public Task PushAsync(Page p, bool animated) => null; public Color BarBackgroundColor { get; set; } public Color BarTextColor { get; set; } public static void SetHasNavigationBar(BindableObject p, bool v) {} }
   public class Window { public Window(Page p) {} public Page Page { get; set; } }
   public class Application : Element { public static Application Current => null; public IReadOnlyList<Window> Windows => null; public AppTheme UserAppTheme { get; set; } protected virtual Window CreateWindow(IActivationState s) => null; }
 }
@@ -128,6 +128,7 @@ namespace SkiaSharp {
   public class SKPaint : IDisposable { public bool IsAntialias { get; set; } public SKPaintStyle Style { get; set; } public float StrokeWidth { get; set; } public SKColor Color { get; set; } public void Dispose() {} }
   public class SKTypeface { public static SKTypeface Default => null; }
   public class SKFont : IDisposable { public SKFont(SKTypeface t, float size = 12) {} public float Size { get; set; } public float MeasureText(string text, SKPaint paint = null) => 0; public void Dispose() {} }
+  public class SKPathBuilder : IDisposable { public void MoveTo(SKPoint p) {} public void MoveTo(float x, float y) {} public void LineTo(SKPoint p) {} public void LineTo(float x, float y) {} public void Close() {} public void AddArc(SKRect oval, float start, float sweep) {} public SKPath Detach() => null; public void Dispose() {} }
   public class SKPath : IDisposable { public void MoveTo(SKPoint p) {} public void MoveTo(float x, float y) {} public void LineTo(SKPoint p) {} public void LineTo(float x, float y) {} public void Close() {} public void AddArc(SKRect oval, float start, float sweep) {} public void Dispose() {} }
   public class SKCanvas { public void Clear(SKColor c) {} public void DrawLine(SKPoint a, SKPoint b, SKPaint p) {} public void DrawLine(float x0, float y0, float x1, float y1, SKPaint p) {} public void DrawPath(SKPath path, SKPaint p) {} public void DrawCircle(SKPoint c, float r, SKPaint p) {} public void DrawRect(SKRect r, SKPaint p) {} public void DrawRoundRect(SKRect r, float rx, float ry, SKPaint p) {} public void DrawText(string text, float x, float y, SKTextAlign a, SKFont f, SKPaint p) {} }
   public class SKSurface { public SKCanvas Canvas => null; }

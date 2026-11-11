@@ -4,7 +4,15 @@ using Android.OS;
 
 namespace SwiftCad.App;
 
-[Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+[Activity(Name = "com.swiftcad.app.MainActivity", Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public class MainActivity : MauiAppCompatActivity
 {
+#if SWIFTCAD_SHOTS
+    protected override void OnCreate(Bundle? savedInstanceState)
+    {
+        // adb shell am start -n com.swiftcad.app/com.swiftcad.app.MainActivity --es swiftcad_shot viewer-find
+        ShotMode.Requested = Intent?.GetStringExtra("swiftcad_shot");
+        base.OnCreate(savedInstanceState);
+    }
+#endif
 }

@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0-android</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-ios</TargetFrameworks>
+    <!-- CI: -p:SwiftCadPlatform=ios|android chi danh gia mot nen tang, de may chi can mot workload. -->
+    <TargetFrameworks Condition="'$(SwiftCadPlatform)' == 'ios'">net10.0-ios</TargetFrameworks>
+    <TargetFrameworks Condition="'$(SwiftCadPlatform)' == 'android'">net10.0-android</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
     <RootNamespace>SwiftCad.App</RootNamespace>
@@ -24,6 +27,11 @@
 
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <!-- Bản dựng chụp ảnh cho CI: bật ShotMode để mở thẳng từng màn hình. Mặc định tắt. -->
+  <PropertyGroup Condition="'$(SwiftCadShots)' == 'true'">
+    <DefineConstants>$(DefineConstants);SWIFTCAD_SHOTS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

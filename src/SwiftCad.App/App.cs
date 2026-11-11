@@ -9,7 +9,14 @@ public class App : Application
         AppState.Init();
     }
 
-    protected override Window CreateWindow(IActivationState? activationState) => new(Nav.BuildRoot());
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+#if SWIFTCAD_SHOTS
+        // Chỉ có trong bản dựng chụp ảnh (-p:SwiftCadShots=true), không có trong bản phát hành.
+        if (ShotMode.Build() is { } shot) return new Window(shot);
+#endif
+        return new Window(Nav.BuildRoot());
+    }
 }
 
 public static class Nav
