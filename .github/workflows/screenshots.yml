@@ -107,6 +107,13 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
+      - name: Chon Xcode moi nhat tren may chay
+        shell: bash
+        run: |
+          ls -d /Applications/Xcode*.app | sed 's/^/::notice::Co san: /'
+          X=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          sudo xcode-select -s "$X/Contents/Developer"
+          echo "::notice::Dung $X"; xcodebuild -version
       - run: dotnet workload install maui-ios
       - name: Build iOS simulator co ShotMode
         shell: bash
