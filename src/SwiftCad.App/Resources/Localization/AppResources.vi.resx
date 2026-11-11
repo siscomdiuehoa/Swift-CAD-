@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="a11y_canvas" xml:space="preserve"><value>Vùng bản vẽ. Kéo để di chuyển, chụm hai ngón để thu phóng.</value></data>
+  <data name="a11y_cloud" xml:space="preserve"><value>Mở bản vẽ từ {0}</value></data>
+  <data name="a11y_delete_note" xml:space="preserve"><value>Xóa ghi chú {0}</value></data>
+  <data name="a11y_file_menu" xml:space="preserve"><value>Tùy chọn khác cho {0}</value></data>
+  <data name="a11y_layer_toggle" xml:space="preserve"><value>Hiện layer {0}</value></data>
+  <data name="a11y_open_file" xml:space="preserve"><value>Mở {0}</value></data>
+  <data name="a11y_selected" xml:space="preserve"><value>{0}, đang chọn</value></data>
+  <data name="about_no_ads" xml:space="preserve"><value>Không quảng cáo. Mở tệp trên máy không cần tài khoản.</value></data>
+  <data name="about_version" xml:space="preserve"><value>Phiên bản {0} · bản thử</value></data>
+  <data name="account_demo_message" xml:space="preserve"><value>Bản thử này chưa có máy chủ tài khoản. Đăng nhập chỉ dùng danh tính mẫu và không thu thông tin cá nhân.</value></data>
+  <data name="account_demo_title" xml:space="preserve"><value>Đăng nhập mẫu</value></data>
+  <data name="account_guest" xml:space="preserve"><value>Bạn đang dùng Swift CAD với tư cách khách. Mọi tính năng trên máy đều dùng được.</value></data>
+  <data name="account_sign_out" xml:space="preserve"><value>Đăng xuất</value></data>
+  <data name="account_signed_in" xml:space="preserve"><value>Đã đăng nhập bằng Demo User (danh tính mẫu).</value></data>
+  <data name="back" xml:space="preserve"><value>Quay lại</value></data>
+  <data name="cancel" xml:space="preserve"><value>Hủy</value></data>
+  <data name="canvas_black" xml:space="preserve"><value>Đen</value></data>
+  <data name="canvas_dark" xml:space="preserve"><value>Xanh đậm</value></data>
+  <data name="cloud_connect" xml:space="preserve"><value>Kết nối</value></data>
+  <data name="cloud_guide" xml:space="preserve"><value>Chưa có tích hợp trực tiếp với {0}. Nếu ứng dụng {0} đã cài và bật trên máy, bạn có thể chọn nó làm vị trí trong trình chọn tệp của hệ thống.</value></data>
+  <data name="cloud_open_picker" xml:space="preserve"><value>Mở trình chọn tệp</value></data>
+  <data name="delete" xml:space="preserve"><value>Xóa</value></data>
+  <data name="demo_badge" xml:space="preserve"><value>Demo</value></data>
+  <data name="demo_explain" xml:space="preserve"><value>Bản vẽ mẫu này là hình học do ứng dụng tự tạo, không đọc từ tệp DWG hay DXF.
+
+Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ, đo hai điểm có bắt điểm, layer, ghi chú lưu trên máy.
+
+Đang mô phỏng hoặc chưa làm: đọc tệp DWG/DXF thật, đăng nhập tài khoản, kết nối trực tiếp Google Drive và Dropbox.</value></data>
+  <data name="error_generic" xml:space="preserve"><value>Đã xảy ra lỗi.</value></data>
+  <data name="error_missing_file" xml:space="preserve"><value>Bản sao của {0} trên máy không còn truy cập được.</value></data>
+  <data name="error_open_message" xml:space="preserve"><value>Không mở hoặc sao chép được tệp vào máy. Hãy kiểm tra dung lượng trống rồi thử lại.</value></data>
+  <data name="error_open_title" xml:space="preserve"><value>Không mở được tệp</value></data>
+  <data name="error_save_note" xml:space="preserve"><value>Không lưu được ghi chú trên máy.</value></data>
+  <data name="error_unsupported_message" xml:space="preserve"><value>Swift CAD mở tệp DWG và DXF. Hãy chọn tệp có đuôi .dwg hoặc .dxf.</value></data>
+  <data name="error_unsupported_title" xml:space="preserve"><value>Loại tệp chưa hỗ trợ</value></data>
+  <data name="exit_fullscreen" xml:space="preserve"><value>Thoát toàn màn hình</value></data>
+  <data name="find_count" xml:space="preserve"><value>Kết quả {0} trên {1}</value></data>
+  <data name="find_hint" xml:space="preserve"><value>Tìm chữ trong bản vẽ</value></data>
+  <data name="find_next" xml:space="preserve"><value>Kết quả sau</value></data>
+  <data name="find_none" xml:space="preserve"><value>Không có kết quả trên các layer đang hiện</value></data>
+  <data name="find_placeholder" xml:space="preserve"><value>Tìm chữ</value></data>
+  <data name="find_prev" xml:space="preserve"><value>Kết quả trước</value></data>
+  <data name="fit" xml:space="preserve"><value>Vừa khung</value></data>
+  <data name="fullscreen" xml:space="preserve"><value>Toàn màn hình</value></data>
+  <data name="lang_device" xml:space="preserve"><value>Theo thiết bị</value></data>
+  <data name="layer_none" xml:space="preserve"><value>Không có layer phù hợp</value></data>
+  <data name="layer_search" xml:space="preserve"><value>Tìm layer</value></data>
+  <data name="layer_show_all" xml:space="preserve"><value>Hiện tất cả</value></data>
+  <data name="loading" xml:space="preserve"><value>Đang tải…</value></data>
+  <data name="measure_clear" xml:space="preserve"><value>Xóa số đo</value></data>
+  <data name="measure_drawing_units" xml:space="preserve"><value>{0} đơn vị bản vẽ</value></data>
+  <data name="measure_how" xml:space="preserve"><value>Chạm vào điểm, hoặc kéo để ngắm: tâm ngắm nằm phía trên ngón tay. Dùng hai ngón để di chuyển và thu phóng.</value></data>
+  <data name="measure_pick_first" xml:space="preserve"><value>Chọn điểm thứ nhất</value></data>
+  <data name="measure_pick_second" xml:space="preserve"><value>Chọn điểm thứ hai</value></data>
+  <data name="measure_set_unit" xml:space="preserve"><value>Đơn vị bản vẽ</value></data>
+  <data name="measure_set_unit_title" xml:space="preserve"><value>Bản vẽ này dùng đơn vị nào?</value></data>
+  <data name="measure_snap" xml:space="preserve"><value>Bắt điểm: {0}</value></data>
+  <data name="measure_unit_unknown" xml:space="preserve"><value>Chưa xác định đơn vị bản vẽ. Hãy xác nhận trước khi quy đổi.</value></data>
+  <data name="measure_units_line" xml:space="preserve"><value>Bản vẽ: {0} · Hiển thị: {1} · {2} đến {3}</value></data>
+  <data name="menu" xml:space="preserve"><value>Menu</value></data>
+  <data name="menu_about_demo" xml:space="preserve"><value>Về bản Demo này</value></data>
+  <data name="menu_bookmark" xml:space="preserve"><value>Thêm vào Đã lưu</value></data>
+  <data name="menu_remove" xml:space="preserve"><value>Gỡ khỏi danh sách</value></data>
+  <data name="menu_share_copy" xml:space="preserve"><value>Chia sẻ bản sao</value></data>
+  <data name="menu_unbookmark" xml:space="preserve"><value>Bỏ khỏi Đã lưu</value></data>
+  <data name="notes_delete_title" xml:space="preserve"><value>Xóa ghi chú này?</value></data>
+  <data name="notes_hint" xml:space="preserve"><value>Chạm vào bản vẽ để ghim ghi chú</value></data>
+  <data name="notes_new_message" xml:space="preserve"><value>Lưu trên máy, tách riêng khỏi tệp gốc.</value></data>
+  <data name="notes_new_title" xml:space="preserve"><value>Ghi chú mới</value></data>
+  <data name="notes_separate" xml:space="preserve"><value>Ghi chú được lưu riêng. Tệp gốc không bao giờ bị thay đổi.</value></data>
+  <data name="ok" xml:space="preserve"><value>OK</value></data>
+  <data name="opened_at" xml:space="preserve"><value>Mở lúc {0}</value></data>
+  <data name="pick_again" xml:space="preserve"><value>Chọn lại tệp</value></data>
+  <data name="pick_file" xml:space="preserve"><value>Chọn tệp</value></data>
+  <data name="picker_title" xml:space="preserve"><value>Chọn tệp DWG hoặc DXF</value></data>
+  <data name="real_not_supported_message" xml:space="preserve"><value>Tệp đã được sao chép vào máy, nhưng bản thử này chưa đọc nội dung DWG hay DXF. Đọc bản vẽ thật là bước kiểm chứng tiếp theo.</value></data>
+  <data name="real_not_supported_title" xml:space="preserve"><value>Chưa hiển thị nội dung bản vẽ</value></data>
+  <data name="real_tools_disabled" xml:space="preserve"><value>Trong bản thử này, Tìm, Đo, Layer và Ghi chú chỉ dùng được với bản vẽ mẫu.</value></data>
+  <data name="recent" xml:space="preserve"><value>Gần đây</value></data>
+  <data name="recent_empty" xml:space="preserve"><value>Chưa có bản vẽ nào. Dùng Chọn tệp để mở DWG hoặc DXF từ máy.</value></data>
+  <data name="recent_no_match" xml:space="preserve"><value>Không có bản vẽ gần đây nào khớp “{0}”.</value></data>
+  <data name="sample_subtitle" xml:space="preserve"><value>Hình học mẫu do ứng dụng tự tạo</value></data>
+  <data name="samples" xml:space="preserve"><value>Tệp mẫu</value></data>
+  <data name="save" xml:space="preserve"><value>Lưu</value></data>
+  <data name="saved_empty" xml:space="preserve"><value>Chưa có mục nào. Dùng menu trên từng bản vẽ để thêm vào đây.</value></data>
+  <data name="saved_explain" xml:space="preserve"><value>Danh sách bản vẽ bạn đã đánh dấu. Đánh dấu không có nghĩa là đã tải về.</value></data>
+  <data name="search_drawings" xml:space="preserve"><value>Tìm bản vẽ</value></data>
+  <data name="see_all" xml:space="preserve"><value>Xem tất cả</value></data>
+  <data name="see_less" xml:space="preserve"><value>Thu gọn</value></data>
+  <data name="settings_about" xml:space="preserve"><value>Thông tin</value></data>
+  <data name="settings_account" xml:space="preserve"><value>Tài khoản</value></data>
+  <data name="settings_canvas" xml:space="preserve"><value>Nền bản vẽ</value></data>
+  <data name="settings_language" xml:space="preserve"><value>Ngôn ngữ</value></data>
+  <data name="settings_licenses" xml:space="preserve"><value>Giấy phép mã nguồn mở</value></data>
+  <data name="settings_unit" xml:space="preserve"><value>Đơn vị hiển thị</value></data>
+  <data name="snap_center" xml:space="preserve"><value>tâm</value></data>
+  <data name="snap_endpoint" xml:space="preserve"><value>đầu mút</value></data>
+  <data name="snap_free" xml:space="preserve"><value>điểm tự do</value></data>
+  <data name="snap_midpoint" xml:space="preserve"><value>trung điểm</value></data>
+  <data name="tab_drawings" xml:space="preserve"><value>Bản vẽ</value></data>
+  <data name="tab_saved" xml:space="preserve"><value>Đã lưu</value></data>
+  <data name="tab_settings" xml:space="preserve"><value>Cài đặt</value></data>
+  <data name="tool_find" xml:space="preserve"><value>Tìm</value></data>
+  <data name="tool_layers" xml:space="preserve"><value>Layer</value></data>
+  <data name="tool_measure" xml:space="preserve"><value>Đo</value></data>
+  <data name="tool_notes" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="unit_cm" xml:space="preserve"><value>Xentimét (cm)</value></data>
+  <data name="unit_from_drawing" xml:space="preserve"><value>Theo bản vẽ</value></data>
+  <data name="unit_ft" xml:space="preserve"><value>Feet (ft)</value></data>
+  <data name="unit_in" xml:space="preserve"><value>Inch (in)</value></data>
+  <data name="unit_m" xml:space="preserve"><value>Mét (m)</value></data>
+  <data name="unit_mm" xml:space="preserve"><value>Milimét (mm)</value></data>
+  <data name="welcome_guest" xml:space="preserve"><value>Dùng không cần tài khoản</value></data>
+  <data name="welcome_note" xml:space="preserve"><value>Bạn có thể đăng nhập sau trong Cài đặt. Tệp trên máy luôn mở được mà không cần tài khoản.</value></data>
+  <data name="welcome_sign_in_demo" xml:space="preserve"><value>Đăng nhập (Demo)</value></data>
+  <data name="welcome_subtitle" xml:space="preserve"><value>Xem, tìm, đo và ghi chú bản vẽ DWG/DXF tại công trường.</value></data>
+</root>

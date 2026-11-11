@@ -1,0 +1,49 @@
+name: Anh chay that tren Android emulator
+
+# Chay tay tu tab Actions. Workflow nay CHUA duoc chay thu lan nao; xem docs/pr/feat-v1-foundation.md.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: w360-en, size: 1080x2340, density: 480, locale: en-US, font: '1.0' }
+          - { name: w360-vi, size: 1080x2340, density: 480, locale: vi-VN, font: '1.0' }
+          - { name: w390-en, size: 1170x2532, density: 480, locale: en-US, font: '1.0' }
+          - { name: w390-vi, size: 1170x2532, density: 480, locale: vi-VN, font: '1.0' }
+          - { name: w360-vi-font130, size: 1080x2340, density: 480, locale: vi-VN, font: '1.3' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: dotnet workload install maui-android
+      - run: dotnet publish src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-android -c Release -p:AndroidPackageFormat=apk -o artifacts/android
+      - name: Bat KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: python3 tools/ci/shots.py artifacts/android "${{ matrix.name }}" "${{ matrix.size }}" "${{ matrix.density }}" "${{ matrix.locale }}" "${{ matrix.font }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shots-${{ matrix.name }}
+          path: artifacts/shots
