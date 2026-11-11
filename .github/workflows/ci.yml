@@ -65,8 +65,8 @@ jobs:
           echo "::notice::Dung $X"; xcodebuild -version
       - name: Cai workload iOS khop Xcode
         run: |
-          python3 tools/ci/pin_ios_workload.py
-          dotnet workload install maui-ios --from-rollback-file rollback.json
+          tools/ci/run.sh python3 tools/ci/pin_ios_workload.py
+          tools/ci/run.sh dotnet workload install maui-ios --from-rollback-file rollback.json
       - run: dotnet workload list
       - name: Build iOS simulator
         shell: bash
