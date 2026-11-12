@@ -201,7 +201,8 @@ public class CadCanvas : SKCanvasView
         {
             var ent = Model.Entities[idx];
             if (!Layers.IsVisible(ent.Layer)) continue;
-            var color = colors.TryGetValue(ent.Layer, out var c) ? c : SKColors.White;
+            // Màu riêng của đối tượng nếu có; không thì theo layer.
+            var color = ent.Color is uint own ? new SKColor(own) : colors.TryGetValue(ent.Layer, out var c) ? c : SKColors.White;
             stroke.Color = color;
             switch (ent)
             {

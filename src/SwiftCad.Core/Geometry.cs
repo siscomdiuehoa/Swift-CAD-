@@ -23,6 +23,9 @@ public readonly record struct Bounds2(double MinX, double MinY, double MaxX, dou
 
 public abstract record Entity(string Layer)
 {
+    /// <summary>Màu riêng của đối tượng (ARGB). Null = lấy màu của layer.</summary>
+    public uint? Color { get; init; }
+
     public abstract Bounds2 ExtendBounds(Bounds2 b);
 }
 
