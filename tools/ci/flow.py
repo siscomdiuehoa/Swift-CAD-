@@ -179,6 +179,29 @@ step("doi-sang-tieng-viet", lambda: (tap("Settings"), tap("Tiếng Việt", 10),
 step("ngon-ngu-giu-sau-khi-mo-lai", lambda: (restart(), must(find("Chọn tệp", 15), "khong giu tieng Viet sau khi mo lai")))
 step("doi-lai-theo-thiet-bi", lambda: (tap("Cài đặt"), tap("Theo thiết bị", 10), must(find("Language", 10), "khong ve tieng Anh theo thiet bi")))
 
+def back_during_read():
+    """Review Codex PR #3: Back khi dang doc tep khong duoc bat man hinh xem muon hay lam sap app."""
+    adb("shell", "am", "force-stop", PKG)
+    adb("shell", "am", "start", "-W", "-n", ACT, "--ei", "swiftcad_read_delay_ms", "8000")
+    time.sleep(6)
+    tap("Open TEST-Flow-Plan.dxf")
+    must(find("Reading TEST-Flow-Plan.dxf", 5, contains=True), "khong thay trang Dang doc")
+    adb("shell", "input", "keyevent", "KEYCODE_BACK")
+    time.sleep(2)
+    must(find("Choose file", 8), "khong ve Ban ve sau khi Back")
+    time.sleep(12)  # qua thoi diem doc xong (tre 8 s)
+    must(PKG in focused_package(), "app khong con o tien canh (co the da sap)")
+    must(find("Choose file", 5) is not None and find("Find", 2) is None, "man hinh xem bat len muon sau khi da Back")
+    screencap(f"{OUT}/back-khi-dang-doc-sau-12s.png", settle=0.5)
+    # Luong binh thuong van mo duoc (van co tre 8 s).
+    tap("Open TEST-Flow-Plan.dxf")
+    must(find("Find", 30), "luong mo binh thuong khong toi man hinh xem")
+    tap("Back")
+    must(find("Choose file", 10), "khong ve Ban ve")
+
+
+step("back-khi-dang-doc-tep", back_during_read)
+
 if SELFTEST == "android-flow":
     # Kiem thu am: buoc co y that bai de chung minh job do khi co buoc loi.
     step("kiem-thu-am-co-y-loi", lambda: must(find("Chuoi khong ton tai trong app", 3), "co y that bai (SWIFTCAD_SELFTEST=android-flow)"))

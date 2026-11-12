@@ -42,6 +42,28 @@ static CadDocument BuildFixture()
     doc.Entities.Add(new Insert(block) { InsertPoint = new XYZ(500, 500, 0), XScale = 2, YScale = 2, Rotation = Math.PI / 2, Layer = wall });
 
     doc.Entities.Add(new Ellipse { Center = new XYZ(0, 0, 0), MajorAxisEndPoint = new XYZ(50, 0, 0), RadiusRatio = 0.5, Layer = wall });
+
+    // Chữ xoay và căn lề (review Codex PR #3).
+    doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "XOAY90", InsertPoint = new XYZ(1000, 1000, 0), Height = 100, Rotation = Math.PI / 2, Layer = anno });
+    doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "GIUA", InsertPoint = new XYZ(1900, 1950, 0), AlignmentPoint = new XYZ(2000, 2000, 0),
+        HorizontalAlignment = TextHorizontalAlignment.Middle, Height = 100, Layer = anno });
+    doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "CANPHAI", InsertPoint = new XYZ(2500, 2500, 0), AlignmentPoint = new XYZ(2600, 2600, 0),
+        HorizontalAlignment = TextHorizontalAlignment.Right, VerticalAlignment = TextVerticalAlignmentType.Top, Height = 100, Layer = anno });
+    doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "DAN2DIEM", InsertPoint = new XYZ(0, 6000, 0), AlignmentPoint = new XYZ(0, 7000, 0),
+        HorizontalAlignment = TextHorizontalAlignment.Aligned, Height = 100, Layer = anno });
+    doc.Entities.Add(new MText { Value = "TAMGIUA", InsertPoint = new XYZ(3000, 3000, 0), Height = 100, AttachmentPoint = AttachmentPointType.MiddleCenter, Layer = anno });
+    doc.Entities.Add(new MText { Value = "DONGA\\PDONGB", InsertPoint = new XYZ(4000, 0, 0), Height = 100, AttachmentPoint = AttachmentPointType.BottomRight,
+        AlignmentPoint = new XYZ(0, 1, 0), LineSpacing = 1, Layer = anno });
+    var tagBlock = new BlockRecord("NHAN");
+    tagBlock.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "TRONGBLOCK", InsertPoint = new XYZ(-50, -10, 0), AlignmentPoint = new XYZ(0, 0, 0),
+        HorizontalAlignment = TextHorizontalAlignment.Center, Height = 20 });
+    tagBlock.Entities.Add(new AttributeDefinition { Tag = "SO", Value = "KHUON", InsertPoint = new XYZ(0, -40, 0), Height = 20 });
+    doc.BlockRecords.Add(tagBlock);
+    var tagIns = new Insert(tagBlock) { InsertPoint = new XYZ(5000, 5000, 0), XScale = 2, YScale = 2, Rotation = Math.PI / 2, Layer = anno };
+    // Insert(block) tự tạo AttributeEntity từ khuôn; đặt giá trị như AutoCAD sau khi chèn.
+    var att = tagIns.Attributes.Single(a => a.Tag == "SO");
+    att.Value = "Đ01"; att.InsertPoint = new XYZ(5100, 5000, 0); att.Height = 40; att.Rotation = Math.PI / 2;
+    doc.Entities.Add(tagIns);
     doc.Entities.Add(new Hatch { Layer = wall });
     return doc;
 }
@@ -103,6 +125,47 @@ foreach (var (label, ext, binary) in new[] { ("DXF ASCII", ".dxf", false), ("DXF
         True(r.Skipped.GetValueOrDefault("Ellipse") == 0, "Ellipse vẫn bị bỏ qua");
         var e = m.Entities.OfType<PolylineEntity>().Single(p => p.Closed && p.Points.Count > 60);
         Near(50, e.Points.Max(p => p.X), 1e-6, "bán trục lớn");
+    });
+    SwiftCad.Core.TextEntity T(string text) => m.Entities.OfType<SwiftCad.Core.TextEntity>().Single(x => x.Text == text);
+    Test("TEXT xoay 90° giữ góc", () => { var t = T("XOAY90"); Near(90, t.RotationDeg, 1e-6, "góc"); Near(1000, t.Position.X, 1e-6, "x"); });
+    Test("TEXT căn Middle neo tại điểm căn", () =>
+    {
+        var t = T("GIUA"); True(t.HAlign == TextHAlign.Center && t.VAlign == TextVAlign.Middle, $"{t.HAlign}/{t.VAlign}");
+        Near(2000, t.Position.X, 1e-6, "x"); Near(2000, t.Position.Y, 1e-6, "y");
+    });
+    Test("TEXT căn phải-trên", () =>
+    {
+        var t = T("CANPHAI"); True(t.HAlign == TextHAlign.Right && t.VAlign == TextVAlign.Top, $"{t.HAlign}/{t.VAlign}");
+        Near(2600, t.Position.X, 1e-6, "x");
+    });
+    Test("TEXT Aligned hiển thị gần đúng và được đếm", () =>
+    {
+        Near(90, T("DAN2DIEM").RotationDeg, 1e-6, "hướng theo hai điểm");
+        True(r.Approximated.GetValueOrDefault("TEXT Aligned/Fit") == 1, "chưa đếm Aligned");
+    });
+    Test("MTEXT MiddleCenter: căn giữa, chân chữ thấp hơn điểm gắn nửa cao chữ", () =>
+    {
+        var t = T("TAMGIUA"); True(t.HAlign == TextHAlign.Center, t.HAlign.ToString());
+        Near(3000, t.Position.X, 1e-6, "x"); Near(2950, t.Position.Y, 1e-6, "y");
+    });
+    Test("MTEXT BottomRight xoay 90°: hai dòng đúng vị trí", () =>
+    {
+        var a = T("DONGA"); var b = T("DONGB");
+        Near(90, a.RotationDeg, 1e-6, "góc"); True(a.HAlign == TextHAlign.Right, "căn phải");
+        Near(4000 - 500.0 / 3, a.Position.X, 1e-6, "x dòng 1"); Near(0, a.Position.Y, 1e-6, "y dòng 1");
+        Near(4000, b.Position.X, 1e-6, "x dòng 2"); Near(0, b.Position.Y, 1e-6, "y dòng 2");
+    });
+    Test("chữ trong block xoay 90° tỷ lệ 2: góc, cỡ, điểm căn đúng", () =>
+    {
+        var t = T("TRONGBLOCK");
+        Near(90, t.RotationDeg, 1e-6, "góc"); Near(40, t.Height, 1e-6, "cao"); True(t.HAlign == TextHAlign.Center, "căn giữa");
+        Near(5000, t.Position.X, 1e-6, "x neo"); Near(5000, t.Position.Y, 1e-6, "y neo");
+    });
+    Test("giá trị thuộc tính block hiển thị, khuôn thuộc tính thì không", () =>
+    {
+        var t = T("Đ01"); Near(90, t.RotationDeg, 1e-6, "góc"); Near(5100, t.Position.X, 1e-6, "x");
+        var bad = m.Entities.OfType<SwiftCad.Core.TextEntity>().Where(x => x.Text is "KHUON" or "SO").Select(x => $"{x.Text}@{x.Position.X:0},{x.Position.Y:0}").ToList();
+        True(bad.Count == 0, "hiện khuôn thuộc tính: " + string.Join(" ", bad));
     });
     Test("layer tắt trong tệp thì ẩn mặc định", () =>
     {

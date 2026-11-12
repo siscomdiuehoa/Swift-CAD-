@@ -161,6 +161,10 @@ public static class ShotMode
         doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "VĂN PHÒNG", InsertPoint = P(3000, 5000), Height = 400, Layer = anno });
         doc.Entities.Add(new ACadSharp.Entities.MText { Value = "GHI CHÚ: ỐNG CHWS DN100\\PVAN CỔNG x3", InsertPoint = P(400, 7600), Height = 220, Layer = anno });
         doc.Entities.Add(new ACadSharp.Entities.Line { StartPoint = P(0, 0), EndPoint = P(12000, 8000), Layer = hidden });
+        // Chữ xoay và căn lề (review Codex PR #3).
+        doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "ỐNG ĐỨNG XOAY 90°", InsertPoint = P(11700, 3400), Height = 220, Rotation = Math.PI / 2, Layer = anno });
+        doc.Entities.Add(new ACadSharp.Entities.MText { Value = "TÂM\\PCĂN GIỮA", InsertPoint = P(10000, 6000), Height = 160,
+            AttachmentPoint = ACadSharp.Entities.AttachmentPointType.MiddleCenter, Layer = anno });
         doc.Entities.Add(new ACadSharp.Entities.Ellipse { Center = P(10000, 6000), MajorAxisEndPoint = P(800, 0), RadiusRatio = 0.5, Layer = wall });
         var ms = new MemoryStream();
         ACadSharp.IO.DxfWriter.Write(ms, doc);

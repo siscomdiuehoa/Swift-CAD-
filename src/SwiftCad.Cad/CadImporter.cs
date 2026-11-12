@@ -18,7 +18,10 @@ public sealed class ImportReport
     public required IReadOnlyDictionary<string, int> Skipped { get; init; }
     public required IReadOnlyList<string> MissingXrefs { get; init; }
     public required IReadOnlyList<string> Fonts { get; init; }
+    /// <summary>Đối tượng có hiển thị nhưng gần đúng (TEXT Aligned/Fit, MTEXT tự xuống dòng…), để cảnh báo cụ thể.</summary>
+    public required IReadOnlyDictionary<string, int> Approximated { get; init; }
     public int SkippedTotal => Skipped.Values.Sum();
+    public int ApproximatedTotal => Approximated.Values.Sum();
 }
 
 public sealed class CadImportException(string message, Exception? inner = null) : Exception(message, inner);
@@ -56,7 +59,9 @@ public static class CadImporter
     {
         var entities = new List<SwiftCad.Core.Entity>();
         var skipped = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (var e in doc.Entities) Add(e, entities, skipped, 0);
+        var approx = new Dictionary<string, int>(StringComparer.Ordinal);
+        var ctx = new Ctx(entities, skipped, approx);
+        foreach (var e in doc.Entities) Add(e, ctx, 0);
 
         var layers = doc.Layers
             .Select(l => new DrawingLayer(l.Name, LayerColor(l), l.IsOn && !l.Flags.HasFlag(LayerFlags.Frozen)))
@@ -77,11 +82,14 @@ public static class CadImporter
             Entities = entities,
             IsDemo = false,
         };
-        return new ImportReport { Model = model, Skipped = skipped, MissingXrefs = xrefs, Fonts = fonts };
+        return new ImportReport { Model = model, Skipped = skipped, MissingXrefs = xrefs, Fonts = fonts, Approximated = approx };
     }
 
-    private static void Add(ACadSharp.Entities.Entity e, List<SwiftCad.Core.Entity> output, Dictionary<string, int> skipped, int depth)
+    private sealed record Ctx(List<SwiftCad.Core.Entity> Output, Dictionary<string, int> Skipped, Dictionary<string, int> Approx);
+
+    private static void Add(ACadSharp.Entities.Entity e, Ctx ctx, int depth)
     {
+        var output = ctx.Output; var skipped = ctx.Skipped;
         var layer = e.Layer?.Name ?? "0";
         switch (e)
         {
@@ -106,31 +114,110 @@ public static class CadImporter
             case LwPolyline pl:
                 AddPolyline(layer, pl.Vertices.Select(v => (new Point2(v.Location.X, v.Location.Y), v.Bulge)).ToList(), pl.IsClosed, output);
                 break;
+            case AttributeDefinition:
+                // Định nghĩa thuộc tính chỉ là khuôn trong block; AutoCAD hiển thị giá trị ở Insert.Attributes.
+                break;
             case ACadSharp.Entities.TextEntity t:
-                if (!string.IsNullOrWhiteSpace(t.Value))
-                    output.Add(new SwiftCad.Core.TextEntity(layer, P(t.InsertPoint), t.Height, DecodeUnicode(t.Value)));
+                AddText(t, layer, ctx);
                 break;
             case MText m:
-                var lines = m.GetPlainTextLines();
-                for (var i = 0; i < lines.Length; i++)
-                {
-                    if (string.IsNullOrWhiteSpace(lines[i])) continue;
-                    // Điểm chèn MTEXT là góc trên trái; dòng i nằm thấp dần.
-                    var y = m.InsertPoint.Y - m.Height * (1 + i * 1.6);
-                    output.Add(new SwiftCad.Core.TextEntity(layer, new Point2(m.InsertPoint.X, y), m.Height, DecodeUnicode(lines[i])));
-                }
+                AddMText(m, layer, ctx);
                 break;
             case Insert ins:
                 if (depth >= MaxInsertDepth || ins.Block is null) { Count(skipped, "Insert"); break; }
                 if (ins.Block.Flags.HasFlag(ACadSharp.Blocks.BlockTypeFlags.XRef)) { Count(skipped, "XRef"); break; }
-                IEnumerable<ACadSharp.Entities.Entity> parts;
-                try { parts = ins.Explode().ToList(); }
+                List<ACadSharp.Entities.Entity> parts;
+                try
+                {
+                    parts = ins.Explode().ToList();
+                    // ACadSharp 3.8.35 không biến đổi AlignmentPoint của TEXT khi Explode; Explode giữ đúng thứ tự
+                    // Block.Entities nên tự biến đổi điểm căn theo cùng ma trận.
+                    var originals = ins.Block.Entities.ToList();
+                    var tr = ins.GetTransform();
+                    for (var i = 0; i < parts.Count && i < originals.Count; i++)
+                    {
+                        if (parts[i] is not ACadSharp.Entities.TextEntity pt || originals[i] is not ACadSharp.Entities.TextEntity ot) continue;
+                        pt.AlignmentPoint = tr.ApplyTransform(ot.AlignmentPoint);
+                        // Góc chữ sau Explode của ACadSharp 3.8.35 sai dấu với block xoay (kiểm thử: +90° thành -90°);
+                        // tính lại từ hướng chân chữ đã biến đổi.
+                        var o = tr.ApplyTransform(ot.InsertPoint);
+                        var u = tr.ApplyTransform(new XYZ(ot.InsertPoint.X + Math.Cos(ot.Rotation), ot.InsertPoint.Y + Math.Sin(ot.Rotation), ot.InsertPoint.Z));
+                        pt.Rotation = Math.Atan2(u.Y - o.Y, u.X - o.X);
+                    }
+                }
                 catch (Exception) { Count(skipped, "Insert"); break; }
-                foreach (var part in parts) Add(part, output, skipped, depth + 1);
+                foreach (var part in parts) Add(part, ctx, depth + 1);
+                // Giá trị thuộc tính block (số hiệu, mã thiết bị…) đã ở tọa độ bản vẽ.
+                foreach (var att in ins.Attributes)
+                    if (!att.Flags.HasFlag(AttributeFlags.Hidden)) AddText(att, att.Layer?.Name ?? layer, ctx);
                 break;
             default:
                 Count(skipped, e.GetType().Name);
                 break;
+        }
+    }
+
+    /// <summary>
+    /// TEXT: giữ góc xoay và căn lề. Căn khác trái-chân chữ thì neo tại AlignmentPoint (mã nhóm 11) như AutoCAD.
+    /// Aligned/Fit (co giãn giữa hai điểm) hiển thị gần đúng: trái-chân chữ, hướng theo hai điểm, được đếm để cảnh báo.
+    /// </summary>
+    private static void AddText(ACadSharp.Entities.TextEntity t, string layer, Ctx ctx)
+    {
+        if (string.IsNullOrWhiteSpace(t.Value)) return;
+        var text = DecodeUnicode(t.Value);
+        var ha = t.HorizontalAlignment; var va = t.VerticalAlignment;
+        var rot = Deg(t.Rotation);
+        if (ha is TextHorizontalAlignment.Aligned or TextHorizontalAlignment.Fit)
+        {
+            var d = new Point2(t.AlignmentPoint.X - t.InsertPoint.X, t.AlignmentPoint.Y - t.InsertPoint.Y);
+            if (Math.Abs(d.X) + Math.Abs(d.Y) > 1e-9) rot = Math.Atan2(d.Y, d.X) * 180 / Math.PI;
+            Count(ctx.Approx, "TEXT Aligned/Fit");
+            ctx.Output.Add(new SwiftCad.Core.TextEntity(layer, P(t.InsertPoint), t.Height, text, rot, WidthFactor: t.WidthFactor));
+            return;
+        }
+        var h = ha switch
+        {
+            TextHorizontalAlignment.Center or TextHorizontalAlignment.Middle => TextHAlign.Center,
+            TextHorizontalAlignment.Right => TextHAlign.Right,
+            _ => TextHAlign.Left,
+        };
+        var v = ha == TextHorizontalAlignment.Middle ? TextVAlign.Middle : va switch
+        {
+            TextVerticalAlignmentType.Bottom => TextVAlign.Bottom,
+            TextVerticalAlignmentType.Middle => TextVAlign.Middle,
+            TextVerticalAlignmentType.Top => TextVAlign.Top,
+            _ => TextVAlign.Baseline,
+        };
+        var anchor = h == TextHAlign.Left && v == TextVAlign.Baseline ? t.InsertPoint : t.AlignmentPoint;
+        ctx.Output.Add(new SwiftCad.Core.TextEntity(layer, P(anchor), t.Height, text, rot, h, v, t.WidthFactor));
+    }
+
+    /// <summary>
+    /// MTEXT: tách dòng, giữ góc xoay và điểm gắn (9 vị trí). Khoảng cách dòng = 5/3 × cao chữ × hệ số giãn dòng
+    /// (mặc định AutoCAD). Dòng dài hơn khung (AutoCAD tự xuống dòng) được đếm là hiển thị gần đúng.
+    /// </summary>
+    private static void AddMText(MText m, string layer, Ctx ctx)
+    {
+        var lines = m.GetPlainTextLines().Select(DecodeUnicode).ToList();
+        while (lines.Count > 0 && string.IsNullOrWhiteSpace(lines[^1])) lines.RemoveAt(lines.Count - 1);
+        if (lines.Count == 0) return;
+        var hgt = m.Height;
+        var pitch = hgt * 5.0 / 3.0 * (m.LineSpacing > 0 ? m.LineSpacing : 1);
+        var blockH = hgt + (lines.Count - 1) * pitch;
+        var ap = (int)m.AttachmentPoint; // 1..9: hàng Top/Middle/Bottom × cột Left/Center/Right
+        var col = (ap - 1) % 3; var row = (ap - 1) / 3;
+        var h = col switch { 1 => TextHAlign.Center, 2 => TextHAlign.Right, _ => TextHAlign.Left };
+        var top = row switch { 1 => blockH / 2, 2 => blockH, _ => 0 };
+        var r = m.Rotation; var c = Math.Cos(r); var s = Math.Sin(r);
+        var rot = Deg(r);
+        for (var i = 0; i < lines.Count; i++)
+        {
+            if (string.IsNullOrWhiteSpace(lines[i])) continue;
+            var y = top - hgt - i * pitch;
+            var p = new Point2(m.InsertPoint.X - y * s, m.InsertPoint.Y + y * c);
+            var te = new SwiftCad.Core.TextEntity(layer, p, hgt, lines[i], rot, h, TextVAlign.Baseline);
+            if (m.RectangleWidth > 0 && te.EstimatedWidth > m.RectangleWidth * 1.05) Count(ctx.Approx, "MTEXT wrap");
+            ctx.Output.Add(te);
         }
     }
 

@@ -5,9 +5,10 @@ Liên kết #1. Nhánh `feat/cad-reader-acadsharp` → `feat/v1-foundation` (PR 
 ## Phạm vi
 
 - Dự án mới `SwiftCad.Cad`: adapter ACadSharp 3.8.35 → `DrawingModel`. Chỉ lớp này biết ACadSharp.
-- Hỗ trợ: LINE, LWPOLYLINE (bulge xấp xỉ ≤10°/đoạn), CIRCLE, ARC, TEXT, MTEXT (chữ thuần, tách dòng), INSERT (mở rộng block lồng nhau, tối đa 16 cấp). Giải mã `\U+XXXX` của DXF cũ. Đơn vị từ `$INSUNITS`. Layer tắt/đóng băng trong tệp thì ẩn khi mở.
-- Đối tượng chưa hỗ trợ (Hatch, Dimension, Spline, Ellipse, Polyline 2D/3D…) được đếm và báo trên màn hình xem: "Hiển thị đơn giản hóa: N đối tượng chưa hiển thị". Xref thiếu và đơn vị chưa rõ cũng được báo.
-- App: chọn tệp hoặc mở từ Gần đây → trang "Đang đọc…" chạy nền → màn hình xem với Tìm/Đo/Layer/Ghi chú trên dữ liệu thật, không nhãn Demo. Đọc lỗi: báo lỗi, không vẽ hình thay thế, tệp gốc không đổi.
+- Hỗ trợ: LINE, LWPOLYLINE (bulge xấp xỉ ≤10°/đoạn), CIRCLE, ARC, ELLIPSE (gồm đường tròn trong block, do ACadSharp đổi thành ellipse khi tách block), TEXT (góc xoay, căn trái/giữa/phải × chân chữ/dưới/giữa/trên, hệ số rộng), MTEXT (chữ thuần, tách dòng, góc xoay, 9 điểm gắn, giãn dòng), INSERT (mở rộng block lồng nhau tối đa 16 cấp, chữ trong block giữ góc và điểm căn), giá trị thuộc tính block (ATTRIB; khuôn ATTDEF không hiển thị).
+- Hiển thị gần đúng và được đếm để cảnh báo cụ thể: TEXT Aligned/Fit (vẽ trái-chân chữ theo hướng hai điểm, không co giãn), MTEXT có dòng dài hơn khung (AutoCAD tự xuống dòng, app chưa). Giải mã `\U+XXXX` của DXF cũ. Đơn vị từ `$INSUNITS`. Layer tắt/đóng băng trong tệp thì ẩn khi mở.
+- Đối tượng chưa hỗ trợ (Hatch, Dimension, Spline, Polyline 2D/3D…) được đếm và báo trên màn hình xem: "Hiển thị đơn giản hóa: N đối tượng chưa hiển thị". Xref thiếu và đơn vị chưa rõ cũng được báo.
+- App: chọn tệp hoặc mở từ Gần đây → trang "Đang đọc…" chạy nền (Back trong lúc đọc thì bỏ kết quả, không điều hướng) → màn hình xem với Tìm/Đo/Layer/Ghi chú trên dữ liệu thật, không nhãn Demo. Đọc lỗi: báo lỗi, không vẽ hình thay thế, tệp gốc không đổi.
 
 ## Kiểm thử
 
@@ -17,7 +18,7 @@ Liên kết #1. Nhánh `feat/cad-reader-acadsharp` → `feat/v1-foundation` (PR 
 
 ## Chưa làm (bước sau)
 
-- Hatch (đường bao), Dimension (qua block ẩn), Spline, Ellipse, Polyline 2D/3D, linetype, lineweight, layout/viewport.
+- Hatch (đường bao), Dimension (qua block ẩn), Spline, Polyline 2D/3D, linetype, lineweight, layout/viewport; định dạng trong MTEXT (font, màu từng đoạn, cột).
 - Tối ưu bộ nhớ cho tệp lớn (buffer phẳng), chỉ mục không gian cho bắt điểm, hủy đọc giữa chừng.
 - Kiểm chứng AOT/trimming trên iOS thật.
 - Bảng mã tiếng Việt cũ (VNI/TCVN3) và font SHX.
