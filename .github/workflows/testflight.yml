@@ -34,6 +34,10 @@ jobs:
           for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do [ -z "${!v}" ] && missing="$missing $v"; done
           if [ -n "$missing" ]; then echo "::error::Thieu secret:$missing (xem docs/v1-ban-cai-thu.md)"; exit 1; fi
       - uses: actions/checkout@v5
+      - name: Kiem tra khoa API va liet ke ung dung
+        run: |
+          python3 -m pip install --quiet --break-system-packages "pyjwt[crypto]==2.10.1" || python3 -m pip install --quiet "pyjwt[crypto]==2.10.1"
+          python3 tools/ci/asc_signing.py apps
       - name: Ma dinh danh va so build
         shell: bash
         run: |
@@ -52,7 +56,6 @@ jobs:
       - name: Tao chung chi va ho so tam thoi qua App Store Connect API
         shell: bash
         run: |
-          python3 -m pip install --quiet --break-system-packages "pyjwt[crypto]==2.10.1" || python3 -m pip install --quiet "pyjwt[crypto]==2.10.1"
           python3 tools/ci/asc_signing.py setup "$BUNDLE_ID" "$RUNNER_TEMP/signing"
       - name: Nap vao keychain tam
         shell: bash

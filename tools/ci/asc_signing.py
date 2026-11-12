@@ -91,8 +91,17 @@ def cleanup(out):
     print("::notice::Da xoa chung chi va ho so tam thoi")
 
 
+def list_apps():
+    """In ten, bundle ID, SKU cua cac ung dung trong tai khoan (khong co du lieu bi mat)."""
+    for a in call("GET", "/apps?limit=200&fields[apps]=name,bundleId,sku")["data"]:
+        at = a["attributes"]
+        print(f"::notice::App Store Connect: {at['name']} | bundle ID {at['bundleId']} | SKU {at.get('sku')}")
+
+
 if __name__ == "__main__":
-    if sys.argv[1] == "setup":
+    if sys.argv[1] == "apps":
+        list_apps()
+    elif sys.argv[1] == "setup":
         setup(sys.argv[2], sys.argv[3])
     else:
         cleanup(sys.argv[2])
