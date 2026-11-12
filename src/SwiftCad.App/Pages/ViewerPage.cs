@@ -111,6 +111,7 @@ public partial class ViewerPage : ContentPage
         Grid.SetRow(_panel, landscape ? 1 : 2); Grid.SetColumn(_panel, landscape ? 1 : 0);
         _panel.VerticalOptions = landscape ? LayoutOptions.Start : LayoutOptions.Fill;
         Grid.SetRow(_toolbar, 3); Grid.SetColumn(_toolbar, landscape ? 1 : 0);
+        Dispatcher.Dispatch(() => _canvas.InvalidateSurface());
     }
 
     /// <summary>Cuộn khi nội dung dài; chiều cao bằng nội dung, không vượt quá giới hạn bảng.</summary>

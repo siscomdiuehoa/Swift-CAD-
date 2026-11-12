@@ -9,3 +9,4 @@ obj/
 *.aab
 *.ipa
 artifacts/
+__pycache__/
