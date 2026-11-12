@@ -41,14 +41,21 @@ def sh(*args):
 
 def setup(bundle_id, out):
     os.makedirs(out, exist_ok=True)
+    # Kiem tra truoc: phai co ung dung tren App Store Connect dung bundle ID nay. Khong tu dang ky ID moi,
+    # de khong tao/dung nham dinh danh cua ung dung khac.
+    apps = [a for a in call("GET", f"/apps?filter[bundleId]={bundle_id}&limit=50")["data"]
+            if a["attributes"]["bundleId"] == bundle_id]
+    if not apps:
+        print(f"::error::Chua co ung dung nao tren App Store Connect dung bundle ID {bundle_id}. "
+              "Dang ky App ID va chon dung Bundle ID trong App Information truoc.", flush=True)
+        sys.exit(1)
+    print(f"::notice::Ung dung App Store Connect: {apps[0]['attributes']['name']} ({bundle_id})")
     found = [b for b in call("GET", f"/bundleIds?filter[identifier]={bundle_id}&limit=200")["data"]
              if b["attributes"]["identifier"] == bundle_id]
-    if found:
-        bid = found[0]["id"]
-    else:
-        bid = call("POST", "/bundleIds", {"data": {"type": "bundleIds", "attributes": {
-            "identifier": bundle_id, "name": "Swift CAD", "platform": "IOS"}}})["data"]["id"]
-        print(f"::notice::Da dang ky bundle ID {bundle_id}")
+    if not found:
+        print(f"::error::Khong tim thay App ID {bundle_id} trong Certificates, Identifiers & Profiles", flush=True)
+        sys.exit(1)
+    bid = found[0]["id"]
 
     # Khoa rieng va CSR tao ngay tren may CI, khong roi khoi may.
     ossl = "/usr/bin/openssl"  # LibreSSL cua macOS: tep .p12 tuong thich voi 'security import'

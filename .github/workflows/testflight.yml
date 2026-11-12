@@ -38,6 +38,7 @@ jobs:
         shell: bash
         run: |
           ID=$(grep -oP '(?<=<ApplicationId>)[^<]+' src/SwiftCad.App/SwiftCad.App.csproj || sed -n 's:.*<ApplicationId>\(.*\)</ApplicationId>.*:\1:p' src/SwiftCad.App/SwiftCad.App.csproj)
+          if [ "$ID" = "com.swiftcad.app" ]; then echo "::error::ApplicationId van la ma tam com.swiftcad.app; cap nhat bang Bundle ID that cua Swift CAD Viewer"; exit 1; fi
           echo "BUNDLE_ID=$ID" >> "$GITHUB_ENV"
           echo "BUILD_NO=$((1000 + ${{ github.run_number }}))" >> "$GITHUB_ENV"
           echo "::notice::Bundle ID $ID, build $((1000 + ${{ github.run_number }})), commit $(git rev-parse --short HEAD)"
