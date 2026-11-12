@@ -161,11 +161,14 @@ public class CadCanvas : SKCanvasView
         _density = Width > 0 ? (float)(w / Width) : 1;
 
         if (Model is null) { _w = w; _h = h; return; }
+        if (w < 2 || h < 2) return; // kích thước tạm thời khi đổi bố cục
         if (!_fitted) { _w = w; _h = h; Camera.Fit(Model.Bounds, w, h, 24 * _density); _fitted = true; }
         else if (w != _w || h != _h)
         {
             // Xoay máy hoặc mở/đóng bảng công cụ: giữ tâm nhìn và tỷ lệ.
             Camera.Resize(_w, _h, w, h); _w = w; _h = h;
+            // An toàn: nếu bản vẽ đã ra hẳn ngoài khung nhìn thì đưa về vừa khung, không để khung trống.
+            if (!Camera.Intersects(Model.Bounds, w, h)) Camera.Fit(Model.Bounds, w, h, 24 * _density);
         }
 
         using var stroke = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = Math.Max(1f, 1.1f * _density) };

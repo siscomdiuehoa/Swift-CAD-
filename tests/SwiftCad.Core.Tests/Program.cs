@@ -86,6 +86,20 @@ Test("xoay máy giữ tâm nhìn và tỷ lệ", () =>
     var c2 = v.ScreenToWorld(320, 150);
     Near(c.X, c2.X, 1e-6); Near(c.Y, c2.Y, 1e-6); Near(s, v.Scale);
 });
+Test("kích thước 0 thoáng qua khi xoay không làm mất bản vẽ", () =>
+{
+    var v = new ViewTransform(); v.Fit(model.Bounds, 360, 520, 16);
+    var c = v.ScreenToWorld(180, 260);
+    v.Resize(360, 520, 0, 0); v.Resize(360, 520, 640, 300);
+    var c2 = v.ScreenToWorld(320, 150);
+    Near(c.X, c2.X, 1e-6); Near(c.Y, c2.Y, 1e-6);
+    True(v.Intersects(model.Bounds, 640, 300), "bản vẽ phải còn trong khung");
+});
+Test("phát hiện bản vẽ ra ngoài khung nhìn", () =>
+{
+    var v = new ViewTransform(); v.Fit(model.Bounds, 360, 520, 16); v.Pan(5000, 0);
+    True(!v.Intersects(model.Bounds, 360, 520), "phải báo ngoài khung");
+});
 Test("số đo không đổi sau pan/zoom", () =>
 {
     var v = new ViewTransform(); v.Fit(model.Bounds, 360, 520, 16);
