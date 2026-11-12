@@ -40,6 +40,19 @@ public sealed record PolylineEntity(string Layer, IReadOnlyList<Point2> Points, 
     }
 }
 
+/// <summary>
+/// Vùng tô đa giác. UseBackground = true: vùng che (WIPEOUT) được tô bằng màu nền, che các đối tượng vẽ trước nó.
+/// UseBackground = false: tô màu layer (HATCH đặc, SOLID).
+/// </summary>
+public sealed record FillEntity(string Layer, IReadOnlyList<Point2> Points, bool UseBackground) : Entity(Layer)
+{
+    public override Bounds2 ExtendBounds(Bounds2 b)
+    {
+        foreach (var p in Points) b = b.Include(p);
+        return b;
+    }
+}
+
 public sealed record CircleEntity(string Layer, Point2 Center, double Radius) : Entity(Layer)
 {
     public override Bounds2 ExtendBounds(Bounds2 b) =>

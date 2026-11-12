@@ -50,7 +50,26 @@ public class CadCanvas : SKCanvasView
         SizeChanged += (_, _) => InvalidateSurface();
     }
 
-    public void SetModel(DrawingModel model) { Model = model; _fitted = false; InvalidateSurface(); }
+    /// <summary>Chỉ mục lưới để chỉ vẽ đối tượng trong khung nhìn; dựng một lần khi mở bản vẽ.</summary>
+    private SpatialGrid? _grid;
+    /// <summary>Màu layer dựng một lần, không tạo lại mỗi khung hình.</summary>
+    private Dictionary<string, SKColor> _layerColors = new();
+
+    public void SetModel(DrawingModel model)
+    {
+        Model = model;
+        _grid = new SpatialGrid(model.Entities, model.Bounds);
+        _layerColors = model.Layers.ToDictionary(l => l.Name, l => new SKColor(l.ColorArgb));
+        _fitted = false;
+        InvalidateSurface();
+    }
+
+    /// <summary>Khung nhìn hiện tại trong tọa độ bản vẽ (kể cả khi chưa có kích thước).</summary>
+    private Bounds2 VisibleWorldBounds()
+    {
+        var a = Camera.ScreenToWorld(0, 0); var b = Camera.ScreenToWorld(_w, _h);
+        return new Bounds2(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Max(a.X, b.X), Math.Max(a.Y, b.Y));
+    }
 
     public void Fit()
     {
@@ -174,15 +193,28 @@ public class CadCanvas : SKCanvasView
         using var stroke = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = Math.Max(1f, 1.1f * _density) };
         using var fill = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
         using var font = new SKFont(SKTypeface.Default);
-        var colors = Model.Layers.ToDictionary(l => l.Name, l => new SKColor(l.ColorArgb));
+        var colors = _layerColors;
 
-        foreach (var ent in Model.Entities)
+        // Chỉ duyệt đối tượng có thể nằm trong khung nhìn; thứ tự tăng dần giữ đúng thứ tự vẽ (WIPEOUT che nét trước đó).
+        var visible = _grid?.Query(VisibleWorldBounds()) ?? Enumerable.Range(0, Model.Entities.Count).ToList();
+        foreach (var idx in visible)
         {
+            var ent = Model.Entities[idx];
             if (!Layers.IsVisible(ent.Layer)) continue;
             var color = colors.TryGetValue(ent.Layer, out var c) ? c : SKColors.White;
             stroke.Color = color;
             switch (ent)
             {
+                case FillEntity fe when fe.Points.Count >= 3:
+                    using (var path = new SKPath())
+                    {
+                        path.MoveTo(S(fe.Points[0]));
+                        for (var i = 1; i < fe.Points.Count; i++) path.LineTo(S(fe.Points[i]));
+                        path.Close();
+                        fill.Color = fe.UseBackground ? CanvasColor : color;
+                        canvas.DrawPath(path, fill);
+                    }
+                    break;
                 case LineEntity l:
                     canvas.DrawLine(S(l.A), S(l.B), stroke);
                     break;

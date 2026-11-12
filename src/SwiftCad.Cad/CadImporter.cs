@@ -102,6 +102,19 @@ public static class CadImporter
             case Circle c:
                 output.Add(new CircleEntity(layer, P(c.Center), c.Radius));
                 break;
+            case ACadSharp.Entities.Hatch ht:
+                AddHatch(ht, layer, ctx);
+                break;
+            case ACadSharp.Entities.Spline sp:
+                AddSpline(sp, layer, ctx);
+                break;
+            case ACadSharp.Entities.Solid so:
+                // Thứ tự đỉnh SOLID theo AutoCAD: 1, 2, 4, 3 tạo thành đường bao.
+                ctx.Output.Add(new FillEntity(layer, [P(so.FirstCorner), P(so.SecondCorner), P(so.FourthCorner), P(so.ThirdCorner)], false));
+                break;
+            case CadWipeoutBase wo:
+                AddWipeout(wo, layer, ctx);
+                break;
             case Ellipse el:
                 // Insert.Explode() của ACadSharp đổi mọi CIRCLE trong block thành ELLIPSE, nên phải xử lý loại này.
                 var major = new Point2(el.MajorAxisEndPoint.X, el.MajorAxisEndPoint.Y);
@@ -221,12 +234,103 @@ public static class CadImporter
         }
     }
 
+    /// <summary>
+    /// HATCH: mỗi biên (BoundaryPath) thành một vòng điểm. HATCH đặc tô màu layer; HATCH mẫu (pattern) hiện bản đầu
+    /// chỉ vẽ đường bao, nên được đếm vào hiển thị gần đúng. Biên có nhiều vòng (lỗ thủng) chỉ tô từng vòng riêng.
+    /// </summary>
+    private static void AddHatch(ACadSharp.Entities.Hatch ht, string layer, Ctx ctx)
+    {
+        var loops = new List<List<Point2>>();
+        foreach (var bp in ht.Paths)
+        {
+            var pts = new List<Point2>();
+            foreach (var edge in bp.Edges)
+            {
+                switch (edge)
+                {
+                    case ACadSharp.Entities.Hatch.BoundaryPath.Line ln:
+                        AppendPoint(pts, P(ln.Start)); AppendPoint(pts, P(ln.End));
+                        break;
+                    case ACadSharp.Entities.Hatch.BoundaryPath.Polyline pl:
+                        var poly = PolylinePoints(pl.Vertices.Select(v => (new Point2(v.X, v.Y), v.Z)).ToList(), pl.IsClosed);
+                        if (poly is not null) foreach (var p in poly) AppendPoint(pts, p);
+                        break;
+                    case ACadSharp.Entities.Hatch.BoundaryPath.Arc arc:
+                        foreach (var v in arc.PolygonalVertexes(64)) AppendPoint(pts, P(v));
+                        break;
+                    case ACadSharp.Entities.Hatch.BoundaryPath.Ellipse el:
+                        foreach (var v in el.PolygonalVertexes(64)) AppendPoint(pts, P(v));
+                        break;
+                    case ACadSharp.Entities.Hatch.BoundaryPath.Spline sp:
+                        foreach (var v in sp.PolygonalVertexes(64)) AppendPoint(pts, P(v));
+                        break;
+                    default:
+                        Count(ctx.Skipped, "HATCH edge " + edge.GetType().Name);
+                        break;
+                }
+            }
+            // Đóng vòng: bỏ đỉnh cuối nếu trùng đỉnh đầu (biên HATCH thường khép kín bằng đoạn cuối).
+            if (pts.Count > 1 && pts[^1].DistanceTo(pts[0]) < 1e-9) pts.RemoveAt(pts.Count - 1);
+            if (pts.Count >= 3) loops.Add(pts);
+        }
+        if (loops.Count == 0) { Count(ctx.Skipped, "Hatch"); return; }
+        if (loops.Count > 1) Count(ctx.Approx, "HATCH nhiều vòng (lỗ) tô từng vòng");
+        foreach (var loop in loops)
+        {
+            if (ht.IsSolid)
+                ctx.Output.Add(new FillEntity(layer, loop, false));
+            else
+            {
+                Count(ctx.Approx, "HATCH mẫu chỉ vẽ đường bao");
+                ctx.Output.Add(new PolylineEntity(layer, loop, true));
+            }
+        }
+    }
+
+    private static void AppendPoint(List<Point2> pts, Point2 p)
+    {
+        if (pts.Count > 0 && pts[^1].DistanceTo(p) < 1e-9) return;
+        pts.Add(p);
+    }
+
+    /// <summary>SPLINE: xấp xỉ bằng polyline theo đa thức của ACadSharp (độ chính xác 64 điểm).</summary>
+    private static void AddSpline(ACadSharp.Entities.Spline sp, string layer, Ctx ctx)
+    {
+        var pts = sp.PolygonalVertexes(64).Select(P).ToList();
+        if (pts.Count < 2) { Count(ctx.Skipped, "Spline"); return; }
+        Count(ctx.Approx, "SPLINE xấp xỉ bằng đoạn thẳng");
+        ctx.Output.Add(new PolylineEntity(layer, pts, sp.IsClosed));
+    }
+
+    /// <summary>
+    /// WIPEOUT: vùng che được tô bằng màu nền để che nét vẽ phía dưới. Vị trí theo InsertPoint và UVector/VVector,
+    /// biên theo ClipBoundaryVertices (hình chữ nhật nếu có 2 đỉnh). Bản đầu chưa đối chiếu với AutoCAD, nên được đếm là gần đúng.
+    /// </summary>
+    private static void AddWipeout(CadWipeoutBase wo, string layer, Ctx ctx)
+    {
+        var clip = wo.ClipBoundaryVertices;
+        if (clip.Count < 2) { Count(ctx.Skipped, "Wipeout không có biên"); return; }
+        var o = P(wo.InsertPoint); var u = P(wo.UVector); var v = P(wo.VVector);
+        Point2 W(XY c) => new(o.X + c.X * u.X + c.Y * v.X, o.Y + c.X * u.Y + c.Y * v.Y);
+        var pts = clip.Count == 2
+            ? new List<Point2> { W(clip[0]), W(new XY(clip[1].X, clip[0].Y)), W(clip[1]), W(new XY(clip[0].X, clip[1].Y)) }
+            : clip.Select(W).ToList();
+        Count(ctx.Approx, "WIPEOUT vị trí chưa đối chiếu AutoCAD");
+        ctx.Output.Add(new FillEntity(layer, pts, true));
+    }
+
     private static void Count(Dictionary<string, int> d, string k) => d[k] = d.GetValueOrDefault(k) + 1;
 
     /// <summary>Chuyển polyline có bulge thành chuỗi điểm: mỗi cung xấp xỉ bằng đoạn thẳng, tối đa 10° mỗi đoạn.</summary>
     internal static void AddPolyline(string layer, IReadOnlyList<(Point2 P, double Bulge)> v, bool closed, List<SwiftCad.Core.Entity> output)
     {
-        if (v.Count < 2) return;
+        var pts = PolylinePoints(v, closed);
+        if (pts is not null) output.Add(new PolylineEntity(layer, pts, closed));
+    }
+
+    internal static List<Point2>? PolylinePoints(IReadOnlyList<(Point2 P, double Bulge)> v, bool closed)
+    {
+        if (v.Count < 2) return null;
         var pts = new List<Point2>();
         var segs = closed ? v.Count : v.Count - 1;
         for (var i = 0; i < segs; i++)
@@ -252,10 +356,11 @@ public static class CadImporter
             }
         }
         if (!closed) pts.Add(v[^1].P);
-        output.Add(new PolylineEntity(layer, pts, closed));
+        return pts;
     }
 
     private static Point2 P(XYZ p) => new(p.X, p.Y);
+    private static Point2 P(XY p) => new(p.X, p.Y);
     private static double Deg(double rad) => rad * 180.0 / Math.PI;
 
     private static uint LayerColor(Layer l)
