@@ -80,10 +80,23 @@ def tap_node(n):
     adb("shell", "input", "tap", str(x), str(y))
 
 
+def screen_height():
+    m = re.findall(r"(\d+)x(\d+)", adb("shell", "wm", "size"))
+    return int(m[-1][1]) if m else 1920
+
+
 def tap(texts, timeout=15, contains=False):
     n = find(texts, timeout, contains)
     if n is None:
         raise LookupError(f"Khong tim thay: {texts}")
+    # Phan tu nam sat day man hinh co the bi thanh dieu huong che: cuon len roi tim lai.
+    h = screen_height()
+    for _ in range(3):
+        if center(n)[1] < h * 0.72:
+            break
+        adb("shell", "input", "swipe", "540", str(int(h * 0.7)), "540", str(int(h * 0.3)), "400")
+        time.sleep(1.5)
+        n = find(texts, 5, contains) or n
     tap_node(n)
     return n
 
