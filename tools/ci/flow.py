@@ -104,6 +104,9 @@ def tap_text_entry_and_type(text):
     time.sleep(1)
     adb("shell", "input", "text", text)
     time.sleep(2)
+    # Dong ban phim de khong che thanh tren (nut Quay lai).
+    adb("shell", "input", "keyevent", "KEYCODE_BACK")
+    time.sleep(1)
 
 
 def pick_file():

@@ -41,7 +41,11 @@ public class OpeningPage : ContentPage
         {
             report = null; // ViewerPage hiện trạng thái lỗi.
         }
-        Navigation.InsertPageBefore(new ViewerPage(_file, report), this);
+        var viewer = new ViewerPage(_file, report);
+        Navigation.InsertPageBefore(viewer, this);
         await Navigation.PopAsync(false);
+#if SWIFTCAD_SHOTS
+        ShotMode.AfterOpen?.Invoke(viewer);
+#endif
     }
 }

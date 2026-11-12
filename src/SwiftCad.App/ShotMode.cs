@@ -14,6 +14,8 @@ namespace SwiftCad.App;
 public static class ShotMode
 {
     public static string? Requested;
+    /// <summary>Chạy sau khi OpeningPage đọc xong tệp thật và mở màn hình xem.</summary>
+    public static Action<ViewerPage>? AfterOpen;
 
     public static Page? Build()
     {
@@ -38,6 +40,14 @@ public static class ShotMode
         }
         if (shot.StartsWith("viewer", StringComparison.Ordinal))
         {
+            if (shot.StartsWith("viewer-cad", StringComparison.Ordinal))
+            {
+                // Tệp DXF thật do ACadSharp ghi từ bản vẽ kiểm thử tự tạo; app đọc lại qua đúng luồng OpeningPage → CadImporter.
+                var cad = WriteCadFixture();
+                var cadTool = shot["viewer-cad".Length..].TrimStart('-');
+                AfterOpen = v => v.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(900), () => v.ShotSetup(cadTool.Length == 0 ? "none" : cadTool));
+                return WithViewer(new OpeningPage(cad), _ => { });
+            }
             if (shot == "viewer-real")
             {
                 var real = AppState.Recents.Load().FirstOrDefault(r => r.Source == FileSource.Device);
@@ -120,6 +130,50 @@ public static class ShotMode
             }, now.AddMinutes(-ago));
             if (saved && !entry.Bookmarked) AppState.Recents.ToggleBookmark(entry.Id);
         }
+    }
+
+    /// <summary>Bản vẽ kiểm thử MEP: tường 12000 x 8000 mm, block van chèn 3 lần (tỷ lệ, xoay), chữ tiếng Việt, MTEXT, layer tắt, hatch chưa hỗ trợ.</summary>
+    private static RecentFile WriteCadFixture()
+    {
+        var doc = new ACadSharp.CadDocument();
+        doc.Header.InsUnits = ACadSharp.Types.Units.UnitsType.Millimeters;
+        var wall = new ACadSharp.Tables.Layer("A-WALL") { Color = new ACadSharp.Color(4) };
+        var anno = new ACadSharp.Tables.Layer("G-ANNO") { Color = new ACadSharp.Color(2) };
+        var pipe = new ACadSharp.Tables.Layer("P-PIPE") { Color = new ACadSharp.Color(3) };
+        var hidden = new ACadSharp.Tables.Layer("Z-HIDDEN") { Color = new ACadSharp.Color(1), IsOn = false };
+        foreach (var l in new[] { wall, anno, pipe, hidden }) doc.Layers.Add(l);
+        static CSMath.XYZ P(double x, double y) => new(x, y, 0);
+        doc.Entities.Add(new ACadSharp.Entities.LwPolyline(new ACadSharp.Entities.LwPolyline.Vertex(0, 0), new ACadSharp.Entities.LwPolyline.Vertex(12000, 0),
+            new ACadSharp.Entities.LwPolyline.Vertex(12000, 8000), new ACadSharp.Entities.LwPolyline.Vertex(0, 8000)) { IsClosed = true, Layer = wall });
+        doc.Entities.Add(new ACadSharp.Entities.Line { StartPoint = P(8000, 0), EndPoint = P(8000, 3000), Layer = wall });
+        doc.Entities.Add(new ACadSharp.Entities.Line { StartPoint = P(8000, 3000), EndPoint = P(12000, 3000), Layer = wall });
+        doc.Entities.Add(new ACadSharp.Entities.Arc { Center = P(8000, 1000), Radius = 900, StartAngle = Math.PI / 2, EndAngle = Math.PI, Layer = wall });
+        doc.Entities.Add(new ACadSharp.Entities.LwPolyline(new ACadSharp.Entities.LwPolyline.Vertex(400, 400), new ACadSharp.Entities.LwPolyline.Vertex(400, 2000) { Bulge = 0.4 },
+            new ACadSharp.Entities.LwPolyline.Vertex(7600, 2000)) { Layer = pipe });
+        var block = new ACadSharp.Tables.BlockRecord("VAN-DN100");
+        block.Entities.Add(new ACadSharp.Entities.Circle { Center = P(0, 0), Radius = 160 });
+        block.Entities.Add(new ACadSharp.Entities.Line { StartPoint = P(-160, -160), EndPoint = P(160, 160) });
+        block.Entities.Add(new ACadSharp.Entities.Line { StartPoint = P(-160, 160), EndPoint = P(160, -160) });
+        doc.BlockRecords.Add(block);
+        foreach (var (x, s, r) in new[] { (2000.0, 1.0, 0.0), (4500.0, 2.0, Math.PI / 4), (7000.0, 1.5, Math.PI / 2) })
+            doc.Entities.Add(new ACadSharp.Entities.Insert(block) { InsertPoint = P(x, 2000), XScale = s, YScale = s, Rotation = r, Layer = pipe });
+        doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "PHÒNG KỸ THUẬT ĐIỆN", InsertPoint = P(8300, 1500), Height = 260, Layer = anno });
+        doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "VĂN PHÒNG", InsertPoint = P(3000, 5000), Height = 400, Layer = anno });
+        doc.Entities.Add(new ACadSharp.Entities.MText { Value = "GHI CHÚ: ỐNG CHWS DN100\\PVAN CỔNG x3", InsertPoint = P(400, 7600), Height = 220, Layer = anno });
+        doc.Entities.Add(new ACadSharp.Entities.Line { StartPoint = P(0, 0), EndPoint = P(12000, 8000), Layer = hidden });
+        doc.Entities.Add(new ACadSharp.Entities.Ellipse { Center = P(10000, 6000), MajorAxisEndPoint = P(800, 0), RadiusRatio = 0.5, Layer = wall });
+        var ms = new MemoryStream();
+        ACadSharp.IO.DxfWriter.Write(ms, doc);
+        var bytes = ms.ToArray();
+        string key;
+        using (var hs = new MemoryStream(bytes)) key = FileIdentity.ComputeKey(hs);
+        Directory.CreateDirectory(AppState.DrawingsDir);
+        var path = Path.Combine(AppState.DrawingsDir, key + ".dxf");
+        File.WriteAllBytes(path, bytes);
+        return AppState.Recents.Touch(new RecentFile
+        {
+            DisplayName = "TEST-MEP-Tang1.dxf", Source = FileSource.Device, LocalPath = path, SizeBytes = bytes.Length, FileKey = key,
+        }, DateTimeOffset.UtcNow);
     }
 }
 #endif

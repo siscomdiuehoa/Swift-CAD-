@@ -44,7 +44,8 @@ regular = (pick_type(lambda n: n in ("iPhone 16", "iPhone 17", "iPhone 15")) or
 devices = [("se", small), ("std", regular)]
 
 SHOTS = ["welcome", "drawings", "drawings-empty", "settings", "viewer", "viewer-find", "viewer-measure",
-         "viewer-layers", "viewer-notes", "viewer-real", "cloud", "picker"]
+         "viewer-layers", "viewer-notes", "viewer-real", "cloud", "picker",
+         "viewer-cad", "viewer-cad-find", "viewer-cad-measure", "viewer-cad-layers"]
 LANGS = [("en", "(en)", "en_US"), ("vi", "(vi)", "vi_VN")]
 
 for tag, dtype in devices:
@@ -74,7 +75,7 @@ for tag, dtype in devices:
                 try:
                     run("xcrun", "simctl", "launch", "--terminate-running-process", udid, BUNDLE,
                         "-AppleLanguages", langs_arg, "-AppleLocale", locale, env=env)
-                    time.sleep(10 if shot in ("picker", "cloud") else 7)
+                    time.sleep(10 if shot in ("picker", "cloud") or shot.startswith("viewer-cad") else 7)
                     name = f"{OUT}/ios-{tag}-{lang}-{size_tag}-{shot}.png"
                     run("xcrun", "simctl", "io", udid, "screenshot", name)
                     log.append(f"ok {os.path.basename(name)}")
