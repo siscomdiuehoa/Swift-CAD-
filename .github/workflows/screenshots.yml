@@ -134,7 +134,7 @@ jobs:
           path: artifacts/ios-shots
 
   publish:
-    name: Dang anh len nhanh ci-screenshots
+    name: Dang anh len nhanh ci-screenshots theo PR
     runs-on: ubuntu-latest
     needs: [android-shots, android-flow, ios-shots]
     if: always()
@@ -145,7 +145,7 @@ jobs:
         with:
           path: shots
           pattern: '{android-shots-*,android-flow,ios-shots}'
-      - name: Day anh len nhanh mo coi ci-screenshots
+      - name: Day anh len nhanh mo coi rieng cho PR
         shell: bash
         run: |
           cd shots
@@ -156,9 +156,11 @@ jobs:
             echo
             find . -name '*.txt' | sort | while read f; do echo "## $f"; echo '```'; cat "$f"; echo '```'; done
           } > README.md
-          git init -q -b ci-screenshots
+          B=ci-screenshots${{ github.event.pull_request.number && format('-pr{0}', github.event.pull_request.number) || '' }}
+          [ "${{ github.event.pull_request.number }}" = "2" ] && B=ci-screenshots
+          git init -q -b "$B"
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git add -A
           git commit -q -m "Anh chay that cho ${{ github.event.pull_request.head.sha || github.sha }}"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-screenshots
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" "$B"
