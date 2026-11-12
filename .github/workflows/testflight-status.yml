@@ -4,7 +4,7 @@ name: TestFlight - trang thai (chi doc)
 on:
   workflow_dispatch:
   push:
-    branches: ['testflight/status']
+    branches: ['tf-status']
 
 permissions:
   contents: read
