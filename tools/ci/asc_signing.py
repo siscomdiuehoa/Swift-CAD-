@@ -95,7 +95,11 @@ def list_apps():
     """In ten, bundle ID, SKU cua cac ung dung trong tai khoan (khong co du lieu bi mat)."""
     for a in call("GET", "/apps?limit=200&fields[apps]=name,bundleId,sku")["data"]:
         at = a["attributes"]
-        print(f"::notice::App Store Connect: {at['name']} | bundle ID {at['bundleId']} | SKU {at.get('sku')}")
+        # Chi in ten va bundle ID ung dung cua chinh doanh nghiep nay; khong in SKU hay ung dung khac vao log cong khai.
+        if at["bundleId"] == os.environ.get("EXPECT_BUNDLE_ID", ""):
+            print(f"::notice::App Store Connect: {at['name']} | bundle ID {at['bundleId']}")
+        else:
+            print("::notice::Co them ung dung khac tren tai khoan (khong hien thi trong log cong khai)")
 
 
 if __name__ == "__main__":

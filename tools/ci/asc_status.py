@@ -33,6 +33,7 @@ for g in groups:
 users = call("GET", "/users?limit=200&fields[users]=username,roles,allAppsVisible,provisioningAllowed")["data"]
 for u in users:
     ua = u["attributes"]
-    print(f"::notice::Thanh vien doi: {ua.get('username')} | vai tro: {','.join(ua.get('roles') or [])}")
+    # Khong in email/ten thanh vien: log cua repo nay cong khai. Chi dem so nguoi theo vai tro.
+    print(f"::notice::Thanh vien doi: vai tro {','.join(ua.get('roles') or [])}")
 if not groups:
     print("::warning::Chua co nhom thu nghiem nao cho ung dung nay (can tao nhom noi bo trong TestFlight)")
