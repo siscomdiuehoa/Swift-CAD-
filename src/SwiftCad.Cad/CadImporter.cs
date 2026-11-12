@@ -25,7 +25,7 @@ public sealed class CadImportException(string message, Exception? inner = null) 
 
 /// <summary>
 /// Đọc DWG/DXF bằng ACadSharp và chuyển sang DrawingModel. Bản đầu hỗ trợ: LINE, LWPOLYLINE (có bulge), POLYLINE 2D,
-/// CIRCLE, ARC, TEXT, MTEXT (chữ thuần), INSERT (mở rộng block lồng nhau). Các loại khác được đếm vào Skipped.
+/// CIRCLE, ARC, ELLIPSE, TEXT, MTEXT (chữ thuần), INSERT (mở rộng block lồng nhau). Các loại khác được đếm vào Skipped.
 /// </summary>
 public static class CadImporter
 {
@@ -93,6 +93,15 @@ public static class CadImporter
                 break;
             case Circle c:
                 output.Add(new CircleEntity(layer, P(c.Center), c.Radius));
+                break;
+            case Ellipse el:
+                // Insert.Explode() của ACadSharp đổi mọi CIRCLE trong block thành ELLIPSE, nên phải xử lý loại này.
+                var major = new Point2(el.MajorAxisEndPoint.X, el.MajorAxisEndPoint.Y);
+                var radius = Math.Sqrt(major.X * major.X + major.Y * major.Y);
+                if (el.IsFullEllipse && Math.Abs(el.RadiusRatio - 1) < 1e-9)
+                    output.Add(new CircleEntity(layer, P(el.Center), radius));
+                else
+                    output.Add(new PolylineEntity(layer, el.PolygonalVertexes(72).Select(v => new Point2(v.X, v.Y)).ToList(), el.IsFullEllipse));
                 break;
             case LwPolyline pl:
                 AddPolyline(layer, pl.Vertices.Select(v => (new Point2(v.Location.X, v.Location.Y), v.Bulge)).ToList(), pl.IsClosed, output);

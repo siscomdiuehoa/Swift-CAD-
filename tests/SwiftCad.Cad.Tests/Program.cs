@@ -37,10 +37,12 @@ static CadDocument BuildFixture()
 
     var block = new BlockRecord("VAN");
     block.Entities.Add(new Line { StartPoint = new XYZ(0, 0, 0), EndPoint = new XYZ(100, 0, 0) });
+    block.Entities.Add(new Circle { Center = new XYZ(0, 0, 0), Radius = 50 });
     doc.BlockRecords.Add(block);
     doc.Entities.Add(new Insert(block) { InsertPoint = new XYZ(500, 500, 0), XScale = 2, YScale = 2, Rotation = Math.PI / 2, Layer = wall });
 
     doc.Entities.Add(new Ellipse { Center = new XYZ(0, 0, 0), MajorAxisEndPoint = new XYZ(50, 0, 0), RadiusRatio = 0.5, Layer = wall });
+    doc.Entities.Add(new Hatch { Layer = wall });
     return doc;
 }
 
@@ -68,12 +70,12 @@ foreach (var (label, ext, binary) in new[] { ("DXF ASCII", ".dxf", false), ("DXF
     });
     Test("tròn và cung (độ)", () =>
     {
-        var c = m.Entities.OfType<CircleEntity>().Single(); Near(160, c.Radius, 1e-9, "bán kính");
+        var c = m.Entities.OfType<CircleEntity>().Single(e => Math.Abs(e.Center.X - 3000) < 1e-9); Near(160, c.Radius, 1e-9, "bán kính");
         var a = m.Entities.OfType<ArcEntity>().Single(); Near(90, a.StartDeg, 1e-9, "góc đầu"); Near(180, a.EndDeg, 1e-9, "góc cuối");
     });
     Test("polyline có bulge thành nửa đường tròn", () =>
     {
-        var p = m.Entities.OfType<PolylineEntity>().Single(e => e.Points.Count > 3);
+        var p = m.Entities.OfType<PolylineEntity>().Single(e => !e.Closed && e.Points.Count > 3);
         foreach (var pt in p.Points) Near(5, pt.DistanceTo(new Point2(5, 0)), 1e-6, "điểm trên cung");
         Near(0, p.Points[0].X, 1e-9, "đầu"); Near(10, p.Points[^1].X, 1e-9, "cuối");
     });
@@ -91,13 +93,24 @@ foreach (var (label, ext, binary) in new[] { ("DXF ASCII", ".dxf", false), ("DXF
         var l = m.Entities.OfType<LineEntity>().Single(e => Math.Abs(e.A.X - 500) < 1e-6 && Math.Abs(e.A.Y - 500) < 1e-6);
         Near(200, l.A.DistanceTo(l.B), 1e-6, "độ dài sau tỷ lệ"); Near(500, l.B.X, 1e-6, "x sau xoay"); Near(700, l.B.Y, 1e-6, "y sau xoay");
     });
+    Test("tròn trong block vẫn hiển thị (Explode đổi thành Ellipse)", () =>
+    {
+        var c = m.Entities.OfType<CircleEntity>().SingleOrDefault(e => Math.Abs(e.Center.X - 500) < 1e-6 && Math.Abs(e.Center.Y - 500) < 1e-6);
+        True(c is not null, "thiếu đường tròn trong block"); Near(100, c!.Radius, 1e-6, "bán kính sau tỷ lệ 2");
+    });
+    Test("ellipse thật thành polyline, không còn bị bỏ qua", () =>
+    {
+        True(r.Skipped.GetValueOrDefault("Ellipse") == 0, "Ellipse vẫn bị bỏ qua");
+        var e = m.Entities.OfType<PolylineEntity>().Single(p => p.Closed && p.Points.Count > 60);
+        Near(50, e.Points.Max(p => p.X), 1e-6, "bán trục lớn");
+    });
     Test("layer tắt trong tệp thì ẩn mặc định", () =>
     {
         True(!m.Layers.Single(l => l.Name == "Z-HIDDEN").VisibleByDefault, "Z-HIDDEN phải ẩn");
         True(m.Layers.Single(l => l.Name == "A-WALL").VisibleByDefault, "A-WALL phải hiện");
     });
     Test("đối tượng chưa hỗ trợ được đếm, không bỏ im lặng", () =>
-        True(r.Skipped.GetValueOrDefault("Ellipse") == 1, "Skipped: " + string.Join(",", r.Skipped.Select(k => k.Key + "=" + k.Value))));
+        True(r.Skipped.GetValueOrDefault("Hatch") == 1, "Skipped: " + string.Join(",", r.Skipped.Select(k => k.Key + "=" + k.Value))));
 }
 
 // Ghi tệp DXF kiểm thử cho kiểm tra luồng trên emulator (tools/ci/fixtures). Chỉ chạy khi được yêu cầu.
