@@ -36,6 +36,8 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="error_missing_file" xml:space="preserve"><value>Bản sao của {0} trên máy không còn truy cập được.</value></data>
   <data name="error_open_message" xml:space="preserve"><value>Không mở hoặc sao chép được tệp vào máy. Hãy kiểm tra dung lượng trống rồi thử lại.</value></data>
   <data name="error_open_title" xml:space="preserve"><value>Không mở được tệp</value></data>
+  <data name="error_read_message" xml:space="preserve"><value>Tệp có thể bị hỏng, có mật khẩu hoặc thuộc phiên bản DWG chưa hỗ trợ. Tệp gốc không bị thay đổi.</value></data>
+  <data name="error_read_title" xml:space="preserve"><value>Không đọc được bản vẽ này</value></data>
   <data name="error_save_note" xml:space="preserve"><value>Không lưu được ghi chú trên máy.</value></data>
   <data name="error_unsupported_message" xml:space="preserve"><value>Swift CAD mở tệp DWG và DXF. Hãy chọn tệp có đuôi .dwg hoặc .dxf.</value></data>
   <data name="error_unsupported_title" xml:space="preserve"><value>Loại tệp chưa hỗ trợ</value></data>
@@ -53,6 +55,7 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="layer_search" xml:space="preserve"><value>Tìm layer</value></data>
   <data name="layer_show_all" xml:space="preserve"><value>Hiện tất cả</value></data>
   <data name="loading" xml:space="preserve"><value>Đang tải…</value></data>
+  <data name="loading_file" xml:space="preserve"><value>Đang đọc {0}…</value></data>
   <data name="measure_clear" xml:space="preserve"><value>Xóa số đo</value></data>
   <data name="measure_drawing_units" xml:space="preserve"><value>{0} đơn vị bản vẽ</value></data>
   <data name="measure_how" xml:space="preserve"><value>Chạm vào điểm, hoặc kéo để ngắm: tâm ngắm nằm phía trên ngón tay. Dùng hai ngón để di chuyển và thu phóng.</value></data>
@@ -74,14 +77,15 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="notes_new_message" xml:space="preserve"><value>Lưu trên máy, tách riêng khỏi tệp gốc.</value></data>
   <data name="notes_new_title" xml:space="preserve"><value>Ghi chú mới</value></data>
   <data name="notes_separate" xml:space="preserve"><value>Ghi chú được lưu riêng. Tệp gốc không bao giờ bị thay đổi.</value></data>
+  <data name="notice_simplified" xml:space="preserve"><value>Hiển thị đơn giản hóa: {0} đối tượng chưa hiển thị (hatch, kích thước, spline…)</value></data>
+  <data name="notice_unit_unknown" xml:space="preserve"><value>Bản vẽ chưa ghi đơn vị. Hãy xác nhận trước khi đo.</value></data>
+  <data name="notice_xref" xml:space="preserve"><value>{0} tham chiếu ngoài (xref) chưa được nạp</value></data>
   <data name="ok" xml:space="preserve"><value>OK</value></data>
   <data name="opened_at" xml:space="preserve"><value>Mở lúc {0}</value></data>
   <data name="pick_again" xml:space="preserve"><value>Chọn lại tệp</value></data>
   <data name="pick_file" xml:space="preserve"><value>Chọn tệp</value></data>
   <data name="picker_title" xml:space="preserve"><value>Chọn tệp DWG hoặc DXF</value></data>
-  <data name="real_not_supported_message" xml:space="preserve"><value>Tệp đã được sao chép vào máy, nhưng bản thử này chưa đọc nội dung DWG hay DXF. Đọc bản vẽ thật là bước kiểm chứng tiếp theo.</value></data>
-  <data name="real_not_supported_title" xml:space="preserve"><value>Chưa hiển thị nội dung bản vẽ</value></data>
-  <data name="real_tools_disabled" xml:space="preserve"><value>Trong bản thử này, Tìm, Đo, Layer và Ghi chú chỉ dùng được với bản vẽ mẫu.</value></data>
+  <data name="real_tools_disabled" xml:space="preserve"><value>Tìm, Đo, Layer và Ghi chú cần bản vẽ đã đọc thành công.</value></data>
   <data name="recent" xml:space="preserve"><value>Gần đây</value></data>
   <data name="recent_empty" xml:space="preserve"><value>Chưa có bản vẽ nào. Dùng Chọn tệp để mở DWG hoặc DXF từ máy.</value></data>
   <data name="recent_no_match" xml:space="preserve"><value>Không có bản vẽ gần đây nào khớp “{0}”.</value></data>

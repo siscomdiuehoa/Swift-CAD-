@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Adapter doc DWG/DXF bang ACadSharp (MIT) sang DrawingModel. Chi lop nay biet ACadSharp. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SwiftCad.Core\SwiftCad.Core.csproj" />
+  </ItemGroup>
+  <!-- Mac dinh lay goi NuGet da ghim. Khi khong co mang NuGet: -p:AcadSharpDll=duong/dan/ACadSharp.dll -->
+  <ItemGroup Condition="'$(AcadSharpDll)' == ''">
+    <PackageReference Include="ACadSharp" Version="3.8.35" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(AcadSharpDll)' != ''">
+    <Reference Include="ACadSharp" HintPath="$(AcadSharpDll)" />
+  </ItemGroup>
+</Project>

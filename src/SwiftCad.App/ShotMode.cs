@@ -41,7 +41,7 @@ public static class ShotMode
             if (shot == "viewer-real")
             {
                 var real = AppState.Recents.Load().FirstOrDefault(r => r.Source == FileSource.Device);
-                return WithViewer(new ViewerPage(real), _ => { });
+                return WithViewer(new OpeningPage(real!), _ => { });
             }
             var tool = shot["viewer".Length..].TrimStart('-');
             return WithViewer(new ViewerPage(), v => v.ShotSetup(tool));
@@ -63,7 +63,7 @@ public static class ShotMode
         return nav;
     }
 
-    private static Page WithViewer(ViewerPage viewer, Action<ViewerPage> after)
+    private static Page WithViewer(Page viewer, Action<ViewerPage> after)
     {
         var home = new HomePage(HomeTab.Drawings);
         var nav = new NavigationPage(home) { BarBackgroundColor = Theme.Bg, BarTextColor = Theme.Text };
@@ -73,7 +73,7 @@ public static class ShotMode
             if (done) return; done = true;
             await nav.PushAsync(viewer, false);
             await Task.Delay(800);
-            after(viewer);
+            if (viewer is ViewerPage vp) after(vp);
         };
         return nav;
     }
@@ -95,13 +95,23 @@ public static class ShotMode
             ("TEST-HVAC-L2-Supply-Air-Layout-Rev-C.dxf", 1830, 190, false),
             ("TEST-PCCC-B1.dxf", 96, 60 * 26, false),
         ];
-        foreach (var (name, kb, ago, saved) in items)
+        foreach (var (name, _, ago, saved) in items)
         {
-            var bytes = new byte[kb * 1024];
-            var header = System.Text.Encoding.ASCII.GetBytes("0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nEOF\n" + name.Length);
-            header.CopyTo(bytes, 0);
+            // Tệp DXF thật do ACadSharp ghi, nội dung tự tạo (không phải bản vẽ khách hàng).
+            var doc = new ACadSharp.CadDocument();
+            doc.Header.InsUnits = ACadSharp.Types.Units.UnitsType.Millimeters;
+            for (var i = 0; i <= 6; i++)
+            {
+                doc.Entities.Add(new ACadSharp.Entities.Line { StartPoint = new CSMath.XYZ(i * 2000, 0, 0), EndPoint = new CSMath.XYZ(i * 2000, 8000, 0) });
+                doc.Entities.Add(new ACadSharp.Entities.Line { StartPoint = new CSMath.XYZ(0, i * 8000 / 6.0, 0), EndPoint = new CSMath.XYZ(12000, i * 8000 / 6.0, 0) });
+            }
+            doc.Entities.Add(new ACadSharp.Entities.TextEntity { Value = name, InsertPoint = new CSMath.XYZ(0, -900, 0), Height = 300 });
+            doc.Entities.Add(new ACadSharp.Entities.Hatch());
+            var ms = new MemoryStream();
+            ACadSharp.IO.DxfWriter.Write(ms, doc);
+            var bytes = ms.ToArray();
             string key;
-            using (var ms = new MemoryStream(bytes)) key = FileIdentity.ComputeKey(ms);
+            using (var hs = new MemoryStream(bytes)) key = FileIdentity.ComputeKey(hs);
             var path = Path.Combine(AppState.DrawingsDir, key + ".dxf");
             File.WriteAllBytes(path, bytes);
             var entry = AppState.Recents.Touch(new RecentFile

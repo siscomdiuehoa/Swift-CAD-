@@ -94,9 +94,10 @@ namespace Microsoft.Maui.Controls {
   public class Entry : View { public string Text { get; set; } public string Placeholder { get; set; } public Color PlaceholderColor { get; set; } public Color TextColor { get; set; } public double FontSize { get; set; } public ClearButtonVisibility ClearButtonVisibility { get; set; } public ReturnType ReturnType { get; set; } public event EventHandler<TextChangedEventArgs> TextChanged; }
   public class ToggledEventArgs : EventArgs { public bool Value => false; }
   public class Switch : View { public bool IsToggled { get; set; } public Color OnColor { get; set; } public event EventHandler<ToggledEventArgs> Toggled; }
+  public class ActivityIndicator : View { public bool IsRunning { get; set; } public Color Color { get; set; } }
   public class BoxView : View { public Color Color { get; set; } public CornerRadius CornerRadius { get; set; } }
   public static class SemanticProperties { public static void SetDescription(BindableObject b, string v) {} public static void SetHeadingLevel(BindableObject b, SemanticHeadingLevel v) {} }
-  public interface INavigation { Task PushAsync(Page p); Task<Page> PopAsync(); }
+  public interface INavigation { Task PushAsync(Page p); Task<Page> PopAsync(); Task<Page> PopAsync(bool animated); void InsertPageBefore(Page page, Page before); }
   public class Page : VisualElement { public event EventHandler Loaded;
     public string Title { get; set; } public INavigation Navigation => null;
     public Task DisplayAlertAsync(string title, string message, string cancel) => null;

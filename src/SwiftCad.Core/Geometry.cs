@@ -69,7 +69,8 @@ public sealed record TextEntity(string Layer, Point2 Position, double Height, st
         b.Include(Position).Include(new(Position.X + Height * 0.6 * Text.Length, Position.Y + Height));
 }
 
-public sealed record DrawingLayer(string Name, uint ColorArgb);
+/// <summary>VisibleByDefault = false khi layer đang tắt hoặc đóng băng trong tệp gốc.</summary>
+public sealed record DrawingLayer(string Name, uint ColorArgb, bool VisibleByDefault = true);
 
 /// <summary>Mô hình hình học trung gian phục vụ hiển thị, tìm, đo. Độc lập với thư viện đọc CAD và UI.</summary>
 public sealed class DrawingModel

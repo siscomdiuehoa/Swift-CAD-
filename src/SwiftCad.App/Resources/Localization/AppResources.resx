@@ -36,6 +36,8 @@ Simulated or not built yet: reading real DWG/DXF files, account sign-in, direct 
   <data name="error_missing_file" xml:space="preserve"><value>The copy of {0} on this device is no longer available.</value></data>
   <data name="error_open_message" xml:space="preserve"><value>The file could not be opened or copied to this device. Check free storage and try again.</value></data>
   <data name="error_open_title" xml:space="preserve"><value>Could not open the file</value></data>
+  <data name="error_read_message" xml:space="preserve"><value>The file may be damaged, password-protected or in a DWG version that is not supported yet. The original file was not changed.</value></data>
+  <data name="error_read_title" xml:space="preserve"><value>Could not read this drawing</value></data>
   <data name="error_save_note" xml:space="preserve"><value>The note could not be saved on this device.</value></data>
   <data name="error_unsupported_message" xml:space="preserve"><value>Swift CAD opens DWG and DXF files. Choose a file ending in .dwg or .dxf.</value></data>
   <data name="error_unsupported_title" xml:space="preserve"><value>Unsupported file type</value></data>
@@ -53,6 +55,7 @@ Simulated or not built yet: reading real DWG/DXF files, account sign-in, direct 
   <data name="layer_search" xml:space="preserve"><value>Find layer</value></data>
   <data name="layer_show_all" xml:space="preserve"><value>Show all</value></data>
   <data name="loading" xml:space="preserve"><value>Loading…</value></data>
+  <data name="loading_file" xml:space="preserve"><value>Reading {0}…</value></data>
   <data name="measure_clear" xml:space="preserve"><value>Clear</value></data>
   <data name="measure_drawing_units" xml:space="preserve"><value>{0} drawing units</value></data>
   <data name="measure_how" xml:space="preserve"><value>Tap a point, or drag to aim: the crosshair sits above your finger. Use two fingers to pan and zoom.</value></data>
@@ -74,14 +77,15 @@ Simulated or not built yet: reading real DWG/DXF files, account sign-in, direct 
   <data name="notes_new_message" xml:space="preserve"><value>Saved on this device, separate from the original file.</value></data>
   <data name="notes_new_title" xml:space="preserve"><value>New note</value></data>
   <data name="notes_separate" xml:space="preserve"><value>Notes are stored separately. The original file is never changed.</value></data>
+  <data name="notice_simplified" xml:space="preserve"><value>Simplified display: {0} objects not shown yet (hatch, dimension, spline…)</value></data>
+  <data name="notice_unit_unknown" xml:space="preserve"><value>Drawing unit is not set. Confirm it before measuring.</value></data>
+  <data name="notice_xref" xml:space="preserve"><value>{0} external references (xref) not loaded</value></data>
   <data name="ok" xml:space="preserve"><value>OK</value></data>
   <data name="opened_at" xml:space="preserve"><value>Opened {0}</value></data>
   <data name="pick_again" xml:space="preserve"><value>Choose the file again</value></data>
   <data name="pick_file" xml:space="preserve"><value>Choose file</value></data>
   <data name="picker_title" xml:space="preserve"><value>Choose a DWG or DXF file</value></data>
-  <data name="real_not_supported_message" xml:space="preserve"><value>The file was copied to this device, but this prototype does not read DWG or DXF content yet. Reading real drawings is the next verification step.</value></data>
-  <data name="real_not_supported_title" xml:space="preserve"><value>Drawing content is not shown yet</value></data>
-  <data name="real_tools_disabled" xml:space="preserve"><value>Find, Measure, Layers and Notes work on the sample drawing only in this prototype.</value></data>
+  <data name="real_tools_disabled" xml:space="preserve"><value>Find, Measure, Layers and Notes need a drawing that was read successfully.</value></data>
   <data name="recent" xml:space="preserve"><value>Recent</value></data>
   <data name="recent_empty" xml:space="preserve"><value>No drawings yet. Use Choose file to open a DWG or DXF from this device.</value></data>
   <data name="recent_no_match" xml:space="preserve"><value>No recent drawing matches “{0}”.</value></data>

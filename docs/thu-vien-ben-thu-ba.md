@@ -26,8 +26,8 @@ Ngày 11/11/2026, mở trực tiếp tệp LICENSE ở gốc từng repo trên G
 
 | Thành phần | Repo | Vai trò | Commit gần nhất |
 |---|---|---|---|
-| ACadSharp | `DomCR/ACadSharp` | Đọc DWG/DXF. Chưa đưa vào PR `feat/v1-foundation`, dùng từ bước đọc CAD thật. | 11/11/2026 |
-| CSUtilities | `DomCR/CSUtilities` | Thư viện con của ACadSharp. Chưa đưa vào. | 09/11/2026 |
+| ACadSharp 3.8.35 | `DomCR/ACadSharp` | Đọc DWG/DXF, trong dự án `SwiftCad.Cad` (nhánh `feat/cad-reader-acadsharp`) | 28/10/2026 (bản 3.8.35) |
+| CSUtilities, CSMath | `DomCR/CSUtilities` | Mã nguồn được biên dịch chung vào gói ACadSharp (shared project), không phải gói riêng | MIT, đã mở LICENSE |
 | .NET runtime | `dotnet/runtime` | Nền chạy, gồm System.Text.Json và tài nguyên dịch `.resx` | — |
 | .NET MAUI 10.0.130 | `dotnet/maui` | Khung ứng dụng Android/iOS | 11/11/2026 |
 | SkiaSharp 4.155.0 | `mono/SkiaSharp` | Vẽ bản vẽ 2D (xem ngoại lệ ở mục 4) | 10/11/2026 |
@@ -98,7 +98,7 @@ Nghĩa vụ của BSD và Apache-2.0 tương tự MIT: giữ thông báo bản q
 
 ## 7. Điểm chưa xác minh
 
-1. **CSMath:** báo cáo ngày 09/11 nhắc tới thư viện này, nhưng `DomCR/CSMath` không truy cập được ngày 11/11. ACadSharp hiện chỉ khai báo CSUtilities làm thư viện con. Cần xác định CSMath nằm ở đâu và theo giấy phép nào trước khi phát hành.
+1. **CSMath:** đã xác minh 12/11/2026: CSMath nằm trong repo `DomCR/CSUtilities` (thư mục `CSMath`), giấy phép MIT, được biên dịch chung vào ACadSharp.
 2. **Phụ thuộc gián tiếp:** chưa chạy công cụ liệt kê toàn bộ gói NuGet mà ứng dụng kéo theo. Cần làm khi app build được, và làm lại trước mỗi lần phát hành.
 3. **HarfBuzz:** nếu dùng HarfBuzzSharp để dựng chữ có dấu thì lõi HarfBuzz có giấy phép riêng, chưa kiểm tra. Bản đầu chưa đưa vào.
 4. **AndroidX:** giấy phép ghi ở mục 4 chưa được mở tệp để xác nhận trong phiên này.
