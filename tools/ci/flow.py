@@ -5,6 +5,8 @@ Ghi DAT/LOI tung buoc vao artifacts/flow/results.txt va chup anh moi buoc.
 Dung: flow.py <thu_muc_apk>
 """
 import os, sys, time
+
+SELFTEST = os.environ.get("SWIFTCAD_SELFTEST", "none")
 sys.path.insert(0, os.path.dirname(__file__))
 from android_common import (ACT, DUMP_ERRORS, PKG, adb, drawn_ratio, find, focused_package, install, rotate, screen_texts,
                             screencap, setup_device, tap)
@@ -22,8 +24,9 @@ def step(name, fn):
     try:
         detail = fn() or ""
         results.append(f"DAT  {tag} {name} {detail}")
-    except Exception as e:  # ghi lai va tiep tuc cac buoc sau
+    except Exception as e:  # ghi lai, tiep tuc cac buoc sau de du anh chan doan; cuoi script tra ma loi 1
         results.append(f"LOI  {tag} {name}: {e}")
+        print(f"::error::Kiem tra luong buoc {tag} {name}: {e}", flush=True)
         # Chan doan: ghi cay giao dien hien tai.
         try:
             adb("shell", "uiautomator", "dump", "/sdcard/ui.xml")
@@ -176,10 +179,19 @@ step("doi-sang-tieng-viet", lambda: (tap("Settings"), tap("Tiếng Việt", 10),
 step("ngon-ngu-giu-sau-khi-mo-lai", lambda: (restart(), must(find("Chọn tệp", 15), "khong giu tieng Viet sau khi mo lai")))
 step("doi-lai-theo-thiet-bi", lambda: (tap("Cài đặt"), tap("Theo thiết bị", 10), must(find("Language", 10), "khong ve tieng Anh theo thiet bi")))
 
+if SELFTEST == "android-flow":
+    # Kiem thu am: buoc co y that bai de chung minh job do khi co buoc loi.
+    step("kiem-thu-am-co-y-loi", lambda: must(find("Chuoi khong ton tai trong app", 3), "co y that bai (SWIFTCAD_SELFTEST=android-flow)"))
+
 crash = adb("logcat", "-d", "-b", "crash")
 results.append("INFO loi uiautomator dump: " + (" || ".join(DUMP_ERRORS) or "khong co"))
 results.append("INFO logcat crash: " + ("trong" if not crash.strip() else crash[-3000:]))
 open(f"{OUT}/results.txt", "w").write("\n".join(results) + "\n")
 print("\n".join(results))
 fails = [r for r in results if r.startswith("LOI")]
-print(f"\n{len(fails)} buoc loi")
+if crash.strip():
+    fails.append("logcat crash khong trong")
+    print("::error::App crash trong kiem tra luong (xem results.txt)", flush=True)
+print(f"\n{len(fails)} loi")
+# Anh va results.txt da ghi xong o tren; tra ma loi de job do khi co bat ky buoc nao loi.
+sys.exit(1 if fails else 0)
