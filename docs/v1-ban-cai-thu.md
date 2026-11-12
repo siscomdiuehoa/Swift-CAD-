@@ -27,13 +27,17 @@ Bản bàn giao là bản build thường, không có ShotMode (chế độ ch�
 - **Đã có:** build iOS simulator trong CI; ảnh chạy trên simulator iOS 26.5. Simulator **không** phải iPhone thật.
 - **Đã chuẩn bị (PR của Issue #4):**
   - Job CI `ios-device`: build Release `ios-arm64` có AOT, không ký, để kiểm tra biên dịch và cảnh báo trimming cho iPhone thật.
-  - Workflow `testflight.yml` chạy tay: nạp chứng chỉ vào keychain tạm, build IPA ký, tải lên TestFlight. Workflow dừng với lỗi rõ ràng nếu thiếu secret.
-- **Chặn (cần Owner):**
-  1. Tài khoản Apple Developer Program (99 USD/năm), chưa được duyệt trong nhật ký quyết định.
-  2. Mã định danh ứng dụng chính thức. `com.swiftcad.app` chỉ là tạm và hàm ý sở hữu tên miền swiftcad.com. Đề xuất dùng tên miền Owner sở hữu (ví dụ dạng `vn.<tên-miền>.swiftcad`). Phải chốt trước khi tạo hồ sơ App Store Connect, vì sau đó không đổi được. Mã này cũng sẽ dùng cho Android.
-  3. Sau khi có tài khoản: đăng ký App ID, tạo chứng chỉ Apple Distribution và hồ sơ App Store, tạo ứng dụng trong App Store Connect, tạo khóa API vai trò App Manager, thêm nhóm thử nghiệm nội bộ.
-  4. Nhập 7 secret liệt kê trong `.github/workflows/testflight.yml` vào Settings → Secrets and variables → Actions. Không gửi khóa qua chat hay bình luận.
-- Khi đủ, chạy tay workflow "iOS TestFlight noi bo" trên `main`.
+  - Workflow `testflight.yml`: ký tự động, build IPA, tải lên TestFlight (chi tiết dưới). Dừng với lỗi rõ ràng nếu thiếu secret.
+- **Ký tự động, không cần máy Mac:** workflow `testflight.yml` dùng khóa App Store Connect API để tạo chứng chỉ Apple Distribution và hồ sơ App Store **tạm thời** ngay trên máy CI (khóa riêng sinh và nằm trên máy CI), build IPA, tải lên TestFlight, rồi xóa chứng chỉ và hồ sơ tạm. Thu hồi chứng chỉ phân phối không ảnh hưởng bản đã tải lên.
+- **Owner cần làm (một lần):**
+  1. Chốt mã định danh ứng dụng (thay `com.swiftcad.app` tạm). Claude cập nhật vào `SwiftCad.App.csproj`.
+  2. developer.apple.com → Certificates, Identifiers & Profiles → Identifiers → đăng ký App ID với đúng mã đó (hoặc để workflow tự đăng ký ở lần chạy đầu).
+  3. appstoreconnect.apple.com → Apps → + → New App: nền tảng iOS, tên (phải chưa ai dùng trên App Store, ví dụ "Swift CAD Viewer"; chỉ dùng nội bộ, đổi được sau), ngôn ngữ chính, chọn đúng Bundle ID, SKU tùy ý.
+  4. Users and Access → Integrations → App Store Connect API → tạo khóa vai trò **Admin** (cần để tạo chứng chỉ). Ghi Issuer ID, Key ID, tải tệp `.p8` (chỉ tải được một lần).
+  5. GitHub → repo → Settings → Secrets and variables → Actions → New repository secret: `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8` (dán nguyên nội dung tệp .p8). Không gửi qua chat hay bình luận.
+  6. TestFlight trong App Store Connect: thêm chính mình vào nhóm thử nghiệm nội bộ; cài ứng dụng TestFlight trên iPhone.
+- **Chạy:** Claude đẩy nhánh `testflight/<tên>` từ commit cần thử; workflow tự chạy. Sau khi Apple xử lý (thường 5–30 phút), bản thử hiện trong ứng dụng TestFlight.
+- Khóa API có thể thu hồi bất cứ lúc nào trong App Store Connect.
 
 ## 3. Thử với bản vẽ MEP thật
 

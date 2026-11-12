@@ -1,41 +1,46 @@
-name: iOS TestFlight noi bo (chay tay)
+name: iOS TestFlight noi bo
 
-# Chua dung duoc cho toi khi Owner cung cap tai khoan Apple Developer va cac secret duoi day.
-# Khong phat hanh cong khai: chi tai len TestFlight cho nhom thu nghiem noi bo.
-# Secret can co (Settings > Secrets and variables > Actions), khong bao gio dua vao ma hay binh luan:
-#   IOS_BUNDLE_ID                 ma dinh danh da dang ky tren Apple Developer (Owner chot)
-#   IOS_DIST_CERT_P12_BASE64      chung chi Apple Distribution (.p12) ma hoa base64
-#   IOS_DIST_CERT_PASSWORD        mat khau tep .p12
-#   IOS_PROVISION_PROFILE_BASE64  ho so App Store cho dung bundle ID, ma hoa base64
-#   ASC_KEY_ID, ASC_ISSUER_ID     khoa App Store Connect API (vai tro App Manager)
-#   ASC_KEY_P8_BASE64             noi dung tep AuthKey_xxx.p8 ma hoa base64
+# Tai ban thu len TestFlight cho nhom thu nghiem NOI BO. Khong phat hanh cong khai.
+# Chay: day nhanh testflight/** (Claude day khi Owner yeu cau), hoac chay tay khi workflow da co tren main.
+# Secret can co (Settings > Secrets and variables > Actions), khong dua vao ma hay binh luan:
+#   ASC_KEY_ID      Key ID cua khoa App Store Connect API (vai tro Admin)
+#   ASC_ISSUER_ID   Issuer ID (trang Users and Access > Integrations)
+#   ASC_KEY_P8      dan nguyen noi dung tep AuthKey_xxxx.p8 (ca dong BEGIN/END)
+# Ma dinh danh ung dung lay tu <ApplicationId> trong src/SwiftCad.App/SwiftCad.App.csproj.
 on:
+  push:
+    branches: ['testflight/**']
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
 jobs:
   testflight:
     runs-on: macos-26
     env:
-      IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
-      IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
-      IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
-      IOS_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-      ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
     steps:
       - name: Kiem tra du secret
         shell: bash
         run: |
           missing=""
-          for v in IOS_BUNDLE_ID IOS_DIST_CERT_P12_BASE64 IOS_DIST_CERT_PASSWORD IOS_PROVISION_PROFILE_BASE64 ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8_BASE64; do
-            [ -z "${!v}" ] && missing="$missing $v"
-          done
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do [ -z "${!v}" ] && missing="$missing $v"; done
           if [ -n "$missing" ]; then echo "::error::Thieu secret:$missing (xem docs/v1-ban-cai-thu.md)"; exit 1; fi
       - uses: actions/checkout@v5
+      - name: Ma dinh danh va so build
+        shell: bash
+        run: |
+          ID=$(grep -oP '(?<=<ApplicationId>)[^<]+' src/SwiftCad.App/SwiftCad.App.csproj || sed -n 's:.*<ApplicationId>\(.*\)</ApplicationId>.*:\1:p' src/SwiftCad.App/SwiftCad.App.csproj)
+          echo "BUNDLE_ID=$ID" >> "$GITHUB_ENV"
+          echo "BUILD_NO=$((1000 + ${{ github.run_number }}))" >> "$GITHUB_ENV"
+          echo "::notice::Bundle ID $ID, build $((1000 + ${{ github.run_number }})), commit $(git rev-parse --short HEAD)"
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
@@ -43,41 +48,48 @@ jobs:
         run: |
           tools/ci/run.sh python3 tools/ci/pin_ios_workload.py
           tools/ci/run.sh dotnet workload install maui-ios --from-rollback-file rollback.json
-      - name: Nap chung chi va ho so vao keychain tam
+      - name: Tao chung chi va ho so tam thoi qua App Store Connect API
+        shell: bash
+        run: |
+          python3 -m pip install --quiet --break-system-packages "pyjwt[crypto]==2.10.1" || python3 -m pip install --quiet "pyjwt[crypto]==2.10.1"
+          python3 tools/ci/asc_signing.py setup "$BUNDLE_ID" "$RUNNER_TEMP/signing"
+      - name: Nap vao keychain tam
         shell: bash
         run: |
           set -euo pipefail
-          KC="$RUNNER_TEMP/build.keychain-db"; KPW=$(uuidgen)
-          echo "$IOS_DIST_CERT_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+          S="$RUNNER_TEMP/signing"; KC="$RUNNER_TEMP/build.keychain-db"; KPW=$(uuidgen)
+          PW=$(python3 -c "import json;print(json.load(open('$S/ids.json'))['p12_password'])")
           security create-keychain -p "$KPW" "$KC"
           security set-keychain-settings -lut 3600 "$KC"
           security unlock-keychain -p "$KPW" "$KC"
-          security import "$RUNNER_TEMP/dist.p12" -P "$IOS_DIST_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
+          security import "$S/dist.p12" -P "$PW" -A -t cert -f pkcs12 -k "$KC"
           security set-key-partition-list -S apple-tool:,apple: -k "$KPW" "$KC" >/dev/null
           security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          echo "$IOS_PROVISION_PROFILE_BASE64" | base64 --decode > "$RUNNER_TEMP/app.mobileprovision"
-          UUID=$(security cms -D -i "$RUNNER_TEMP/app.mobileprovision" | plutil -extract UUID raw -)
-          cp "$RUNNER_TEMP/app.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
+          UUID=$(security cms -D -i "$S/app.mobileprovision" | plutil -extract UUID raw -)
+          cp "$S/app.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
           echo "PROFILE_UUID=$UUID" >> "$GITHUB_ENV"
-          rm -f "$RUNNER_TEMP/dist.p12"
+          rm -f "$S/dist.p12"
       - name: Build IPA ky (Release, ios-arm64)
         shell: bash
         run: |
           tools/ci/run.sh dotnet publish src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-ios -c Release \
             -p:SwiftCadPlatform=ios -p:RuntimeIdentifier=ios-arm64 -p:ArchiveOnBuild=true \
-            -p:ApplicationId="$IOS_BUNDLE_ID" -p:ApplicationVersion=${{ github.run_number }} \
-            -p:CodesignKey="Apple Distribution" -p:CodesignProvision="$PROFILE_UUID" -o artifacts/ios
+            -p:ApplicationVersion=$BUILD_NO -p:CodesignKey="Apple Distribution" -p:CodesignProvision="$PROFILE_UUID" -o artifacts/ios
           ls -la artifacts/ios
       - name: Tai len TestFlight
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$HOME/private_keys"
-          echo "$ASC_KEY_P8_BASE64" | base64 --decode > "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          printf '%s\n' "$ASC_KEY_P8" > "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
           IPA=$(ls artifacts/ios/*.ipa | head -1)
-          xcrun altool --upload-app -f "$IPA" -t ios --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
-          rm -f "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
-      - name: Don keychain
+          tools/ci/run.sh xcrun altool --upload-app -f "$IPA" -t ios --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          echo "::notice::Da tai $(basename "$IPA") len TestFlight (build $BUILD_NO). Apple xu ly 5-30 phut truoc khi hien trong TestFlight."
+      - name: Xoa chung chi, ho so va khoa tam
         if: always()
-        run: security delete-keychain "$RUNNER_TEMP/build.keychain-db" || true
+        shell: bash
+        run: |
+          python3 tools/ci/asc_signing.py cleanup "$RUNNER_TEMP/signing" || true
+          rm -rf "$HOME/private_keys" "$RUNNER_TEMP/signing"
+          security delete-keychain "$RUNNER_TEMP/build.keychain-db" || true
