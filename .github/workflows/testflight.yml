@@ -9,7 +9,8 @@ name: iOS TestFlight noi bo
 # Ma dinh danh ung dung lay tu <ApplicationId> trong src/SwiftCad.App/SwiftCad.App.csproj.
 on:
   push:
-    branches: ['testflight/**']
+    # Chi cac nhanh ban thu. Nhanh doc trang thai dung ten rieng (tf-status) de khong tai them ban len Apple.
+    branches: ['testflight/**', '!testflight/status']
   workflow_dispatch:
 
 permissions:
