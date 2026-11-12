@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Kiem tra kieu ma SwiftCad.App voi stub API (Stubs.cs) khi khong co workload MAUI hoac NuGet.
+       KHONG thay the cho build MAUI that. Chay: dotnet build tools/typecheck -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
+    <DefineConstants>$(DefineConstants);SWIFTCAD_SHOTS</DefineConstants>
+    <NoWarn>$(NoWarn);CS0067;CS0649;CS0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Stubs.cs;..\..\src\SwiftCad.App\*.cs;..\..\src\SwiftCad.App\Pages\*.cs" />
+    <ProjectReference Include="..\..\src\SwiftCad.Core\SwiftCad.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: Core - build va kiem thu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - run: dotnet run --project tests/SwiftCad.Core.Tests -c Release
+
+  android:
+    name: Android - build APK
+    runs-on: ubuntu-latest
+    needs: core
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: dotnet workload install maui-android
+      - run: dotnet workload list
+      - name: Build APK (ky bang khoa debug, chi de thu)
+        run: dotnet publish src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-android -c Release -p:SwiftCadPlatform=android -p:AndroidPackageFormat=apk -o artifacts/android
+      - uses: actions/upload-artifact@v5
+        with:
+          name: swiftcad-android-apk
+          path: artifacts/android/*.apk
+          if-no-files-found: error
+
+  ios-simulator:
+    name: iOS - build cho simulator (khong ky)
+    runs-on: macos-26
+    needs: core
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Xcode tren may chay
+        shell: bash
+        run: |
+          ls -d /Applications/Xcode*.app | sed 's/^/::notice::Co san: /'
+          # Dung Xcode mac dinh cua may chay; workload iOS duoc ghim theo phien ban nay o buoc sau.
+          echo "::notice::Xcode mac dinh: $(xcode-select -p) / $(xcodebuild -version | head -1)"
+      - name: Cai workload iOS khop Xcode
+        run: |
+          tools/ci/run.sh python3 tools/ci/pin_ios_workload.py
+          tools/ci/run.sh dotnet workload install maui-ios --from-rollback-file rollback.json
+      - run: dotnet workload list
+      - name: Build iOS simulator
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -version; dotnet --version; dotnet workload list
+          dotnet build src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-ios -c Debug -p:SwiftCadPlatform=ios -p:RuntimeIdentifier=iossimulator-arm64 2>&1 | tee build.log || { grep -E ": (error|warning) " build.log | sort -u | head -40 | sed 's/^/::error::/'; exit 1; }
