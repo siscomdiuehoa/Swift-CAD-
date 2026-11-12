@@ -1,0 +1,26 @@
+locale yeu cau=vi-VN thuc te=vi-VN
+wm size=Physical size: 320x640
+Override size: 1080x1920 density=Physical density: 160
+Override density: 480 font_scale=1.3
+01-welcome: focus=vn.siscom.swiftcad
+02-drawings: focus=vn.siscom.swiftcad
+03-drawings-empty: focus=vn.siscom.swiftcad
+04-saved: focus=vn.siscom.swiftcad
+05-settings: focus=vn.siscom.swiftcad
+06-viewer: focus=vn.siscom.swiftcad
+07-viewer-find: focus=vn.siscom.swiftcad
+08-viewer-measure: focus=vn.siscom.swiftcad
+09-viewer-layers: focus=vn.siscom.swiftcad
+10-viewer-notes: focus=vn.siscom.swiftcad
+11-viewer-fullscreen: focus=vn.siscom.swiftcad
+12-viewer-real-file: focus=vn.siscom.swiftcad
+16-cad-viewer: focus=vn.siscom.swiftcad
+17-cad-find: focus=vn.siscom.swiftcad
+18-cad-measure: focus=vn.siscom.swiftcad
+19-cad-layers: focus=vn.siscom.swiftcad
+20-cad-landscape: focus=vn.siscom.swiftcad
+13-viewer-measure-landscape: focus=vn.siscom.swiftcad
+14-cloud-guide: focus=Google
+15-system-picker: focus=com.google.android.documentsui
+logcat crash buffer: trong
+anh: 20/20
