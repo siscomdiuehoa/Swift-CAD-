@@ -206,13 +206,13 @@ public class CadCanvas : SKCanvasView
             switch (ent)
             {
                 case FillEntity fe when fe.Points.Count >= 3:
-                    using (var path = new SKPath())
+                    using (var pb = new SKPathBuilder())
                     {
-                        path.MoveTo(S(fe.Points[0]));
-                        for (var i = 1; i < fe.Points.Count; i++) path.LineTo(S(fe.Points[i]));
-                        path.Close();
+                        pb.MoveTo(S(fe.Points[0]));
+                        for (var i = 1; i < fe.Points.Count; i++) pb.LineTo(S(fe.Points[i]));
+                        pb.Close();
                         fill.Color = fe.UseBackground ? CanvasColor : color;
-                        canvas.DrawPath(path, fill);
+                        using (var built = pb.Detach()) canvas.DrawPath(built, fill);
                     }
                     break;
                 case LineEntity l:
