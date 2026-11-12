@@ -78,6 +78,7 @@ Simulated or not built yet: reading real DWG/DXF files, account sign-in, direct 
   <data name="notes_new_title" xml:space="preserve"><value>New note</value></data>
   <data name="notes_separate" xml:space="preserve"><value>Notes are stored separately. The original file is never changed.</value></data>
   <data name="notice_simplified" xml:space="preserve"><value>Simplified display. Objects not shown yet: {0} (hatch, dimension, spline…)</value></data>
+  <data name="notice_simplified_basic" xml:space="preserve"><value>Simplified display: solid lines only, linetypes and lineweights not shown yet</value></data>
   <data name="notice_unit_unknown" xml:space="preserve"><value>Drawing unit is not set. Confirm it before measuring.</value></data>
   <data name="notice_xref" xml:space="preserve"><value>{0} external references (xref) not loaded</value></data>
   <data name="ok" xml:space="preserve"><value>OK</value></data>

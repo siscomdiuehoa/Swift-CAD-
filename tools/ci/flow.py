@@ -126,6 +126,7 @@ def pick_file():
     # Tep that duoc doc bang ACadSharp: co thanh cong cu, co canh bao hien thi don gian hoa, khong co nhan Demo.
     must(find("Find", 30), "khong mo duoc man hinh xem sau khi doc tep")
     must(find("Simplified display", 5, contains=True), "thieu canh bao hien thi don gian hoa")
+    must(not find("not shown yet: 0", 2, contains=True), "canh bao neu 0 doi tuong")
     must(find("TEST-Flow-Plan.dxf", 5, contains=True), "khong thay ten tep vua chon")
     must(not find("Demo", 2), "tep that bi gan nhan Demo")
     tap("Find")

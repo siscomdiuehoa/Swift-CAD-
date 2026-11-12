@@ -181,7 +181,8 @@ public partial class ViewerPage : ContentPage
     private View? BuildNotices()
     {
         if (_report is null) return null;
-        var lines = new List<string> { L.F("notice_simplified", _report.SkippedTotal) };
+        // Bản đầu luôn là hiển thị đơn giản hóa (nét liền, chưa có linetype/lineweight); chỉ nêu số đối tượng khi có đối tượng bị bỏ qua.
+        var lines = new List<string> { _report.SkippedTotal > 0 ? L.F("notice_simplified", _report.SkippedTotal) : L.T("notice_simplified_basic") };
         if (_report.MissingXrefs.Count > 0) lines.Add(L.F("notice_xref", _report.MissingXrefs.Count));
         if (_report.Model.Unit == DrawingUnit.Unknown) lines.Add(L.T("notice_unit_unknown"));
         var text = Ui.Text(string.Join("\n", lines), 12, Color.FromArgb("#FFE7B0"));

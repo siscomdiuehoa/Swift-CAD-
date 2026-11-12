@@ -78,6 +78,7 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="notes_new_title" xml:space="preserve"><value>Ghi chú mới</value></data>
   <data name="notes_separate" xml:space="preserve"><value>Ghi chú được lưu riêng. Tệp gốc không bao giờ bị thay đổi.</value></data>
   <data name="notice_simplified" xml:space="preserve"><value>Hiển thị đơn giản hóa: {0} đối tượng chưa hiển thị (hatch, kích thước, spline…)</value></data>
+  <data name="notice_simplified_basic" xml:space="preserve"><value>Hiển thị đơn giản hóa: chỉ nét liền, chưa hiển thị kiểu nét và độ dày nét</value></data>
   <data name="notice_unit_unknown" xml:space="preserve"><value>Bản vẽ chưa ghi đơn vị. Hãy xác nhận trước khi đo.</value></data>
   <data name="notice_xref" xml:space="preserve"><value>{0} tham chiếu ngoài (xref) chưa được nạp</value></data>
   <data name="ok" xml:space="preserve"><value>OK</value></data>
