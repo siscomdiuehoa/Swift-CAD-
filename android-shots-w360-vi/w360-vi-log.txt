@@ -1,0 +1,21 @@
+locale yeu cau=vi-VN thuc te=vi-VN
+wm size=Physical size: 320x640
+Override size: 1080x1920 density=Physical density: 160
+Override density: 480 font_scale=1.0
+01-welcome: focus=com.swiftcad.app
+02-drawings: focus=com.swiftcad.app
+03-drawings-empty: focus=com.swiftcad.app
+04-saved: focus=com.swiftcad.app
+05-settings: focus=com.swiftcad.app
+06-viewer: focus=com.swiftcad.app
+07-viewer-find: focus=com.swiftcad.app
+08-viewer-measure: focus=com.swiftcad.app
+09-viewer-layers: focus=com.swiftcad.app
+10-viewer-notes: focus=com.swiftcad.app
+11-viewer-fullscreen: focus=com.swiftcad.app
+12-viewer-real-file: focus=com.swiftcad.app
+13-viewer-measure-landscape: focus=com.swiftcad.app
+14-cloud-guide: focus=Google
+15-system-picker: focus=com.google.android.documentsui
+logcat crash buffer: trong
+anh: 15/15
