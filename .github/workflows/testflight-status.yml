@@ -1,0 +1,27 @@
+name: TestFlight - trang thai (chi doc)
+
+# Chi doc trang thai build va nhom thu tren App Store Connect. Khong ghi, khong phat hanh.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['testflight/status']
+
+permissions:
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Trang thai tren App Store Connect
+        run: |
+          python3 -m pip install --quiet "pyjwt[crypto]==2.10.1"
+          python3 tools/ci/asc_status.py vn.siscom.swiftcad
