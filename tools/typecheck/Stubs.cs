@@ -97,7 +97,8 @@ namespace Microsoft.Maui.Controls {
   public class BoxView : View { public Color Color { get; set; } public CornerRadius CornerRadius { get; set; } }
   public static class SemanticProperties { public static void SetDescription(BindableObject b, string v) {} public static void SetHeadingLevel(BindableObject b, SemanticHeadingLevel v) {} }
   public interface INavigation { Task PushAsync(Page p); Task<Page> PopAsync(); }
-  public class Page : VisualElement { public event EventHandler Loaded;
+  public interface IDispatcher { bool Dispatch(Action a); }
+  public class Page : VisualElement { public event EventHandler Loaded; public IDispatcher Dispatcher => null;
     public string Title { get; set; } public INavigation Navigation => null;
     public Task DisplayAlertAsync(string title, string message, string cancel) => null;
     public Task<bool> DisplayAlertAsync(string title, string message, string accept, string cancel) => null;

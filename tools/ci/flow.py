@@ -6,7 +6,7 @@ Dung: flow.py <thu_muc_apk>
 """
 import os, sys, time
 sys.path.insert(0, os.path.dirname(__file__))
-from android_common import (ACT, DUMP_ERRORS, PKG, adb, find, focused_package, install, rotate, screen_texts,
+from android_common import (ACT, DUMP_ERRORS, PKG, adb, drawn_ratio, find, focused_package, install, rotate, screen_texts,
                             screencap, setup_device, tap)
 
 APK_DIR = sys.argv[1]
@@ -139,8 +139,20 @@ step("mo-tep-mau", lambda: (tap("Open MEP-Floor-01.demo"), must(find("Demo", 10)
 for tool, check in [("Find", "Search text in the drawing"), ("Measure", "Pick the first point"),
                     ("Layers", "Show all"), ("Notes", "Tap the drawing to pin a note")]:
     step(f"cong-cu-{tool.lower()}", lambda tool=tool, check=check: (tap(tool), must(find(check, 8), f"bang {tool} khong mo")))
-step("xoay-ngang", lambda: (rotate(1), time.sleep(3),
-                           must(find("Notes", 8), "mat thanh cong cu khi xoay")))
+def landscape_check():
+    rotate(1)
+    time.sleep(4)
+    must(find("Notes", 8), "mat thanh cong cu khi xoay")
+    shot = f"{OUT}/xoay-ngang-kiem-tra.png"
+    screencap(shot, settle=1.0)
+    # Vung CAD o ben trai khi xoay ngang: phai co net ve, khong duoc trong.
+    # Nguong 0,03: anh dung do 0,107-0,121; anh khung trong (loi 7cd5f34) do 0,000.
+    ratio = drawn_ratio(shot, 0.05, 0.35, 0.35, 0.75)
+    must(ratio > 0.03, f"khung CAD trong sau khi xoay (ti le net ve {ratio:.4f})")
+    return f"(ti le net ve {ratio:.3f})"
+
+
+step("xoay-ngang", landscape_check)
 rotate(0)
 time.sleep(2)
 step("quay-lai-ban-ve", lambda: (tap("Back"), must(find("Choose file", 10), "khong ve Ban ve")))

@@ -46,6 +46,8 @@ public class CadCanvas : SKCanvasView
         EnableTouchEvents = true;
         PaintSurface += OnPaint;
         Touch += OnTouch;
+        // Xoay máy hoặc đổi bố cục: buộc vẽ lại theo kích thước mới (lỗi phát hiện ở kiểm tra luồng: khung trống sau khi xoay).
+        SizeChanged += (_, _) => InvalidateSurface();
     }
 
     public void SetModel(DrawingModel model) { Model = model; _fitted = false; InvalidateSurface(); }

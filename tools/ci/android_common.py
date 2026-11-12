@@ -151,3 +151,49 @@ def rotate(r):
     adb("shell", "settings", "put", "system", "accelerometer_rotation", "0")
     adb("shell", "settings", "put", "system", "user_rotation", str(r))
     adb("shell", "wm", "user-rotation", "lock", str(r))
+
+
+def png_rgba(path):
+    """Giai ma PNG 8-bit RGB/RGBA khong xen ke (anh screencap) bang zlib, khong can thu vien ngoai."""
+    import struct, zlib
+    data = open(path, "rb").read()
+    pos, idat, w = 8, b"", 0
+    while pos < len(data):
+        ln, typ = struct.unpack(">I4s", data[pos:pos + 8])
+        chunk = data[pos + 8:pos + 8 + ln]
+        if typ == b"IHDR":
+            w, h, depth, ctype = struct.unpack(">IIBB", chunk[:10])
+        elif typ == b"IDAT":
+            idat += chunk
+        pos += 12 + ln
+    bpp = 4 if ctype == 6 else 3
+    raw = zlib.decompress(idat)
+    stride = w * bpp
+    rows, prev, i = [], bytearray(stride), 0
+    for _ in range(h):
+        f = raw[i]; line = bytearray(raw[i + 1:i + 1 + stride]); i += 1 + stride
+        for x in range(stride):
+            a = line[x - bpp] if x >= bpp else 0
+            b = prev[x]; c = prev[x - bpp] if x >= bpp else 0
+            if f == 1: line[x] = (line[x] + a) & 255
+            elif f == 2: line[x] = (line[x] + b) & 255
+            elif f == 3: line[x] = (line[x] + (a + b) // 2) & 255
+            elif f == 4:
+                p = a + b - c; pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                line[x] = (line[x] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
+        rows.append(bytes(line)); prev = line
+    return w, h, bpp, rows
+
+
+def drawn_ratio(path, x0, y0, x1, y1, bg=(0x11, 0x1C, 0x25), step=6):
+    """Ti le diem anh khac nen CAD trong vung (ti le 0..1 theo kich thuoc anh). Dung de phat hien khung CAD trong."""
+    w, h, bpp, rows = png_rgba(path)
+    total = diff = 0
+    for y in range(int(y0 * h), int(y1 * h), step):
+        row = rows[y]
+        for x in range(int(x0 * w), int(x1 * w), step):
+            r, g, b = row[x * bpp], row[x * bpp + 1], row[x * bpp + 2]
+            total += 1
+            if abs(r - bg[0]) + abs(g - bg[1]) + abs(b - bg[2]) > 40:
+                diff += 1
+    return diff / max(total, 1)
