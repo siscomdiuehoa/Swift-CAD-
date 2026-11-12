@@ -61,7 +61,7 @@ public static class CadImporter
         var skipped = new Dictionary<string, int>(StringComparer.Ordinal);
         var approx = new Dictionary<string, int>(StringComparer.Ordinal);
         var ctx = new Ctx(entities, skipped, approx);
-        foreach (var e in doc.Entities) Add(e, ctx, 0);
+        foreach (var e in doc.Entities) AddSafe(e, ctx, 0);
 
         var layers = doc.Layers
             .Select(l => new DrawingLayer(l.Name, LayerColor(l), l.IsOn && !l.Flags.HasFlag(LayerFlags.Frozen)))
@@ -86,6 +86,18 @@ public static class CadImporter
     }
 
     private sealed record Ctx(List<SwiftCad.Core.Entity> Output, Dictionary<string, int> Skipped, Dictionary<string, int> Approx);
+
+    /// <summary>
+    /// Một đối tượng hỏng (dữ liệu sai, thiếu điểm điều khiển...) chỉ bị bỏ qua và được đếm, không làm hỏng cả bản vẽ.
+    /// </summary>
+    private static void AddSafe(ACadSharp.Entities.Entity e, Ctx ctx, int depth)
+    {
+        try { Add(e, ctx, depth); }
+        catch (Exception)
+        {
+            Count(ctx.Skipped, e.GetType().Name + " dữ liệu lỗi");
+        }
+    }
 
     private static void Add(ACadSharp.Entities.Entity e, Ctx ctx, int depth)
     {
@@ -159,7 +171,7 @@ public static class CadImporter
                     }
                 }
                 catch (Exception) { Count(skipped, "Insert"); break; }
-                foreach (var part in parts) Add(part, ctx, depth + 1);
+                foreach (var part in parts) AddSafe(part, ctx, depth + 1);
                 // Giá trị thuộc tính block (số hiệu, mã thiết bị…) đã ở tọa độ bản vẽ.
                 foreach (var att in ins.Attributes)
                     if (!att.Flags.HasFlag(AttributeFlags.Hidden)) AddText(att, att.Layer?.Name ?? layer, ctx);
@@ -296,6 +308,17 @@ public static class CadImporter
     /// <summary>SPLINE: xấp xỉ bằng polyline theo đa thức của ACadSharp (độ chính xác 64 điểm).</summary>
     private static void AddSpline(ACadSharp.Entities.Spline sp, string layer, Ctx ctx)
     {
+        if (sp.ControlPoints.Count < 2 && sp.FitPoints.Count < 2) { Count(ctx.Skipped, "Spline không có điểm"); return; }
+        // Spline chỉ có điểm khớp: nối các điểm khớp (không dựng lại điểm điều khiển, vì cách đó cho kết quả
+        // ngoài tầm trên bản vẽ thật). Đây là xấp xỉ, được đếm để cảnh báo.
+        if (sp.ControlPoints.Count < 2)
+        {
+            var fit = sp.FitPoints.Select(f => new Point2(f.X, f.Y)).ToList();
+            if (fit.Count < 2) { Count(ctx.Skipped, "Spline không có điểm"); return; }
+            Count(ctx.Approx, "SPLINE (điểm khớp) nối đoạn thẳng");
+            ctx.Output.Add(new PolylineEntity(layer, fit, false));
+            return;
+        }
         var pts = sp.PolygonalVertexes(64).Select(P).ToList();
         if (pts.Count < 2) { Count(ctx.Skipped, "Spline"); return; }
         Count(ctx.Approx, "SPLINE xấp xỉ bằng đoạn thẳng");
