@@ -23,6 +23,8 @@ jobs:
         with:
           global-json-file: global.json
       - run: dotnet run --project tests/SwiftCad.Core.Tests -c Release
+      - name: Kiem thu doc DWG/DXF (ACadSharp)
+        run: dotnet run --project tests/SwiftCad.Cad.Tests -c Release
 
   android:
     name: Android - build APK

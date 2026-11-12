@@ -94,17 +94,18 @@ namespace Microsoft.Maui.Controls {
   public class Entry : View { public string Text { get; set; } public string Placeholder { get; set; } public Color PlaceholderColor { get; set; } public Color TextColor { get; set; } public double FontSize { get; set; } public ClearButtonVisibility ClearButtonVisibility { get; set; } public ReturnType ReturnType { get; set; } public event EventHandler<TextChangedEventArgs> TextChanged; }
   public class ToggledEventArgs : EventArgs { public bool Value => false; }
   public class Switch : View { public bool IsToggled { get; set; } public Color OnColor { get; set; } public event EventHandler<ToggledEventArgs> Toggled; }
+  public class ActivityIndicator : View { public bool IsRunning { get; set; } public Color Color { get; set; } }
   public class BoxView : View { public Color Color { get; set; } public CornerRadius CornerRadius { get; set; } }
   public static class SemanticProperties { public static void SetDescription(BindableObject b, string v) {} public static void SetHeadingLevel(BindableObject b, SemanticHeadingLevel v) {} }
-  public interface INavigation { Task PushAsync(Page p); Task<Page> PopAsync(); }
-  public interface IDispatcher { bool Dispatch(Action a); }
-  public class Page : VisualElement { public event EventHandler Loaded; public IDispatcher Dispatcher => null;
+  public interface INavigation { IReadOnlyList<Page> NavigationStack { get; } Task PushAsync(Page p); Task<Page> PopAsync(); Task<Page> PopAsync(bool animated); void InsertPageBefore(Page page, Page before); }
+  public interface IDispatcher { bool Dispatch(Action a); bool DispatchDelayed(TimeSpan d, Action a); }
+  public class Page : VisualElement { public event EventHandler Loaded; public new IDispatcher Dispatcher => null;
     public string Title { get; set; } public INavigation Navigation => null;
     public Task DisplayAlertAsync(string title, string message, string cancel) => null;
     public Task<bool> DisplayAlertAsync(string title, string message, string accept, string cancel) => null;
     public Task<string> DisplayActionSheetAsync(string title, string cancel, string destruction, params string[] buttons) => null;
     public Task<string> DisplayPromptAsync(string title, string message, string accept = "OK", string cancel = "Cancel", string placeholder = null, int maxLength = -1) => null;
-    protected virtual void OnAppearing() {} protected virtual void OnSizeAllocated(double w, double h) {}
+    protected virtual void OnAppearing() {} protected virtual void OnDisappearing() {} protected virtual void OnSizeAllocated(double w, double h) {}
   }
   public class ContentPage : Page { public View Content { get; set; } public SafeAreaEdges SafeAreaEdges { get; set; } }
   public class NavigationPage : Page { public NavigationPage(Page root) {} public Task PushAsync(Page p, bool animated) => null; public Color BarBackgroundColor { get; set; } public Color BarTextColor { get; set; } public static void SetHasNavigationBar(BindableObject p, bool v) {} }
@@ -132,7 +133,7 @@ namespace SkiaSharp {
   public class SKFont : IDisposable { public SKFont(SKTypeface t, float size = 12) {} public float Size { get; set; } public float MeasureText(string text, SKPaint paint = null) => 0; public void Dispose() {} }
   public class SKPathBuilder : IDisposable { public void MoveTo(SKPoint p) {} public void MoveTo(float x, float y) {} public void LineTo(SKPoint p) {} public void LineTo(float x, float y) {} public void Close() {} public void AddArc(SKRect oval, float start, float sweep) {} public SKPath Detach() => null; public void Dispose() {} }
   public class SKPath : IDisposable { public void MoveTo(SKPoint p) {} public void MoveTo(float x, float y) {} public void LineTo(SKPoint p) {} public void LineTo(float x, float y) {} public void Close() {} public void AddArc(SKRect oval, float start, float sweep) {} public void Dispose() {} }
-  public class SKCanvas { public void Clear(SKColor c) {} public void DrawLine(SKPoint a, SKPoint b, SKPaint p) {} public void DrawLine(float x0, float y0, float x1, float y1, SKPaint p) {} public void DrawPath(SKPath path, SKPaint p) {} public void DrawCircle(SKPoint c, float r, SKPaint p) {} public void DrawRect(SKRect r, SKPaint p) {} public void DrawRoundRect(SKRect r, float rx, float ry, SKPaint p) {} public void DrawText(string text, float x, float y, SKTextAlign a, SKFont f, SKPaint p) {} }
+  public class SKCanvas { public int Save() => 0; public void Restore() {} public void Translate(float x, float y) {} public void RotateDegrees(float d) {} public void Scale(float x, float y) {} public void Clear(SKColor c) {} public void DrawLine(SKPoint a, SKPoint b, SKPaint p) {} public void DrawLine(float x0, float y0, float x1, float y1, SKPaint p) {} public void DrawPath(SKPath path, SKPaint p) {} public void DrawCircle(SKPoint c, float r, SKPaint p) {} public void DrawRect(SKRect r, SKPaint p) {} public void DrawRoundRect(SKRect r, float rx, float ry, SKPaint p) {} public void DrawText(string text, float x, float y, SKTextAlign a, SKFont f, SKPaint p) {} }
   public class SKSurface { public SKCanvas Canvas => null; }
 }
 namespace SkiaSharp.Views.Maui {

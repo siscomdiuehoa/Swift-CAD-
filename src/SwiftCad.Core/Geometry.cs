@@ -62,14 +62,48 @@ public sealed record ArcEntity(string Layer, Point2 Center, double Radius, doubl
         b.Include(new(Center.X - Radius, Center.Y - Radius)).Include(new(Center.X + Radius, Center.Y + Radius));
 }
 
-/// <summary>Chữ một dòng. Position là điểm chèn góc dưới trái, Height tính theo đơn vị bản vẽ.</summary>
-public sealed record TextEntity(string Layer, Point2 Position, double Height, string Text) : Entity(Layer)
+public enum TextHAlign { Left = 0, Center, Right }
+public enum TextVAlign { Baseline = 0, Bottom, Middle, Top }
+
+/// <summary>
+/// Chữ một dòng. Position là điểm neo theo HAlign/VAlign (mặc định: trái, chân chữ), Height theo đơn vị bản vẽ,
+/// RotationDeg ngược chiều kim đồng hồ quanh điểm neo.
+/// </summary>
+public sealed record TextEntity(string Layer, Point2 Position, double Height, string Text,
+    double RotationDeg = 0, TextHAlign HAlign = TextHAlign.Left, TextVAlign VAlign = TextVAlign.Baseline, double WidthFactor = 1)
+    : Entity(Layer)
 {
-    public override Bounds2 ExtendBounds(Bounds2 b) =>
-        b.Include(Position).Include(new(Position.X + Height * 0.6 * Text.Length, Position.Y + Height));
+    /// <summary>Bề rộng ước lượng khi chưa đo được bằng font thật.</summary>
+    public double EstimatedWidth => Height * 0.6 * Text.Length * WidthFactor;
+
+    /// <summary>
+    /// Độ lệch từ điểm neo tới điểm đầu chân chữ, trong hệ trục của chữ (x theo chiều chữ, y lên).
+    /// width là bề rộng chữ cùng đơn vị với height.
+    /// </summary>
+    public static (double Dx, double Dy) BaselineOffset(double width, double height, TextHAlign h, TextVAlign v) =>
+        (h switch { TextHAlign.Center => -width / 2, TextHAlign.Right => -width, _ => 0 },
+         v switch { TextVAlign.Bottom => height * 0.2, TextVAlign.Middle => -height / 2, TextVAlign.Top => -height, _ => 0 });
+
+    /// <summary>Bốn góc khung chữ trong tọa độ bản vẽ (đã xoay).</summary>
+    public Point2[] Corners(double? width = null)
+    {
+        var w = width ?? EstimatedWidth;
+        var (dx, dy) = BaselineOffset(w, Height, HAlign, VAlign);
+        var r = RotationDeg * Math.PI / 180; var c = Math.Cos(r); var s = Math.Sin(r);
+        Point2 T(double x, double y) => new(Position.X + x * c - y * s, Position.Y + x * s + y * c);
+        var y0 = dy - Height * 0.2; var y1 = dy + Height;
+        return [T(dx, y0), T(dx + w, y0), T(dx + w, y1), T(dx, y1)];
+    }
+
+    public override Bounds2 ExtendBounds(Bounds2 b)
+    {
+        foreach (var p in Corners()) b = b.Include(p);
+        return b;
+    }
 }
 
-public sealed record DrawingLayer(string Name, uint ColorArgb);
+/// <summary>VisibleByDefault = false khi layer đang tắt hoặc đóng băng trong tệp gốc.</summary>
+public sealed record DrawingLayer(string Name, uint ColorArgb, bool VisibleByDefault = true);
 
 /// <summary>Mô hình hình học trung gian phục vụ hiển thị, tìm, đo. Độc lập với thư viện đọc CAD và UI.</summary>
 public sealed class DrawingModel

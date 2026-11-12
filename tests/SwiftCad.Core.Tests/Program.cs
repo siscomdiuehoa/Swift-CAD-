@@ -180,6 +180,28 @@ Test("bản vẽ Demo gắn cờ IsDemo, đơn vị mm, bao 12000 x 8000 có m�
     True(model.Bounds.Width > 12000 && model.Bounds.Height > 8000, "bounds");
 });
 
+Console.WriteLine("Chữ xoay và căn lề");
+Test("chữ xoay 90°: khung bao dựng đứng", () =>
+{
+    var t = new TextEntity("0", new(1000, 1000), 100, "ABCDE", 90);
+    var b = t.ExtendBounds(Bounds2.Empty);
+    True(b.Height > b.Width * 2, $"khung {b.Width}x{b.Height}");
+    Near(1000, b.MinY, 1e-9); Near(1000 + t.EstimatedWidth, b.MaxY, 1e-9);
+});
+Test("căn giữa-giữa: điểm neo nằm giữa khung chữ", () =>
+{
+    var t = new TextEntity("0", new(0, 0), 100, "ABCD", 0, TextHAlign.Center, TextVAlign.Middle);
+    var c = t.Corners(400);
+    Near(-200, c[0].X, 1e-9); Near(200, c[1].X, 1e-9);
+    Near(-50, c[3].Y - 100 - 0, 1e-9);
+});
+Test("căn phải xoay 180°: chữ nằm bên phải điểm neo", () =>
+{
+    var t = new TextEntity("0", new(0, 0), 10, "AB", 180, TextHAlign.Right);
+    var c = t.Corners(20);
+    Near(20, c[0].X, 1e-9); Near(0, c[1].X, 1e-9);
+});
+
 Console.WriteLine("Ngôn ngữ");
 Test("theo thiết bị, dự phòng tiếng Anh", () =>
 {

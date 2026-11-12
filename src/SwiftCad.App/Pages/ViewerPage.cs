@@ -12,6 +12,7 @@ public enum Tool { None, Find, Measure, Layers, Notes }
 public partial class ViewerPage : ContentPage
 {
     private readonly RecentFile? _file;
+    private readonly SwiftCad.Cad.ImportReport? _report;
     private readonly DrawingModel? _model;
     private readonly string _fileKey;
     private readonly string _name;
@@ -36,10 +37,12 @@ public partial class ViewerPage : ContentPage
     /// <summary>Mở tệp mẫu Demo.</summary>
     public ViewerPage() : this(null) { }
 
-    public ViewerPage(RecentFile? file)
+    /// <summary>Tệp của người dùng: report là kết quả đọc; null khi đọc lỗi (hiện trạng thái lỗi, không vẽ hình thay thế).</summary>
+    public ViewerPage(RecentFile? file, SwiftCad.Cad.ImportReport? report = null)
     {
         _file = file;
-        _model = file is null ? DemoDrawing.Create() : null;
+        _report = report;
+        _model = file is null ? DemoDrawing.Create() : report?.Model;
         _fileKey = file?.FileKey ?? DemoDrawing.FileKey;
         _name = file?.DisplayName ?? DemoDrawing.FileName;
         _sourceUnit = _model?.Unit ?? DrawingUnit.Unknown;
@@ -69,6 +72,8 @@ public partial class ViewerPage : ContentPage
         {
             _canvas.CanvasColor = AppState.Settings.BlackCanvas ? SKColors.Black : new SKColor(0x11, 0x1C, 0x25);
             _canvas.SetModel(_model);
+            // Layer đang tắt hoặc đóng băng trong tệp gốc thì ẩn khi mở.
+            foreach (var l in _model.Layers.Where(l => !l.VisibleByDefault)) _canvas.Layers.Set(l.Name, false);
             _canvas.Notes = AppState.Notes.Load(_fileKey);
             _canvas.MeasureChanged += UpdateMeasure;
             _canvas.AimChanged += UpdateAim;
@@ -150,10 +155,10 @@ public partial class ViewerPage : ContentPage
         var area = new Grid { BackgroundColor = AppState.Settings.BlackCanvas ? Theme.CanvasBlack : Theme.Canvas };
         if (_model is null)
         {
-            // Trạng thái trung thực cho tệp thật: chưa đọc, không vẽ hình minh họa thay thế.
+            // Đọc tệp lỗi: báo trung thực, không vẽ hình minh họa thay thế.
             var box = new VerticalStackLayout { Spacing = 10, Padding = 24, VerticalOptions = LayoutOptions.Center };
-            box.Add(Ui.Text(L.T("real_not_supported_title"), 18, Colors.White, bold: true));
-            box.Add(Ui.Text(L.T("real_not_supported_message"), Theme.FontBody, Color.FromArgb("#C9D6E2")));
+            box.Add(Ui.Text(L.T("error_read_title"), 18, Colors.White, bold: true));
+            box.Add(Ui.Text(L.T("error_read_message"), Theme.FontBody, Color.FromArgb("#C9D6E2")));
             if (_file is not null)
                 box.Add(Ui.Text(_file.DisplayName + " · " + FileIdentity.FormatSize(_file.SizeBytes, L.FormatCulture), Theme.FontSub, Color.FromArgb("#C9D6E2")));
             area.Add(new ScrollView { Content = box });
@@ -162,6 +167,7 @@ public partial class ViewerPage : ContentPage
 
         area.Add(_canvas);
         SemanticProperties.SetDescription(_canvas, L.T("a11y_canvas"));
+        if (BuildNotices() is { } notices) area.Add(notices);
 
         var overlay = new HorizontalStackLayout { Spacing = 8, HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.End, Margin = 12 };
         overlay.Add(CanvasButton(Icons.Fit, L.T("fit"), () => _canvas.Fit()));
@@ -169,6 +175,31 @@ public partial class ViewerPage : ContentPage
         RefreshFullscreenButton();
         area.Add(overlay);
         return area;
+    }
+
+    /// <summary>Cảnh báo cho tệp thật: hiển thị đơn giản hóa, đối tượng chưa vẽ, xref thiếu, đơn vị chưa rõ.</summary>
+    private View? BuildNotices()
+    {
+        if (_report is null) return null;
+        // Bản đầu luôn là hiển thị đơn giản hóa (nét liền, chưa có linetype/lineweight); chỉ nêu số đối tượng khi có đối tượng bị bỏ qua.
+        var lines = new List<string> { _report.SkippedTotal > 0 ? L.F("notice_simplified", _report.SkippedTotal) : L.T("notice_simplified_basic") };
+        if (_report.ApproximatedTotal > 0) lines.Add(L.F("notice_approximated", _report.ApproximatedTotal));
+        if (_report.MissingXrefs.Count > 0) lines.Add(L.F("notice_xref", _report.MissingXrefs.Count));
+        if (_report.Model.Unit == DrawingUnit.Unknown) lines.Add(L.T("notice_unit_unknown"));
+        var text = Ui.Text(string.Join("\n", lines), 12, Color.FromArgb("#FFE7B0"));
+        return new Border
+        {
+            BackgroundColor = Color.FromArgb("#CC111C25"),
+            Stroke = new SolidColorBrush(Color.FromArgb("#5C4A1F")),
+            StrokeThickness = 1,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 10 },
+            Padding = new Thickness(10, 6),
+            Margin = 10,
+            HorizontalOptions = LayoutOptions.Start,
+            VerticalOptions = LayoutOptions.Start,
+            InputTransparent = true,
+            Content = text,
+        };
     }
 
     private static View CanvasButton(string icon, string description, Action action) => new Border
@@ -221,7 +252,7 @@ public partial class ViewerPage : ContentPage
     {
         if (_model is null)
         {
-            _ = DisplayAlertAsync(L.T("real_not_supported_title"), L.T("real_tools_disabled"), L.T("ok"));
+            _ = DisplayAlertAsync(L.T("error_read_title"), L.T("real_tools_disabled"), L.T("ok"));
             return;
         }
         _tool = tool;

@@ -16,6 +16,8 @@ public partial class ViewerPage
                 SelectTool(Tool.Find);
                 RunFind(resetIndex: true);
                 break;
+            case "none":
+                break;
             case "measure":
                 SelectTool(Tool.Measure);
                 _canvas.Fit();
@@ -23,7 +25,7 @@ public partial class ViewerPage
                 _canvas.PlaceMeasurePoint(new SnapResult(new Point2(12000, 0), SnapKind.Endpoint));
                 break;
             case "layers":
-                _canvas.Layers.Set(DemoDrawing.LDuct, false);
+                if (_model.IsDemo) _canvas.Layers.Set(DemoDrawing.LDuct, false);
                 SelectTool(Tool.Layers);
                 break;
             case "notes":

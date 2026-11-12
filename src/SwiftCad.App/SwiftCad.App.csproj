@@ -47,6 +47,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SwiftCad.Core\SwiftCad.Core.csproj" />
+    <ProjectReference Include="..\SwiftCad.Cad\SwiftCad.Cad.csproj" />
   </ItemGroup>
 
 </Project>

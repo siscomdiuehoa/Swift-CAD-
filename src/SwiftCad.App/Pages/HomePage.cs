@@ -141,7 +141,7 @@ public partial class HomePage : ContentPage
         switch (r.Status)
         {
             case ImportStatus.Opened:
-                await Navigation.PushAsync(new ViewerPage(r.File!));
+                await Navigation.PushAsync(new OpeningPage(r.File!));
                 break;
             case ImportStatus.Unsupported:
                 await DisplayAlertAsync(L.T("error_unsupported_title"), L.T("error_unsupported_message"), L.T("ok"));
@@ -170,7 +170,7 @@ public partial class HomePage : ContentPage
         if (File.Exists(f.LocalPath))
         {
             AppState.Recents.Touch(f, DateTimeOffset.UtcNow);
-            await Navigation.PushAsync(new ViewerPage(f));
+            await Navigation.PushAsync(new OpeningPage(f));
             return;
         }
         // Bản sao không còn: cho chọn lại hoặc gỡ khỏi danh sách.

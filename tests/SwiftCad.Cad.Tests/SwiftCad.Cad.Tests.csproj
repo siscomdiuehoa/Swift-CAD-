@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Kiem thu adapter doc DWG/DXF. Tep kiem thu duoc tao bang ACadSharp ngay khi chay, khong chua du lieu khach hang. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SwiftCad.Cad\SwiftCad.Cad.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(AcadSharpDll)' != ''">
+    <Reference Include="ACadSharp" HintPath="$(AcadSharpDll)" />
+  </ItemGroup>
+</Project>

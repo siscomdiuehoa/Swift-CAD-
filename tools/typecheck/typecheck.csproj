@@ -14,5 +14,9 @@
   <ItemGroup>
     <Compile Include="Stubs.cs;..\..\src\SwiftCad.App\*.cs;..\..\src\SwiftCad.App\Pages\*.cs" />
     <ProjectReference Include="..\..\src\SwiftCad.Core\SwiftCad.Core.csproj" />
+    <ProjectReference Include="..\..\src\SwiftCad.Cad\SwiftCad.Cad.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(AcadSharpDll)' != ''">
+    <Reference Include="ACadSharp" HintPath="$(AcadSharpDll)" />
   </ItemGroup>
 </Project>

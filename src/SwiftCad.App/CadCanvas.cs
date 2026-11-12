@@ -211,7 +211,7 @@ public class CadCanvas : SKCanvasView
                     var size = (float)(t.Height * Camera.Scale);
                     if (size < 3f) break;
                     font.Size = size; fill.Color = color;
-                    canvas.DrawText(t.Text, S(t.Position).X, S(t.Position).Y, SKTextAlign.Left, font, fill);
+                    DrawRotatedText(canvas, t, font, fill);
                     break;
             }
         }
@@ -227,21 +227,44 @@ public class CadCanvas : SKCanvasView
         return new SKPoint((float)x, (float)y);
     }
 
+    /// <summary>
+    /// Đặt hệ trục của chữ: gốc tại điểm neo, quay theo góc chữ (trục Y màn hình lật nên quay âm),
+    /// trả về gốc chân chữ (đầu dòng) trong hệ đó, theo pixel. Bề rộng đo bằng font thật.
+    /// </summary>
+    private (float X, float Y, float Width) BeginText(SKCanvas canvas, TextEntity t, SKFont font)
+    {
+        var anchor = S(t.Position);
+        canvas.Save();
+        canvas.Translate(anchor.X, anchor.Y);
+        if (t.RotationDeg != 0) canvas.RotateDegrees((float)-t.RotationDeg);
+        if (Math.Abs(t.WidthFactor - 1) > 1e-6) canvas.Scale((float)t.WidthFactor, 1);
+        var width = font.MeasureText(t.Text);
+        var (dx, dy) = TextEntity.BaselineOffset(width, font.Size, t.HAlign, t.VAlign);
+        return ((float)dx, (float)-dy, width);
+    }
+
+    private void DrawRotatedText(SKCanvas canvas, TextEntity t, SKFont font, SKPaint fill)
+    {
+        var (x, y, _) = BeginText(canvas, t, font);
+        canvas.DrawText(t.Text, x, y, SKTextAlign.Left, font, fill);
+        canvas.Restore();
+    }
+
     private void DrawHits(SKCanvas canvas, SKFont font, SKPaint stroke, SKPaint fill)
     {
+        if (Model is null) return;
         for (var i = 0; i < Hits.Count; i++)
         {
-            var hit = Hits[i];
-            var size = (float)(hit.Height * Camera.Scale);
-            font.Size = Math.Max(size, 1f);
-            var width = font.MeasureText(hit.Text);
-            var o = S(hit.Position);
+            if (Model.Entities[Hits[i].EntityIndex] is not TextEntity t) continue;
+            font.Size = Math.Max((float)(t.Height * Camera.Scale), 1f);
+            var (x, y, width) = BeginText(canvas, t, font);
             var pad = 4 * _density;
-            var rect = new SKRect(o.X - pad, o.Y - size - pad, o.X + width + pad, o.Y + pad);
+            var rect = new SKRect(x - pad, y - font.Size - pad, x + width + pad, y + font.Size * 0.25f + pad);
             if (i == CurrentHit) { fill.Color = new SKColor(0xFF, 0xD5, 0x4F, 0x55); canvas.DrawRect(rect, fill); }
             stroke.Color = new SKColor(0xFF, 0xD5, 0x4F);
             stroke.StrokeWidth = (i == CurrentHit ? 2.2f : 1.2f) * _density;
             canvas.DrawRect(rect, stroke);
+            canvas.Restore();
         }
         stroke.StrokeWidth = Math.Max(1f, 1.1f * _density);
     }

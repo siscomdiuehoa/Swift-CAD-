@@ -60,8 +60,8 @@ results.append(f"INFO locale={actual}")
 
 # Tep DXF kiem thu cho trinh chon tep (noi dung toi thieu, khong phai ban ve that).
 dxf = "/sdcard/Download/TEST-Flow-Plan.dxf"
-open("/tmp/test.dxf", "w").write("0\nSECTION\n2\nENTITIES\n0\nLINE\n8\n0\n10\n0\n20\n0\n11\n100\n21\n0\n0\nENDSEC\n0\nEOF\n")
-adb("push", "/tmp/test.dxf", dxf)
+# Tep DXF do ACadSharp ghi tu ban ve kiem thu tu tao (tests/SwiftCad.Cad.Tests), co chu tieng Viet va doi tuong chua ho tro.
+adb("push", os.path.join(os.path.dirname(__file__), "fixtures", "TEST-Flow-Plan.dxf"), dxf)
 adb("shell", "am", "broadcast", "-a", "android.intent.action.MEDIA_SCANNER_SCAN_FILE", "-d", "file://" + dxf)
 adb("shell", "content", "call", "--uri", "content://media/external/file", "--method", "scan_volume", "--arg", "external_primary")
 time.sleep(3)
@@ -102,6 +102,16 @@ def dropbox_cancel_alert():
 step("dropbox-huy-o-buoc-huong-dan", dropbox_cancel_alert)
 
 
+def tap_text_entry_and_type(text):
+    tap("Find text")
+    time.sleep(1)
+    adb("shell", "input", "text", text)
+    time.sleep(2)
+    # Dong ban phim de khong che thanh tren (nut Quay lai).
+    adb("shell", "input", "keyevent", "KEYCODE_BACK")
+    time.sleep(1)
+
+
 def pick_file():
     tap("Choose file")
     time.sleep(4)
@@ -116,15 +126,21 @@ def pick_file():
     tap("TEST-Flow-Plan.dxf", 15)
     time.sleep(5)
     must(PKG in focused_package(), "khong quay ve app sau khi chon tep")
-    must(find("Drawing content is not shown yet", 15), "man hinh xem khong bao chua doc noi dung")
+    # Tep that duoc doc bang ACadSharp: co thanh cong cu, co canh bao hien thi don gian hoa, khong co nhan Demo.
+    must(find("Find", 30), "khong mo duoc man hinh xem sau khi doc tep")
+    must(find("Simplified display", 5, contains=True), "thieu canh bao hien thi don gian hoa")
+    must(not find("not shown yet: 0", 2, contains=True), "canh bao neu 0 doi tuong")
     must(find("TEST-Flow-Plan.dxf", 5, contains=True), "khong thay ten tep vua chon")
     must(not find("Demo", 2), "tep that bi gan nhan Demo")
+    tap("Find")
+    tap_text_entry_and_type("phong")
+    must(find("Result 1 of", 10, contains=True), "khong tim thay chu trong ban ve that")
 
 
 step("chon-tep-dxf-tu-trinh-chon", pick_file)
 step("quay-lai-thay-trong-gan-day", lambda: (tap("Back"), must(find("Open TEST-Flow-Plan.dxf", 10), "khong co trong Gan day")))
 step("mo-lai-app-khong-hien-chao", lambda: (restart(), must(find("Choose file", 15) and not find("Use without an account", 2), "man hinh chao hien lai")))
-step("mo-lai-tu-gan-day", lambda: (tap("Open TEST-Flow-Plan.dxf"), must(find("Drawing content is not shown yet", 15), "khong mo duoc tu Gan day"), tap("Back")))
+step("mo-lai-tu-gan-day", lambda: (tap("Open TEST-Flow-Plan.dxf"), must(find("Simplified display", 30, contains=True), "khong mo duoc tu Gan day"), tap("Back")))
 
 
 def picker_cancel():
@@ -162,6 +178,29 @@ step("quay-lai-ban-ve", lambda: (tap("Back"), must(find("Choose file", 10), "kho
 step("doi-sang-tieng-viet", lambda: (tap("Settings"), tap("Tiếng Việt", 10), must(find("Ngôn ngữ", 10), "giao dien chua doi sang tieng Viet")))
 step("ngon-ngu-giu-sau-khi-mo-lai", lambda: (restart(), must(find("Chọn tệp", 15), "khong giu tieng Viet sau khi mo lai")))
 step("doi-lai-theo-thiet-bi", lambda: (tap("Cài đặt"), tap("Theo thiết bị", 10), must(find("Language", 10), "khong ve tieng Anh theo thiet bi")))
+
+def back_during_read():
+    """Review Codex PR #3: Back khi dang doc tep khong duoc bat man hinh xem muon hay lam sap app."""
+    adb("shell", "am", "force-stop", PKG)
+    adb("shell", "am", "start", "-W", "-n", ACT, "--ei", "swiftcad_read_delay_ms", "8000")
+    time.sleep(6)
+    tap("Open TEST-Flow-Plan.dxf")
+    must(find("Reading TEST-Flow-Plan.dxf", 5, contains=True), "khong thay trang Dang doc")
+    adb("shell", "input", "keyevent", "KEYCODE_BACK")
+    time.sleep(2)
+    must(find("Choose file", 8), "khong ve Ban ve sau khi Back")
+    time.sleep(12)  # qua thoi diem doc xong (tre 8 s)
+    must(PKG in focused_package(), "app khong con o tien canh (co the da sap)")
+    must(find("Choose file", 5) is not None and find("Find", 2) is None, "man hinh xem bat len muon sau khi da Back")
+    screencap(f"{OUT}/back-khi-dang-doc-sau-12s.png", settle=0.5)
+    # Luong binh thuong van mo duoc (van co tre 8 s).
+    tap("Open TEST-Flow-Plan.dxf")
+    must(find("Find", 30), "luong mo binh thuong khong toi man hinh xem")
+    tap("Back")
+    must(find("Choose file", 10), "khong ve Ban ve")
+
+
+step("back-khi-dang-doc-tep", back_during_read)
 
 if SELFTEST == "android-flow":
     # Kiem thu am: buoc co y that bai de chung minh job do khi co buoc loi.

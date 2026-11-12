@@ -19,7 +19,9 @@ os.makedirs(OUT, exist_ok=True)
 log, failures = [], []
 
 SHOTS = ["welcome", "drawings", "drawings-empty", "settings", "viewer", "viewer-find", "viewer-measure",
-         "viewer-layers", "viewer-notes", "viewer-real", "cloud", "picker"]
+         "viewer-layers", "viewer-notes", "viewer-real", "cloud", "picker",
+         # PR #3: ban ve DXF that doc qua ACadSharp
+         "viewer-cad", "viewer-cad-find", "viewer-cad-measure", "viewer-cad-layers"]
 LANGS = [("en", "(en)", "en_US"), ("vi", "(vi)", "vi_VN")]
 # (thiet bi, co chu, gia tri content_size)
 CONFIGS = [("se", "font-default", "large"), ("se", "font-large", "accessibility-medium"), ("std", "font-default", "large")]
