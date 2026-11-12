@@ -28,3 +28,11 @@ for g in groups:
     ga = g["attributes"]
     testers = call("GET", f"/betaGroups/{g['id']}/betaTesters?limit=200&fields[betaTesters]=email")["data"]
     print(f"::notice::Nhom thu: {ga.get('name')} | noi bo: {ga.get('isInternalGroup')} | so nguoi: {len(testers)} | tu dong them build: {ga.get('hasAccessToAllBuilds')}")
+
+# Nguoi dung trong doi (chi email/vai tro, khong co bi mat) de biet Apple ID cua Owner da la thanh vien chua.
+users = call("GET", "/users?limit=200&fields[users]=username,roles,allAppsVisible,provisioningAllowed")["data"]
+for u in users:
+    ua = u["attributes"]
+    print(f"::notice::Thanh vien doi: {ua.get('username')} | vai tro: {','.join(ua.get('roles') or [])}")
+if not groups:
+    print("::warning::Chua co nhom thu nghiem nao cho ung dung nay (can tao nhom noi bo trong TestFlight)")
