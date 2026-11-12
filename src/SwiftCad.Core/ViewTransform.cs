@@ -44,10 +44,20 @@ public sealed class ViewTransform
     /// <summary>Khi kích thước khung thay đổi (xoay máy, mở bảng công cụ): giữ nguyên tâm nhìn và tỷ lệ.</summary>
     public void Resize(double oldW, double oldH, double newW, double newH)
     {
-        if (oldW <= 0 || oldH <= 0) return;
+        // Kích thước 0 xuất hiện thoáng qua khi xoay máy; bỏ qua để không đưa tâm nhìn về góc màn hình.
+        if (oldW <= 0 || oldH <= 0 || newW <= 0 || newH <= 0) return;
         var c = ScreenToWorld(oldW / 2, oldH / 2);
         OffsetX = newW / 2 - c.X * Scale;
         OffsetY = newH / 2 + c.Y * Scale;
+    }
+
+    /// <summary>True khi khung bao bản vẽ còn giao với khung nhìn.</summary>
+    public bool Intersects(Bounds2 bounds, double width, double height)
+    {
+        if (bounds.IsEmpty) return true;
+        var (x0, y0) = WorldToScreen(new Point2(bounds.MinX, bounds.MaxY));
+        var (x1, y1) = WorldToScreen(new Point2(bounds.MaxX, bounds.MinY));
+        return x1 >= 0 && x0 <= width && y1 >= 0 && y0 <= height;
     }
 
     public void CenterOn(Point2 world, double width, double height)
