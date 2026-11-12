@@ -47,5 +47,20 @@ rotate(0)
 
 crash = adb("logcat", "-d", "-b", "crash")
 log.append("logcat crash buffer: " + ("trong" if not crash.strip() else "\n" + crash[-4000:]))
+# Kiem tra du anh bat buoc va khong crash; tra ma loi 1 neu thieu.
+missing = [label for label, _, _ in SHOTS
+           if not os.path.isfile(f"{OUT}/{NAME}-{label}.png") or os.path.getsize(f"{OUT}/{NAME}-{label}.png") < 10_000]
+problems = [f"thieu/rong anh: {', '.join(missing)}"] if missing else []
+if actual != LOCALE:
+    problems.append(f"ngon ngu thiet bi khong dat {LOCALE} (thuc te {actual})")
+if crash.strip():
+    problems.append("app crash (logcat crash buffer khong trong)")
+if FONT != "1.0" and adb("shell", "settings", "get", "system", "font_scale").strip() != FONT:
+    problems.append(f"font_scale khong dat {FONT}")
+log.append(f"anh: {len(SHOTS) - len(missing)}/{len(SHOTS)}")
+for p in problems:
+    log.append("LOI " + p)
+    print(f"::error::{NAME}: {p}", flush=True)
 open(f"{OUT}/{NAME}-log.txt", "w").write("\n".join(log) + "\n")
 print("\n".join(log))
+sys.exit(1 if problems else 0)

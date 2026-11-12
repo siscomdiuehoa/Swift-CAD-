@@ -3,19 +3,44 @@ name: Anh chay that va kiem tra luong
 # Chay tren pull request va chay tay. Dung ban build co ShotMode (-p:SwiftCadShots=true), khong phai ban phat hanh.
 on:
   pull_request:
+  # Kiem thu am: day nhanh selftest/android-flow, selftest/ios-create hoac selftest/ios-shot (job tuong ung phai do).
+  push:
+    branches: ['selftest/**']
   workflow_dispatch:
+    inputs:
+      selftest:
+        description: 'Kiem thu am (job phai do): none | android-flow | ios-create | ios-shot'
+        default: none
+        type: choice
+        options: [none, android-flow, ios-create, ios-shot]
 
 permissions:
   contents: read
+
+env:
+  SWIFTCAD_SELFTEST: ${{ (inputs.selftest || (github.ref_name == 'selftest/android-flow' && 'android-flow') || (github.ref_name == 'selftest/ios-create' && 'ios-create') || (github.ref_name == 'selftest/ios-shot' && 'ios-shot') || 'none') }}
 
 concurrency:
   group: shots-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  config:
+    name: Cau hinh lan chay
+    runs-on: ubuntu-latest
+    outputs:
+      selftest: ${{ steps.s.outputs.selftest }}
+    steps:
+      - id: s
+        run: |
+          echo "selftest=$SWIFTCAD_SELFTEST" >> "$GITHUB_OUTPUT"
+          echo "::notice::Kiem thu am: $SWIFTCAD_SELFTEST"
+
   android-apk:
     name: Android - build APK chup anh
     runs-on: ubuntu-latest
+    needs: config
+    if: ${{ !startsWith(needs.config.outputs.selftest, 'ios-') }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-dotnet@v5
@@ -36,7 +61,8 @@ jobs:
   android-shots:
     name: Android emulator - ${{ matrix.name }}
     runs-on: ubuntu-latest
-    needs: android-apk
+    needs: [config, android-apk]
+    if: ${{ needs.config.outputs.selftest == 'none' }}
     strategy:
       fail-fast: false
       matrix:
@@ -74,7 +100,8 @@ jobs:
   android-flow:
     name: Android emulator - kiem tra luong thao tac that
     runs-on: ubuntu-latest
-    needs: android-apk
+    needs: [config, android-apk]
+    if: ${{ needs.config.outputs.selftest == 'none' || needs.config.outputs.selftest == 'android-flow' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -102,6 +129,8 @@ jobs:
   ios-shots:
     name: iOS simulator - build, chay va chup anh
     runs-on: macos-26
+    needs: config
+    if: ${{ needs.config.outputs.selftest == 'none' || startsWith(needs.config.outputs.selftest, 'ios-') }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-dotnet@v5
@@ -136,8 +165,9 @@ jobs:
   publish:
     name: Dang anh len nhanh ci-screenshots
     runs-on: ubuntu-latest
-    needs: [android-shots, android-flow, ios-shots]
-    if: always()
+    needs: [config, android-shots, android-flow, ios-shots]
+    # Kiem thu am khong duoc ghi de anh cua lan chay hop le.
+    if: ${{ always() && needs.config.outputs.selftest == 'none' }}
     permissions:
       contents: write
     steps:
