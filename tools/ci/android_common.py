@@ -2,8 +2,8 @@
 import os, re, subprocess, time
 import xml.etree.ElementTree as ET
 
-PKG = "com.swiftcad.app"
-ACT = f"{PKG}/{PKG}.MainActivity"
+PKG = "vn.siscom.swiftcad"
+ACT = f"{PKG}/com.swiftcad.app.MainActivity"  # ten lop Java giu nguyen
 
 
 def adb(*args, check=False, timeout=120):

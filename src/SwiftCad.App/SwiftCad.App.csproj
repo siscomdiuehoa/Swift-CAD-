@@ -19,8 +19,8 @@
     <MauiVersion>10.0.130</MauiVersion>
 
     <ApplicationTitle>Swift CAD</ApplicationTitle>
-    <!-- Ma dinh danh tam thoi cho ban thu. Owner chot truoc khi phat hanh, sau do khong doi duoc. -->
-    <ApplicationId>com.swiftcad.app</ApplicationId>
+    <!-- Ma dinh danh chinh thuc: trung voi ung dung "Swift CAD Viewer Pro" tren App Store Connect (Issue #4). -->
+    <ApplicationId>vn.siscom.swiftcad</ApplicationId>
     <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <NeutralLanguage>en</NeutralLanguage>

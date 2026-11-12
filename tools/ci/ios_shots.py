@@ -12,7 +12,7 @@ Kiem thu am (chi dung de chung minh job do khi co loi): SWIFTCAD_SELFTEST=ios-cr
 import json, os, re, subprocess, sys, time
 
 APP = sys.argv[1]
-BUNDLE = "com.swiftcad.app"
+BUNDLE = "vn.siscom.swiftcad"
 OUT = "artifacts/ios-shots"
 SELFTEST = os.environ.get("SWIFTCAD_SELFTEST", "none")
 os.makedirs(OUT, exist_ok=True)
