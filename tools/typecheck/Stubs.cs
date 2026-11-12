@@ -14,9 +14,10 @@ namespace Microsoft.Maui.Graphics {
   public class Color { public static Color FromArgb(string s) => null; public static Color FromRgba(int r, int g, int b, int a) => null; }
   public static class Colors { public static Color White, Black, Transparent; }
   public struct Point { public Point(double x, double y) {} }
+  public struct Size { public double Width, Height; }
 }
 namespace Microsoft.Maui {
-  public interface IView {}
+  public interface IView { Microsoft.Maui.Graphics.Size Measure(double w, double h); }
   public struct Thickness { public Thickness(double u) {} public Thickness(double h, double v) {} public Thickness(double l, double t, double r, double b) {} public static implicit operator Thickness(double d) => default; }
   public struct CornerRadius { public CornerRadius(double u) {} public static implicit operator CornerRadius(double d) => default; }
   public struct GridLength { public GridLength(double v) {} public static GridLength Auto, Star; }
@@ -70,7 +71,7 @@ namespace Microsoft.Maui.Controls {
   }
   public class GestureRecognizer : Element {}
   public class TapGestureRecognizer : GestureRecognizer { public event EventHandler Tapped; }
-  public class View : VisualElement, IView {
+  public class View : VisualElement, IView { Microsoft.Maui.Graphics.Size IView.Measure(double w, double h) => default;
     public LayoutOptions HorizontalOptions { get; set; } public LayoutOptions VerticalOptions { get; set; } public Thickness Margin { get; set; }
     public IList<GestureRecognizer> GestureRecognizers => null;
   }

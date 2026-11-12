@@ -112,10 +112,17 @@ public partial class ViewerPage : ContentPage
     private View Scrollable(View content)
     {
         var sv = new ScrollView { Content = content };
-        content.SizeChanged += (_, _) =>
+        // Đo chiều cao nội dung khi không giới hạn (Height của nội dung trong ScrollView có thể bằng cả khung).
+        void Fit()
         {
-            if (content.Height > 0) sv.HeightRequest = Math.Min(content.Height, _panelMax);
-        };
+            var w = sv.Width > 0 ? sv.Width : _panel.Width - 24;
+            if (w <= 0) return;
+            var desired = ((IView)content).Measure(w, double.PositiveInfinity).Height;
+            var target = Math.Min(desired, _panelMax);
+            if (desired > 0 && Math.Abs(sv.HeightRequest - target) > 1) sv.HeightRequest = target;
+        }
+        content.SizeChanged += (_, _) => Fit();
+        sv.SizeChanged += (_, _) => Fit();
         return sv;
     }
 
@@ -312,7 +319,7 @@ public partial class ViewerPage : ContentPage
         row.Add(new PrimaryButton(L.T("measure_set_unit"), () => _ = ConfirmUnitAsync(), secondary: true), 1);
         col.Add(row);
         UpdateMeasure();
-        return Scrollable(col);
+        return col;
     }
 
     private void UpdateAim(SnapResult? aim)

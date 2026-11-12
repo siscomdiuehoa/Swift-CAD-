@@ -37,6 +37,9 @@ for label, shot, rotation in SHOTS:
     adb("shell", "am", "force-stop", PKG)
     rotate(rotation)
     adb("shell", "am", "start", "-W", "-n", ACT, "--es", "swiftcad_shot", shot)
+    if rotation:
+        time.sleep(3)
+        rotate(rotation)  # dat lai sau khi mo app; khoa truoc khi mo khong phai luc nao cung giu
     time.sleep(9 if shot in ("picker", "cloud") else 6)
     screencap(f"{OUT}/{NAME}-{label}.png")
     log.append(f"{label}: focus={focused_package()}")
