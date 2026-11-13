@@ -28,6 +28,16 @@ public static class ShotMode
         L.Apply(AppLanguage.Device);
         if (shot == "drawings-empty") ClearRecents(); else if (shot != "welcome") SeedRecents();
 
+        if (shot.StartsWith("store-", StringComparison.Ordinal))
+        {
+            // Ảnh cửa hàng: bản vẽ MEP do ứng dụng tự tạo (không phải bản vẽ khách hàng), lưu thành DXF thật
+            // và mở qua đúng luồng đọc tệp, nên không có nhãn Demo.
+            var files = SeedStoreRecents();
+            if (shot == "store-home") return Nav.BuildRoot();
+            var storeTool = shot["store-".Length..];
+            AfterOpen = v => v.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(900), () => v.ShotSetup(storeTool == "viewer" ? "none" : storeTool));
+            return WithViewer(new OpeningPage(files[0]), _ => { });
+        }
         switch (shot)
         {
             case "welcome": return new WelcomePage();
@@ -40,16 +50,6 @@ public static class ShotMode
         }
         if (shot.StartsWith("viewer", StringComparison.Ordinal))
         {
-            if (shot.StartsWith("store-", StringComparison.Ordinal))
-            {
-                // Ảnh cửa hàng: bản vẽ MEP do ứng dụng tự tạo (không phải bản vẽ khách hàng), lưu thành DXF thật
-                // và mở qua đúng luồng đọc tệp, nên không có nhãn Demo.
-                var files = SeedStoreRecents();
-                if (shot == "store-home") return Nav.BuildRoot();
-                var storeTool = shot["store-".Length..];
-                AfterOpen = v => v.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(900), () => v.ShotSetup(storeTool == "viewer" ? "none" : storeTool));
-                return WithViewer(new OpeningPage(files[0]), _ => { });
-            }
             if (shot.StartsWith("viewer-cad", StringComparison.Ordinal))
             {
                 // Tệp DXF thật do ACadSharp ghi từ bản vẽ kiểm thử tự tạo; app đọc lại qua đúng luồng OpeningPage → CadImporter.
