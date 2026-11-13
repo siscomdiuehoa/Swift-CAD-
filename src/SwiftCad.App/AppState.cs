@@ -31,47 +31,84 @@ public readonly record struct ImportResult(ImportStatus Status, RecentFile? File
 
 public static class Files
 {
+    /// <summary>
+    /// Trình chọn tệp chỉ hiện tệp AutoCAD. Android: lọc theo các kiểu MIME của DWG/DXF (kèm kiểu octet-stream cho máy
+    /// chưa biết đuôi .dwg; PDF, Word, ảnh, APK bị ẩn). iOS: kiểu tài liệu DWG/DXF khai báo trong Info.plist.
+    /// </summary>
     private static readonly FilePickerFileType CadTypes = new(new Dictionary<DevicePlatform, IEnumerable<string>>
     {
-        // Android thường không có MIME riêng cho DWG nên cho chọn mọi loại rồi kiểm tra phần mở rộng.
+        [DevicePlatform.Android] = CadFiles.PickerMimeTypes,
+        [DevicePlatform.iOS] = ["com.autodesk.dwg", "com.autodesk.dxf"],
+    });
+
+    /// <summary>Phương án dự phòng khi máy gán kiểu lạ cho tệp DWG: hiện mọi tệp, vẫn kiểm tra nội dung trước khi mở.</summary>
+    private static readonly FilePickerFileType AnyTypes = new(new Dictionary<DevicePlatform, IEnumerable<string>>
+    {
         [DevicePlatform.Android] = ["*/*"],
-        [DevicePlatform.iOS] = ["com.autodesk.dwg", "com.autodesk.dxf", "public.data"],
+        [DevicePlatform.iOS] = ["public.data"],
     });
 
     /// <summary>
     /// Mở trình chọn tệp hệ thống, sao chép tệp đã chọn vào vùng dữ liệu của ứng dụng để mở lại được
     /// khi mất quyền truy cập nguồn, rồi ghi vào danh sách Gần đây. Hủy thì không thay đổi gì.
     /// </summary>
-    public static async Task<ImportResult> PickAndImportAsync()
+    public static async Task<ImportResult> PickAndImportAsync(bool anyType = false)
     {
         FileResult? picked;
         try
         {
-            picked = await FilePicker.Default.PickAsync(new PickOptions { PickerTitle = L.T("picker_title"), FileTypes = CadTypes });
+            picked = await FilePicker.Default.PickAsync(new PickOptions { PickerTitle = L.T("picker_title"), FileTypes = anyType ? AnyTypes : CadTypes });
         }
         catch (Exception)
         {
             return new ImportResult(ImportStatus.Failed, null);
         }
         if (picked is null) return new ImportResult(ImportStatus.Cancelled, null);
-        if (!FileIdentity.IsSupportedExtension(picked.FileName)) return new ImportResult(ImportStatus.Unsupported, null);
+        try
+        {
+            await using var src = await picked.OpenReadAsync();
+            return await ImportAsync(src, picked.FileName);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return new ImportResult(ImportStatus.Failed, null);
+        }
+    }
 
+    /// <summary>
+    /// Sao chép một luồng tệp (từ trình chọn tệp, thư mục đã cấp quyền, hoặc ứng dụng khác gửi sang) vào vùng dữ liệu
+    /// của ứng dụng. Nhận diện theo nội dung: tệp không có đuôi nhưng đúng DWG/DXF vẫn mở được; tệp khác bị từ chối.
+    /// Tệp gốc không bị sửa.
+    /// </summary>
+    public static async Task<ImportResult> ImportAsync(Stream src, string? suggestedName)
+    {
+        string? temp = null;
         try
         {
             Directory.CreateDirectory(AppState.DrawingsDir);
-            var temp = Path.Combine(AppState.DrawingsDir, Guid.NewGuid().ToString("N") + ".tmp");
-            await using (var src = await picked.OpenReadAsync())
+            temp = Path.Combine(AppState.DrawingsDir, Guid.NewGuid().ToString("N") + ".tmp");
             await using (var dst = File.Create(temp))
                 await src.CopyToAsync(dst);
 
+            var head = new byte[CadFiles.HeadLength];
+            int read;
+            await using (var s = File.OpenRead(temp)) read = await s.ReadAtLeastAsync(head, head.Length, throwOnEndOfStream: false);
+            var name = CadFiles.ResolveName(suggestedName, head.AsSpan(0, read));
+            if (name is null)
+            {
+                File.Delete(temp);
+                return new ImportResult(ImportStatus.Unsupported, null);
+            }
+
             string key;
             await using (var s = File.OpenRead(temp)) key = FileIdentity.ComputeKey(s);
-            var final = Path.Combine(AppState.DrawingsDir, key + Path.GetExtension(picked.FileName).ToLowerInvariant());
+            var final = Path.Combine(AppState.DrawingsDir, key + Path.GetExtension(name).ToLowerInvariant());
             File.Move(temp, final, overwrite: true);
+            temp = null;
 
             var entry = AppState.Recents.Touch(new RecentFile
             {
-                DisplayName = picked.FileName,
+                DisplayName = name,
                 Source = FileSource.Device,
                 LocalPath = final,
                 SizeBytes = new FileInfo(final).Length,
@@ -82,6 +119,10 @@ public static class Files
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             return new ImportResult(ImportStatus.Failed, null);
+        }
+        finally
+        {
+            if (temp is not null) try { File.Delete(temp); } catch (IOException) { }
         }
     }
 

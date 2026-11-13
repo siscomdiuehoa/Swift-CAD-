@@ -37,6 +37,8 @@ public partial class HomePage : ContentPage
         base.OnAppearing();
         // Dựng lại khi quay về từ màn hình xem để cập nhật Gần đây và Đã lưu.
         Show(_tab);
+        // Tệp do ứng dụng khác gửi sang trong lúc giao diện chưa sẵn sàng.
+        _ = IncomingFiles.DeliverAsync();
     }
 
     private void AddTab(Grid bar, int col, HomeTab tab, string icon, string label)
@@ -86,6 +88,11 @@ public partial class HomePage : ContentPage
         col.Add(search);
 
         col.Add(new PrimaryButton(L.T("pick_file"), () => _ = PickAsync()));
+        // Trình chọn tệp chỉ hiện DWG/DXF. Máy gán kiểu lạ cho tệp DWG thì vẫn còn đường mở mọi loại tệp.
+        var anyFile = Ui.Text(L.T("pick_any_file"), Theme.FontSub, Theme.Primary);
+        anyFile.MinimumHeightRequest = Theme.Touch; anyFile.HorizontalTextAlignment = TextAlignment.Center;
+        anyFile.Tap(() => _ = PickAsync(anyType: true));
+        col.Add(anyFile);
 
         var cloud = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Star) }, ColumnSpacing = Theme.Gap };
         // Tên dịch vụ là tên riêng, không dịch. Biểu tượng đám mây trung tính, không dùng logo có bản quyền.
@@ -105,9 +112,6 @@ public partial class HomePage : ContentPage
         col.Add(_recentHost);
         RefreshRecents();
 
-        col.Add(Heading(L.T("samples"), 18));
-        col.Add(new DrawingRow(DemoDrawing.FileName, L.T("sample_subtitle"), demo: true,
-            L.F("a11y_open_file", DemoDrawing.FileName), () => _ = OpenDemoAsync()));
         return col;
     }
 
@@ -135,9 +139,10 @@ public partial class HomePage : ContentPage
         L.F("a11y_open_file", f.DisplayName), () => _ = OpenRecentAsync(f),
         L.F("a11y_file_menu", f.DisplayName), () => _ = MenuAsync(f));
 
-    private async Task PickAsync()
+    private async Task PickAsync(bool anyType = false) => await HandleImportAsync(await Files.PickAndImportAsync(anyType));
+
+    private async Task HandleImportAsync(ImportResult r)
     {
-        var r = await Files.PickAndImportAsync();
         switch (r.Status)
         {
             case ImportStatus.Opened:
@@ -162,8 +167,6 @@ public partial class HomePage : ContentPage
         var go = await DisplayAlertAsync(provider, L.F("cloud_guide", provider), L.T("cloud_open_picker"), L.T("cancel"));
         if (go) await PickAsync();
     }
-
-    private Task OpenDemoAsync() => Navigation.PushAsync(new ViewerPage());
 
     private async Task OpenRecentAsync(RecentFile f)
     {
@@ -228,8 +231,8 @@ public partial class HomePage : ContentPage
 
         var lang = Group(L.T("settings_language"));
         AddLanguage(lang, AppLanguage.Device, L.T("lang_device"));
-        AddLanguage(lang, AppLanguage.English, "English");
-        AddLanguage(lang, AppLanguage.Vietnamese, "Tiếng Việt");
+        // Tên ngôn ngữ viết bằng chính ngôn ngữ đó để người dùng luôn nhận ra (không dịch).
+        foreach (var (value, name) in LanguageResolver.Languages) AddLanguage(lang, value, name);
         col.Add(new SoftSurface(lang));
 
         var unit = Group(L.T("settings_unit"));
@@ -245,8 +248,17 @@ public partial class HomePage : ContentPage
         col.Add(new SoftSurface(canvas));
 
         var about = Group(L.T("settings_about"));
+        // Logo và tên nhà phát triển là tên riêng (pháp nhân), không dịch.
+        var devLogo = new Image { Source = "siscom_logo.png", HeightRequest = 40, Aspect = Aspect.AspectFit, HorizontalOptions = LayoutOptions.Start, Margin = new Thickness(0, 4, 0, 2) };
+        SemanticProperties.SetDescription(devLogo, AppInfoExtra.DeveloperName);
+        about.Add(devLogo);
+        about.Add(Ui.Text(L.F("about_developer", AppInfoExtra.DeveloperName), Theme.FontSub, Theme.Text, bold: true));
+        // Trang web nhà phát triển: chạm để mở trình duyệt. Địa chỉ web không dịch.
+        var site = Ui.Text(AppInfoExtra.Website.Replace("https://", ""), Theme.FontSub, Theme.Primary, bold: true);
+        site.MinimumHeightRequest = Theme.Touch;
+        site.Tap(() => _ = Launcher.Default.OpenAsync(new Uri(AppInfoExtra.Website))).A11y(L.F("a11y_open_website", AppInfoExtra.Website));
+        about.Add(site);
         about.Add(Ui.Text(L.F("about_version", AppInfo.Current.VersionString), Theme.FontSub, Theme.TextSub));
-        about.Add(Ui.Text(L.T("about_no_ads"), Theme.FontSub, Theme.TextSub));
         about.Add(new OptionRow(L.T("settings_licenses"), false, () => _ = Navigation.PushAsync(new LicensesPage())));
         col.Add(new SoftSurface(about));
         return col;

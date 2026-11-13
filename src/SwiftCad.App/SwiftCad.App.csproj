@@ -35,8 +35,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#E8F1F8" />
-    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#E8F1F8" BaseSize="128,128" />
+    <!-- Icon da duyet (icon_swift_cad.png cua Owner, cat thanh hinh vuong tran vien).
+         iOS: mot anh vuong, he dieu hanh tu bo goc. Android: icon thich ung, lop truoc thu nho de khong mat chu CAD o goc. -->
+    <MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'" Include="Resources\AppIcon\ios\appicon.png" />
+    <MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'ios'" Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.png" ForegroundScale="0.56" Color="#011E50" />
+    <MauiSplashScreen Include="Resources\Splash\splash.png" Color="#E8F1F8" BaseSize="128,128" />
+    <MauiImage Include="Resources\Images\*" />
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 

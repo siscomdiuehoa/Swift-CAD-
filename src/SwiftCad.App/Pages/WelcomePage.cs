@@ -28,9 +28,8 @@ public class WelcomePage : ContentPage
         var langs = new VerticalStackLayout { Spacing = 4 };
         langs.Add(Ui.Text(L.T("settings_language"), Theme.FontSub, Theme.TextSub, bold: true));
         AddLanguage(langs, AppLanguage.Device, L.T("lang_device"));
-        // Tên ngôn ngữ viết bằng chính ngôn ngữ đó để người dùng luôn nhận ra.
-        AddLanguage(langs, AppLanguage.English, "English");
-        AddLanguage(langs, AppLanguage.Vietnamese, "Tiếng Việt");
+        // Tên ngôn ngữ viết bằng chính ngôn ngữ đó để người dùng luôn nhận ra (không dịch).
+        foreach (var (value, name) in LanguageResolver.Languages) AddLanguage(langs, value, name);
         stack.Add(new SoftSurface(langs));
 
         stack.Add(new PrimaryButton(L.T("welcome_guest"), () => Finish(signIn: false)));

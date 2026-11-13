@@ -30,8 +30,9 @@ public partial class ViewerPage
                 break;
             case "notes":
                 foreach (var n in AppState.Notes.Load(_fileKey)) AppState.Notes.Remove(_fileKey, n.Id);
-                AppState.Notes.Add(_fileKey, new Point2(3000, 2000), L.Lang == "vi" ? "Kiểm tra van DN100" : "Check valve DN100", DateTimeOffset.UtcNow);
-                AppState.Notes.Add(_fileKey, new Point2(10000, 4100), L.Lang == "vi" ? "Miệng gió lệch trục 3" : "Diffuser off grid 3", DateTimeOffset.UtcNow);
+                AppState.Notes.Add(_fileKey, NoteKind.Text, new Point2(3000, 2000), new Point2(3000, 2000), L.Lang == "vi" ? "Kiểm tra van DN100" : "Check valve DN100", DateTimeOffset.UtcNow);
+                AppState.Notes.Add(_fileKey, NoteKind.Arrow, new Point2(6000, 5600), new Point2(10000, 4100), L.Lang == "vi" ? "Miệng gió lệch trục 3" : "Diffuser off grid 3", DateTimeOffset.UtcNow);
+                AppState.Notes.Add(_fileKey, NoteKind.Cloud, new Point2(8300, 300), new Point2(11700, 2700), L.Lang == "vi" ? "Phòng kỹ thuật: sửa lại" : "Plant room: revise", DateTimeOffset.UtcNow);
                 ReloadNotes();
                 SelectTool(Tool.Notes);
                 break;

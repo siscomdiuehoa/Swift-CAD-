@@ -10,8 +10,9 @@
   <data name="a11y_file_menu" xml:space="preserve"><value>Tùy chọn khác cho {0}</value></data>
   <data name="a11y_layer_toggle" xml:space="preserve"><value>Hiện layer {0}</value></data>
   <data name="a11y_open_file" xml:space="preserve"><value>Mở {0}</value></data>
+  <data name="a11y_open_website" xml:space="preserve"><value>Mở {0} trong trình duyệt</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, đang chọn</value></data>
-  <data name="about_no_ads" xml:space="preserve"><value>Không quảng cáo. Mở tệp trên máy không cần tài khoản.</value></data>
+  <data name="about_developer" xml:space="preserve"><value>Nhà phát triển: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Phiên bản {0} · bản thử</value></data>
   <data name="account_demo_message" xml:space="preserve"><value>Bản thử này chưa có máy chủ tài khoản. Đăng nhập chỉ dùng danh tính mẫu và không thu thông tin cá nhân.</value></data>
   <data name="account_demo_title" xml:space="preserve"><value>Đăng nhập mẫu</value></data>
@@ -73,7 +74,7 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="menu_share_copy" xml:space="preserve"><value>Chia sẻ bản sao</value></data>
   <data name="menu_unbookmark" xml:space="preserve"><value>Bỏ khỏi Đã lưu</value></data>
   <data name="notes_delete_title" xml:space="preserve"><value>Xóa ghi chú này?</value></data>
-  <data name="notes_hint" xml:space="preserve"><value>Chạm vào bản vẽ để ghim ghi chú</value></data>
+  <data name="notes_hint" xml:space="preserve"><value>Chạm vào bản vẽ để thêm chữ</value></data>
   <data name="notes_new_message" xml:space="preserve"><value>Lưu trên máy, tách riêng khỏi tệp gốc.</value></data>
   <data name="notes_new_title" xml:space="preserve"><value>Ghi chú mới</value></data>
   <data name="notes_separate" xml:space="preserve"><value>Ghi chú được lưu riêng. Tệp gốc không bao giờ bị thay đổi.</value></data>
@@ -91,8 +92,6 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="recent" xml:space="preserve"><value>Gần đây</value></data>
   <data name="recent_empty" xml:space="preserve"><value>Chưa có bản vẽ nào. Dùng Chọn tệp để mở DWG hoặc DXF từ máy.</value></data>
   <data name="recent_no_match" xml:space="preserve"><value>Không có bản vẽ gần đây nào khớp “{0}”.</value></data>
-  <data name="sample_subtitle" xml:space="preserve"><value>Hình học mẫu do ứng dụng tự tạo</value></data>
-  <data name="samples" xml:space="preserve"><value>Tệp mẫu</value></data>
   <data name="save" xml:space="preserve"><value>Lưu</value></data>
   <data name="saved_empty" xml:space="preserve"><value>Chưa có mục nào. Dùng menu trên từng bản vẽ để thêm vào đây.</value></data>
   <data name="saved_explain" xml:space="preserve"><value>Danh sách bản vẽ bạn đã đánh dấu. Đánh dấu không có nghĩa là đã tải về.</value></data>
@@ -126,4 +125,13 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="welcome_note" xml:space="preserve"><value>Bạn có thể đăng nhập sau trong Cài đặt. Tệp trên máy luôn mở được mà không cần tài khoản.</value></data>
   <data name="welcome_sign_in_demo" xml:space="preserve"><value>Đăng nhập (Demo)</value></data>
   <data name="welcome_subtitle" xml:space="preserve"><value>Xem, tìm, đo và ghi chú bản vẽ DWG/DXF tại công trường.</value></data>
+  <data name="annot_arrow" xml:space="preserve"><value>Mũi tên</value></data>
+  <data name="annot_cloud" xml:space="preserve"><value>Khoanh vùng</value></data>
+  <data name="annot_hint_arrow" xml:space="preserve"><value>Kéo một ngón từ chỗ đặt chữ tới điểm cần chỉ. Dùng hai ngón để di chuyển, thu phóng.</value></data>
+  <data name="annot_hint_cloud" xml:space="preserve"><value>Kéo một ngón chéo qua vùng cần khoanh. Dùng hai ngón để di chuyển, thu phóng.</value></data>
+  <data name="annot_no_text" xml:space="preserve"><value>(không có chữ)</value></data>
+  <data name="annot_text" xml:space="preserve"><value>Chữ</value></data>
+  <data name="annot_text_optional" xml:space="preserve"><value>Thêm chữ (có thể bỏ trống). Lưu trên máy, tách riêng khỏi tệp gốc.</value></data>
+  <data name="menu_display_info" xml:space="preserve"><value>Mức độ hiển thị</value></data>
+  <data name="pick_any_file" xml:space="preserve"><value>Không thấy tệp? Hiện mọi loại tệp</value></data>
 </root>

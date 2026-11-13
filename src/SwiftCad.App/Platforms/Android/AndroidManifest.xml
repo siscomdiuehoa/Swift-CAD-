@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- Khong xin quyen mang hay bo nho: tep duoc mo qua trinh chon tep he thong. -->
+	<!-- Khong xin quyen mang hay bo nho: tep mo qua trinh chon tep, thu muc nguoi dung cho phep (Storage Access Framework), hoac Mo bang tu ung dung khac. -->
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
 </manifest>

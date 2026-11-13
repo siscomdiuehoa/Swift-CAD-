@@ -230,6 +230,12 @@ Test("vùng tô có khung bao đúng", () =>
     Near(1, b.MinX, 1e-9); Near(9, b.MaxY, 1e-9);
 });
 
+Test("trình chọn tệp không dùng kiểu octet-stream (ẩn tệp không liên quan)", () =>
+{
+    True(!CadFiles.PickerMimeTypes.Contains("application/octet-stream"), "còn octet-stream");
+    True(CadFiles.PickerMimeTypes.Contains("image/vnd.dwg") && CadFiles.PickerMimeTypes.Contains("image/vnd.dxf"), "thiếu kiểu DWG/DXF");
+});
+
 Console.WriteLine("Ngôn ngữ");
 Test("theo thiết bị, dự phòng tiếng Anh", () =>
 {
@@ -239,6 +245,29 @@ Test("theo thiết bị, dự phòng tiếng Anh", () =>
     Eq("en", LanguageResolver.Resolve(AppLanguage.Device, null));
     Eq("vi", LanguageResolver.Resolve(AppLanguage.Vietnamese, "ja-JP"));
     Eq("en", LanguageResolver.Resolve(AppLanguage.English, "vi-VN"));
+});
+Test("ngôn ngữ mới: Tây Ban Nha, Indonesia, Trung giản thể; phồn thể dùng tiếng Anh", () =>
+{
+    Eq("es", LanguageResolver.Resolve(AppLanguage.Device, "es-MX"));
+    Eq("id", LanguageResolver.Resolve(AppLanguage.Device, "id-ID"));
+    Eq("id", LanguageResolver.Resolve(AppLanguage.Device, "in_ID")); // mã cũ trên Android
+    Eq("zh-Hans", LanguageResolver.Resolve(AppLanguage.Device, "zh-CN"));
+    Eq("zh-Hans", LanguageResolver.Resolve(AppLanguage.Device, "zh-Hans-SG"));
+    Eq("en", LanguageResolver.Resolve(AppLanguage.Device, "zh-TW"));
+    Eq("en", LanguageResolver.Resolve(AppLanguage.Device, "zh-Hant-HK"));
+    Eq("zh-Hans", LanguageResolver.Resolve(AppLanguage.ChineseSimplified, "vi-VN"));
+    Eq("es", LanguageResolver.Resolve(AppLanguage.Spanish, null));
+    Eq(5, LanguageResolver.Languages.Count);
+    True((int)AppLanguage.Vietnamese == 2, "không đổi số của lựa chọn đã lưu");
+});
+Test("định dạng số theo ngôn ngữ mới", () =>
+{
+    Eq("es-MX", LanguageResolver.FormatCulture("es", CultureInfo.GetCultureInfo("es-MX")).Name);
+    Eq("es-ES", LanguageResolver.FormatCulture("es", CultureInfo.GetCultureInfo("en-US")).Name);
+    Eq("zh-CN", LanguageResolver.FormatCulture("zh-Hans", CultureInfo.GetCultureInfo("en-US")).Name);
+    Eq("zh-CN", LanguageResolver.FormatCulture("zh-Hans", CultureInfo.GetCultureInfo("zh-CN")).Name);
+    Eq("id-ID", LanguageResolver.FormatCulture("id", CultureInfo.GetCultureInfo("id-ID")).Name);
+    Eq("12.000,0 mm", Units.Format(12000, DrawingUnit.Millimeter, CultureInfo.GetCultureInfo("id-ID")));
 });
 Test("văn hóa định dạng giữ vùng thiết bị khi cùng ngôn ngữ", () =>
 {
@@ -305,6 +334,63 @@ Test("phần mở rộng và dung lượng", () =>
     True(!FileIdentity.IsSupportedExtension("c.pdf"), "pdf");
     Eq("1,5 MB", FileIdentity.FormatSize(1572864, vi)); Eq("1.5 MB", FileIdentity.FormatSize(1572864, en));
 });
+Test("ghi chú chữ, mũi tên, khoanh vùng: lưu hai điểm, chữ tùy chọn; tệp cũ không có Kind vẫn đọc được", () =>
+{
+    var dir = Path.Combine(tmp, "notes2"); var ns = new NoteStore(dir); var key = "cc";
+    ns.Add(key, NoteKind.Text, new(10, 20), new(99, 99), " Van DN100 ", DateTimeOffset.UtcNow);
+    ns.Add(key, NoteKind.Arrow, new(0, 0), new(500, 300), null, DateTimeOffset.UtcNow);
+    ns.Add(key, NoteKind.Cloud, new(100, 100), new(400, 250), "Sửa lại", DateTimeOffset.UtcNow);
+    var l = new NoteStore(dir).Load(key);
+    Eq(3, l.Count);
+    Eq(NoteKind.Text, l[0].Kind); Eq("Van DN100", l[0].Text); Near(10, l[0].X2); Near(20, l[0].Y2);
+    Eq(NoteKind.Arrow, l[1].Kind); Eq("", l[1].Text); Near(500, l[1].X2); Near(300, l[1].Y2);
+    Near(250, l[2].Anchor.X); Near(175, l[2].Anchor.Y);
+    var threw = 0;
+    try { ns.Add(key, NoteKind.Text, new(1, 1), new(1, 1), "  ", DateTimeOffset.UtcNow); } catch (ArgumentException) { threw++; }
+    try { ns.Add(key, NoteKind.Cloud, new(1, 1), new(1, 1), "x", DateTimeOffset.UtcNow); } catch (ArgumentException) { threw++; }
+    Eq(2, threw);
+    var json = File.ReadAllText(Directory.GetFiles(dir).Single());
+    True(!json.Contains("Anchor") && !json.Contains("HasSecondPoint"), "thuộc tính tính toán bị ghi vào JSON");
+    // Tệp ghi chú của bản trước (không có Kind/X2/Y2) đọc thành ghim.
+    File.WriteAllText(Path.Combine(dir, "dd.notes.json"), "[{\"Id\":\"a\",\"X\":5,\"Y\":6,\"Text\":\"cũ\",\"CreatedUtc\":\"2026-11-10T00:00:00+00:00\"}]");
+    var old = ns.Load("dd").Single();
+    Eq(NoteKind.Pin, old.Kind); Near(5, old.Anchor.X);
+});
+Test("nhận diện DWG/DXF theo nội dung, không theo tên", () =>
+{
+    static byte[] B(string s) => System.Text.Encoding.Latin1.GetBytes(s);
+    Eq(".dwg", CadFiles.DetectExtension(B("AC1032\0\0\0\0\0\0\u0003")));
+    Eq(".dwg", CadFiles.DetectExtension(B("AC1015\0")));
+    Eq(".dwg", CadFiles.DetectExtension(B("AC1.50\0")));
+    Eq(".dxf", CadFiles.DetectExtension(B("  0\r\nSECTION\r\n  2\r\nHEADER\r\n")));
+    Eq(".dxf", CadFiles.DetectExtension(B("ï»¿999\nDXF tu tao\n0\nSECTION\n")));
+    Eq(".dxf", CadFiles.DetectExtension(B("AutoCAD Binary DXF\r\n\u001a\0")));
+    Eq<string?>(null, CadFiles.DetectExtension(B("%PDF-1.7\n")));
+    Eq<string?>(null, CadFiles.DetectExtension(B("PK\u0003\u0004")));
+    Eq<string?>(null, CadFiles.DetectExtension(B("ACAD")));
+    Eq<string?>(null, CadFiles.DetectExtension([]));
+    var dwg = B("AC1032\0");
+    Eq("ĐHKK Mr.Sơn.dwg", CadFiles.ResolveName("ĐHKK Mr.Sơn.dwg", dwg));
+    Eq("1699872000000.dwg", CadFiles.ResolveName("1699872000000", dwg));
+    Eq("drawing.dwg", CadFiles.ResolveName(null, dwg));
+    Eq("x.DXF", CadFiles.ResolveName("x.DXF", B("0\nSECTION\n")));
+    Eq<string?>(null, CadFiles.ResolveName("ban-ve.dwg", B("%PDF-1.4")));
+});
+Test("danh sách tải về: chỉ tệp CAD, mới nhất đầu tiên, không trùng", () =>
+{
+    var t = new DateTimeOffset(2026, 11, 13, 1, 0, 0, TimeSpan.Zero);
+    var list = CadFiles.NewestFirst(
+    [
+        new DeviceCadFile("cu.dwg", 1, t.AddDays(-3), "u1", "Zalo"),
+        new DeviceCadFile("bao-gia.pdf", 1, t.AddDays(1), "u2", "Zalo"),
+        new DeviceCadFile("moi.DXF", 1, t, "u3", "Zalo"),
+        new DeviceCadFile("ĐHKK Mr.Sơn.dwg", 1, t.AddHours(1), "u4", "Zalo"),
+        new DeviceCadFile("ĐHKK Mr.Sơn.dwg", 1, t.AddHours(1), "u4", "Download"),
+        new DeviceCadFile("app.apk", 1, t.AddDays(2), "u5", "Download"),
+    ]);
+    Eq("ĐHKK Mr.Sơn.dwg,moi.DXF,cu.dwg", string.Join(",", list.Select(f => f.Name)));
+    Eq(1, CadFiles.NewestFirst(list, 1).Count);
+});
 try { Directory.Delete(tmp, true); } catch { }
 
 Console.WriteLine("Tài nguyên dịch");
@@ -318,6 +404,21 @@ else
         XDocument.Load(p).Root!.Elements("data").ToDictionary(d => d.Attribute("name")!.Value, d => d.Element("value")!.Value);
     var enR = Resx(Path.Combine(locDir, "AppResources.resx"));
     var viR = Resx(Path.Combine(locDir, "AppResources.vi.resx"));
+    Test("mọi ngôn ngữ trong LanguageResolver đều có tệp tài nguyên đủ khóa, đúng tham số", () =>
+    {
+        foreach (var code in LanguageResolver.Supported.Where(c => c != "en"))
+        {
+            var path = Path.Combine(locDir, $"AppResources.{code}.resx");
+            True(File.Exists(path), "thiếu tệp " + path);
+            var r = Resx(path);
+            var miss = enR.Keys.Except(r.Keys).Concat(r.Keys.Except(enR.Keys)).ToList();
+            True(miss.Count == 0, code + " lệch khóa: " + string.Join(", ", miss));
+            var empty = r.Where(k => string.IsNullOrWhiteSpace(k.Value)).Select(k => k.Key).ToList();
+            True(empty.Count == 0, code + " giá trị rỗng: " + string.Join(", ", empty));
+            var bad = enR.Keys.Where(k => Regex.Matches(enR[k], @"\{\d\}").Count != Regex.Matches(r[k], @"\{\d\}").Count).ToList();
+            True(bad.Count == 0, code + " lệch tham số: " + string.Join(", ", bad));
+        }
+    });
     Test("EN và VI có cùng bộ khóa, không giá trị rỗng", () =>
     {
         var miss = enR.Keys.Except(viR.Keys).Concat(viR.Keys.Except(enR.Keys)).ToList();

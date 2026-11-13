@@ -85,8 +85,33 @@ def screen_height():
     return int(m[-1][1]) if m else 1920
 
 
+def swipe_page(direction):
+    """Cuon trang: 'down' = xem phan ben duoi, 'up' = ve phan ben tren."""
+    h = screen_height()
+    y0, y1 = (int(h * 0.7), int(h * 0.3)) if direction == "down" else (int(h * 0.3), int(h * 0.7))
+    adb("shell", "input", "swipe", "540", str(y0), "540", str(y1), "350")
+    time.sleep(1.2)
+
+
+def find_scrolling(texts, timeout=15, contains=False):
+    """Tim phan tu; neu khong co tren man hinh thi cuon len dau trang roi cuon dan xuong de tim.
+    Chi doi vi tri nhin, khong bo qua dieu kien kiem tra."""
+    n = find(texts, min(timeout, 6), contains)
+    if n is not None:
+        return n
+    for _ in range(4):
+        swipe_page("up")
+    n = find(texts, 2, contains)
+    for _ in range(8):
+        if n is not None:
+            return n
+        swipe_page("down")
+        n = find(texts, 2, contains)
+    return n
+
+
 def tap(texts, timeout=15, contains=False):
-    n = find(texts, timeout, contains)
+    n = find_scrolling(texts, timeout, contains)
     if n is None:
         raise LookupError(f"Khong tim thay: {texts}")
     # Phan tu nam sat day man hinh co the bi thanh dieu huong che: cuon len roi tim lai.

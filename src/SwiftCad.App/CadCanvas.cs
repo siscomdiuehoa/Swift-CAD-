@@ -22,6 +22,8 @@ public class CadCanvas : SKCanvasView
     public IReadOnlyList<TextHit> Hits { get; set; } = [];
     public int CurrentHit { get; set; } = -1;
     public IReadOnlyList<Note> Notes { get; set; } = [];
+    /// <summary>Loại ghi chú khi ở chế độ Ghi chú: Chữ (chạm), Mũi tên hoặc Khoanh vùng (kéo một ngón).</summary>
+    public NoteKind NoteTool { get; set; } = NoteKind.Text;
     public SnapResult? MeasureA { get; private set; }
     public SnapResult? MeasureB { get; private set; }
     public SnapResult? Aim { get; private set; }
@@ -30,6 +32,12 @@ public class CadCanvas : SKCanvasView
     public event Action? MeasureChanged;
     public event Action<SnapResult?>? AimChanged;
     public event Action<Point2>? NoteRequested;
+    /// <summary>Vẽ xong mũi tên (điểm đầu → đầu mũi tên) hoặc vùng khoanh (hai góc đối).</summary>
+    public event Action<NoteKind, Point2, Point2>? ShapeDrawn;
+
+    private Point2? _dragStart, _dragEnd;
+    private bool DrawsShapes => Mode == CanvasMode.Note && NoteTool is NoteKind.Arrow or NoteKind.Cloud;
+    private static readonly SKColor AnnotColor = new(0xFF, 0x45, 0x3A);
 
     private readonly Dictionary<long, SKPoint> _touches = new();
     private SKPoint _downAt;
@@ -101,8 +109,13 @@ public class CadCanvas : SKCanvasView
         {
             case SKTouchAction.Pressed:
                 _touches[e.Id] = e.Location;
-                if (_touches.Count == 1) { _downAt = e.Location; _moved = false; }
-                else { _moved = true; SetAim(null); }
+                if (_touches.Count == 1)
+                {
+                    _downAt = e.Location; _moved = false;
+                    _dragStart = DrawsShapes ? Camera.ScreenToWorld(e.Location.X, e.Location.Y) : null;
+                    _dragEnd = null;
+                }
+                else { _moved = true; SetAim(null); _dragStart = _dragEnd = null; } // hai ngón: di chuyển, thu phóng; bỏ hình đang vẽ
                 break;
 
             case SKTouchAction.Moved:
@@ -113,6 +126,7 @@ public class CadCanvas : SKCanvasView
                     if (_moved)
                     {
                         if (Mode == CanvasMode.Measure) SetAim(SnapAt(e.Location.X, e.Location.Y - AimOffsetDp * _density));
+                        else if (_dragStart is not null) _dragEnd = Camera.ScreenToWorld(e.Location.X, e.Location.Y);
                         else Camera.Pan(e.Location.X - prev.X, e.Location.Y - prev.Y);
                     }
                     _touches[e.Id] = e.Location;
@@ -140,6 +154,12 @@ public class CadCanvas : SKCanvasView
                     SetAim(null);
                     if (point is { } p) PlaceMeasurePoint(p);
                 }
+                else if (_dragStart is { } ds)
+                {
+                    var de = _dragEnd;
+                    _dragStart = _dragEnd = null;
+                    if (_moved && de is { } end) ShapeDrawn?.Invoke(NoteTool, ds, end);
+                }
                 else if (Mode == CanvasMode.Note && !_moved)
                 {
                     NoteRequested?.Invoke(Camera.ScreenToWorld(e.Location.X, e.Location.Y));
@@ -150,6 +170,7 @@ public class CadCanvas : SKCanvasView
             case SKTouchAction.Cancelled:
                 _touches.Remove(e.Id);
                 SetAim(null);
+                _dragStart = _dragEnd = null;
                 InvalidateSurface();
                 break;
         }
@@ -302,18 +323,120 @@ public class CadCanvas : SKCanvasView
         stroke.StrokeWidth = Math.Max(1f, 1.1f * _density);
     }
 
+    /// <summary>
+    /// Ghi chú vẽ chồng lên bản vẽ, không ghi vào tệp gốc. Nét và chữ có cỡ cố định trên màn hình để luôn đọc được.
+    /// Ghim (bản cũ): vòng tròn đánh số. Chữ: chấm neo và nhãn chữ. Mũi tên: nét chỉ tới điểm, chữ ở đầu kia.
+    /// Khoanh vùng: khung dạng đám mây, chữ phía trên góc trái.
+    /// </summary>
     private void DrawNotes(SKCanvas canvas, SKFont font, SKPaint stroke, SKPaint fill)
     {
         var r = 11 * _density;
-        font.Size = 12 * _density;
         for (var i = 0; i < Notes.Count; i++)
         {
-            var o = S(new Point2(Notes[i].X, Notes[i].Y));
-            fill.Color = new SKColor(0x08, 0x78, 0xFF); canvas.DrawCircle(o, r, fill);
-            stroke.Color = SKColors.White; canvas.DrawCircle(o, r, stroke);
-            fill.Color = SKColors.White;
-            canvas.DrawText((i + 1).ToString(L.FormatCulture), o.X, o.Y + 4 * _density, SKTextAlign.Center, font, fill);
+            var n = Notes[i];
+            var a = S(new Point2(n.X, n.Y));
+            switch (n.Kind)
+            {
+                case NoteKind.Text:
+                    fill.Color = AnnotColor; canvas.DrawCircle(a, 3.5f * _density, fill);
+                    TextLabel(canvas, font, stroke, fill, new SKPoint(a.X + 4 * _density, a.Y - 4 * _density), n.Text, alignRight: false);
+                    break;
+                case NoteKind.Arrow:
+                    var b = S(new Point2(n.X2, n.Y2));
+                    DrawArrow(canvas, stroke, fill, a, b);
+                    if (n.Text.Length > 0)
+                        TextLabel(canvas, font, stroke, fill, new SKPoint(b.X >= a.X ? a.X - 4 * _density : a.X + 4 * _density, a.Y + 11 * _density), n.Text, alignRight: b.X >= a.X);
+                    break;
+                case NoteKind.Cloud:
+                    var c = S(new Point2(n.X2, n.Y2));
+                    DrawCloud(canvas, stroke, a, c);
+                    if (n.Text.Length > 0)
+                        TextLabel(canvas, font, stroke, fill, new SKPoint(Math.Min(a.X, c.X), Math.Min(a.Y, c.Y) - 8 * _density), n.Text, alignRight: false);
+                    break;
+                default:
+                    font.Size = 12 * _density;
+                    fill.Color = new SKColor(0x08, 0x78, 0xFF); canvas.DrawCircle(a, r, fill);
+                    stroke.Color = SKColors.White; canvas.DrawCircle(a, r, stroke);
+                    fill.Color = SKColors.White;
+                    canvas.DrawText((i + 1).ToString(L.FormatCulture), a.X, a.Y + 4 * _density, SKTextAlign.Center, font, fill);
+                    break;
+            }
         }
+        // Hình đang kéo (chưa lưu).
+        if (_dragStart is { } ds && _dragEnd is { } de)
+        {
+            if (NoteTool == NoteKind.Arrow) DrawArrow(canvas, stroke, fill, S(ds), S(de));
+            else DrawCloud(canvas, stroke, S(ds), S(de));
+        }
+        stroke.StrokeWidth = Math.Max(1f, 1.1f * _density);
+    }
+
+    private void DrawArrow(SKCanvas canvas, SKPaint stroke, SKPaint fill, SKPoint from, SKPoint to)
+    {
+        stroke.Color = AnnotColor; stroke.StrokeWidth = 2.2f * _density;
+        var dx = to.X - from.X; var dy = to.Y - from.Y;
+        var len = MathF.Sqrt(dx * dx + dy * dy);
+        if (len < 1) return;
+        var ux = dx / len; var uy = dy / len;
+        var head = Math.Min(14 * _density, len * 0.6f);
+        var baseX = to.X - ux * head; var baseY = to.Y - uy * head;
+        canvas.DrawLine(from.X, from.Y, baseX, baseY, stroke);
+        using var pb = new SKPathBuilder();
+        pb.MoveTo(to);
+        pb.LineTo(baseX - uy * head * 0.45f, baseY + ux * head * 0.45f);
+        pb.LineTo(baseX + uy * head * 0.45f, baseY - ux * head * 0.45f);
+        pb.Close();
+        fill.Color = AnnotColor;
+        using var built = pb.Detach();
+        canvas.DrawPath(built, fill);
+    }
+
+    /// <summary>Khung đám mây (revision cloud) theo hình chữ nhật hai góc đối; mỗi vòng cung khoảng 16 dp.</summary>
+    private void DrawCloud(SKCanvas canvas, SKPaint stroke, SKPoint p1, SKPoint p2)
+    {
+        stroke.Color = AnnotColor; stroke.StrokeWidth = 2f * _density;
+        float l = Math.Min(p1.X, p2.X), t = Math.Min(p1.Y, p2.Y), rgt = Math.Max(p1.X, p2.X), btm = Math.Max(p1.Y, p2.Y);
+        if (rgt - l < 2 || btm - t < 2) return;
+        // Đi theo chiều kim đồng hồ trên màn hình; pháp tuyến ra ngoài của cạnh (dx, dy) là (dy, -dx).
+        SKPoint[] corners = [new(l, t), new(rgt, t), new(rgt, btm), new(l, btm)];
+        var step = 16 * _density;
+        using var pb = new SKPathBuilder();
+        pb.MoveTo(corners[0]);
+        for (var k = 0; k < 4; k++)
+        {
+            var from = corners[k]; var to = corners[(k + 1) % 4];
+            var ex = to.X - from.X; var ey = to.Y - from.Y;
+            var elen = MathF.Sqrt(ex * ex + ey * ey);
+            var count = Math.Max(1, (int)MathF.Round(elen / step));
+            var nx = ey / elen; var ny = -ex / elen;
+            var bulge = elen / count * 0.55f;
+            for (var j = 0; j < count; j++)
+            {
+                var s0 = (float)j / count; var s1 = (float)(j + 1) / count; var sm = (s0 + s1) / 2;
+                pb.QuadTo(from.X + ex * sm + nx * bulge, from.Y + ey * sm + ny * bulge, from.X + ex * s1, from.Y + ey * s1);
+            }
+        }
+        pb.Close();
+        using var built = pb.Detach();
+        canvas.DrawPath(built, stroke);
+    }
+
+    /// <summary>Nhãn chữ một dòng trên nền tối viền đỏ; đặt góc dưới trái (hoặc dưới phải) tại điểm cho trước.</summary>
+    private void TextLabel(SKCanvas canvas, SKFont font, SKPaint stroke, SKPaint fill, SKPoint at, string text, bool alignRight)
+    {
+        var label = text.Length > 48 ? text[..47] + "\u2026" : text;
+        label = label.Replace('\n', ' ');
+        font.Size = 14 * _density;
+        var pad = 6 * _density; var h = 24 * _density;
+        var w = font.MeasureText(label) + 2 * pad;
+        var left = alignRight ? at.X - w : at.X;
+        var box = new SKRect(left, at.Y - h, left + w, at.Y);
+        fill.Color = new SKColor(0x11, 0x1C, 0x25, 0xE6);
+        canvas.DrawRoundRect(box, 6 * _density, 6 * _density, fill);
+        stroke.Color = AnnotColor; stroke.StrokeWidth = 1.4f * _density;
+        canvas.DrawRoundRect(box, 6 * _density, 6 * _density, stroke);
+        fill.Color = SKColors.White;
+        canvas.DrawText(label, left + pad, at.Y - 7 * _density, SKTextAlign.Left, font, fill);
     }
 
     private void DrawMeasure(SKCanvas canvas, SKFont font, SKPaint stroke, SKPaint fill)
