@@ -40,6 +40,16 @@ public static class ShotMode
         }
         if (shot.StartsWith("viewer", StringComparison.Ordinal))
         {
+            if (shot.StartsWith("store-", StringComparison.Ordinal))
+            {
+                // Ảnh cửa hàng: bản vẽ MEP do ứng dụng tự tạo (không phải bản vẽ khách hàng), lưu thành DXF thật
+                // và mở qua đúng luồng đọc tệp, nên không có nhãn Demo.
+                var files = SeedStoreRecents();
+                if (shot == "store-home") return Nav.BuildRoot();
+                var storeTool = shot["store-".Length..];
+                AfterOpen = v => v.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(900), () => v.ShotSetup(storeTool == "viewer" ? "none" : storeTool));
+                return WithViewer(new OpeningPage(files[0]), _ => { });
+            }
             if (shot.StartsWith("viewer-cad", StringComparison.Ordinal))
             {
                 // Tệp DXF thật do ACadSharp ghi từ bản vẽ kiểm thử tự tạo; app đọc lại qua đúng luồng OpeningPage → CadImporter.
@@ -178,6 +188,65 @@ public static class ShotMode
         {
             DisplayName = "TEST-MEP-Tang1.dxf", Source = FileSource.Device, LocalPath = path, SizeBytes = bytes.Length, FileKey = key,
         }, DateTimeOffset.UtcNow);
+    }
+
+    /// <summary>Ghi bản vẽ MEP mẫu của ứng dụng (DemoDrawing) thành DXF bằng ACadSharp.</summary>
+    private static byte[] DemoAsDxf()
+    {
+        var demo = DemoDrawing.Create();
+        var doc = new ACadSharp.CadDocument();
+        doc.Header.InsUnits = ACadSharp.Types.Units.UnitsType.Millimeters;
+        var layers = new Dictionary<string, ACadSharp.Tables.Layer>();
+        foreach (var l in demo.Layers)
+        {
+            var c = l.ColorArgb;
+            var layer = new ACadSharp.Tables.Layer(l.Name) { Color = new ACadSharp.Color((byte)(c >> 16), (byte)(c >> 8), (byte)c) };
+            doc.Layers.Add(layer); layers[l.Name] = layer;
+        }
+        static CSMath.XYZ P(Point2 p) => new(p.X, p.Y, 0);
+        foreach (var e in demo.Entities)
+        {
+            var layer = layers[e.Layer];
+            ACadSharp.Entities.Entity? x = e switch
+            {
+                LineEntity l => new ACadSharp.Entities.Line { StartPoint = P(l.A), EndPoint = P(l.B) },
+                PolylineEntity pl => new ACadSharp.Entities.LwPolyline(pl.Points.Select(q => new ACadSharp.Entities.LwPolyline.Vertex(q.X, q.Y))) { IsClosed = pl.Closed },
+                CircleEntity ci => new ACadSharp.Entities.Circle { Center = P(ci.Center), Radius = ci.Radius },
+                ArcEntity a => new ACadSharp.Entities.Arc { Center = P(a.Center), Radius = a.Radius, StartAngle = a.StartDeg * Math.PI / 180, EndAngle = a.EndDeg * Math.PI / 180 },
+                TextEntity t => new ACadSharp.Entities.TextEntity { Value = t.Text, InsertPoint = P(t.Position), Height = t.Height },
+                _ => null,
+            };
+            if (x is null) continue;
+            x.Layer = layer;
+            doc.Entities.Add(x);
+        }
+        var ms = new MemoryStream();
+        ACadSharp.IO.DxfWriter.Write(ms, doc);
+        return ms.ToArray();
+    }
+
+    /// <summary>Danh sách Gần đây cho ảnh cửa hàng: tên tệp chung chung, cùng nội dung bản vẽ mẫu.</summary>
+    private static List<RecentFile> SeedStoreRecents()
+    {
+        ClearRecents();
+        Directory.CreateDirectory(AppState.DrawingsDir);
+        var now = DateTimeOffset.UtcNow;
+        var result = new List<RecentFile>();
+        var names = new[] { "MEP-Floor-01.dxf", "HVAC-Level-02.dxf", "Electrical-Plan-B1.dxf" };
+        for (var i = 0; i < names.Length; i++)
+        {
+            var bytes = DemoAsDxf();
+            if (i > 0) bytes = bytes.Concat(System.Text.Encoding.ASCII.GetBytes("\n999\n" + names[i] + "\n")).ToArray(); // nội dung khác để khóa tệp khác
+            string key;
+            using (var hs = new MemoryStream(bytes)) key = FileIdentity.ComputeKey(hs);
+            var path = Path.Combine(AppState.DrawingsDir, key + ".dxf");
+            File.WriteAllBytes(path, bytes);
+            result.Add(AppState.Recents.Touch(new RecentFile
+            {
+                DisplayName = names[i], Source = FileSource.Device, LocalPath = path, SizeBytes = bytes.Length, FileKey = key,
+            }, now.AddMinutes(-15 * (i + 1))));
+        }
+        return result;
     }
 }
 #endif
