@@ -8,7 +8,7 @@ import os, sys, time
 
 SELFTEST = os.environ.get("SWIFTCAD_SELFTEST", "none")
 sys.path.insert(0, os.path.dirname(__file__))
-from android_common import (ACT, DUMP_ERRORS, PKG, adb, drawn_ratio, find, find_scrolling, focused_package, install, rotate, screen_texts,
+from android_common import (ACT, DUMP_ERRORS, PKG, adb, drawn_ratio, find, find_scrolling, item_enabled, focused_package, install, rotate, screen_texts,
                             screencap, setup_device, tap)
 
 APK_DIR = sys.argv[1]
@@ -73,7 +73,7 @@ adb("shell", "content", "call", "--uri", "content://media/external/file", "--met
 time.sleep(3)
 
 launch()
-step("welcome-hien-lan-dau", lambda: must(find("Use without an account", 20), "khong thay man hinh chao"))
+step("welcome-hien-lan-dau", lambda: must(find_scrolling("Use without an account", 20), "khong thay man hinh chao"))
 step("bam-dung-khong-tai-khoan", lambda: (tap("Use without an account"), must(find_scrolling("Choose file", 15), "khong vao Ban ve")))
 step("khong-co-trang-thai-da-ket-noi", lambda: must(len(screen_texts()) > 0, "khong doc duoc cay giao dien") or must(not any(("Connected" in t or "Syncing" in t) for t in screen_texts()), "co chu Connected/Syncing"))
 
@@ -130,7 +130,9 @@ def pick_file():
         except LookupError:
             pass
     must(find("TEST-Flow-Plan.dxf", 15), "trinh chon khong hien tep DXF")
-    must(not find("TEST-Not-CAD.pdf", 2), "trinh chon hien ca tep PDF (phai chi hien tep CAD)")
+    # Tep DXF phai chon duoc; tep PDF bi he thong lam mo, khong chon duoc (khong an han duoc tren Android).
+    must(item_enabled("TEST-Flow-Plan.dxf") is True, "tep DXF bi khoa trong trinh chon (khong chon duoc)")
+    must(item_enabled("TEST-Not-CAD.pdf", 3) is not True, "tep PDF van chon duoc trong trinh chon")
     tap("TEST-Flow-Plan.dxf", 15)
     time.sleep(5)
     must(PKG in focused_package(), "khong quay ve app sau khi chon tep")
