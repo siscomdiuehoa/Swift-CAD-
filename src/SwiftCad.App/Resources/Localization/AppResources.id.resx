@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="a11y_canvas" xml:space="preserve"><value>Area gambar. Geser untuk memindahkan, cubit untuk memperbesar.</value></data>
+  <data name="a11y_cloud" xml:space="preserve"><value>Buka gambar dari {0}</value></data>
+  <data name="a11y_delete_note" xml:space="preserve"><value>Hapus catatan {0}</value></data>
+  <data name="a11y_file_menu" xml:space="preserve"><value>Opsi lainnya untuk {0}</value></data>
+  <data name="a11y_layer_toggle" xml:space="preserve"><value>Tampilkan layer {0}</value></data>
+  <data name="a11y_open_file" xml:space="preserve"><value>Buka {0}</value></data>
+  <data name="a11y_selected" xml:space="preserve"><value>{0}, dipilih</value></data>
+  <data name="about_developer" xml:space="preserve"><value>Pengembang: {0}</value></data>
+  <data name="about_no_ads" xml:space="preserve"><value>Tanpa iklan. File di perangkat ini dibuka tanpa akun.</value></data>
+  <data name="about_version" xml:space="preserve"><value>Versi {0} · prototipe</value></data>
+  <data name="account_demo_message" xml:space="preserve"><value>Prototipe ini belum memiliki server akun. Masuk hanya memakai identitas contoh dan tidak mengumpulkan data pribadi.</value></data>
+  <data name="account_demo_title" xml:space="preserve"><value>Masuk demo</value></data>
+  <data name="account_guest" xml:space="preserve"><value>Anda menggunakan Swift CAD sebagai tamu. Semua fitur di perangkat tersedia.</value></data>
+  <data name="account_sign_out" xml:space="preserve"><value>Keluar</value></data>
+  <data name="account_signed_in" xml:space="preserve"><value>Masuk sebagai Demo User (identitas contoh).</value></data>
+  <data name="back" xml:space="preserve"><value>Kembali</value></data>
+  <data name="cancel" xml:space="preserve"><value>Batal</value></data>
+  <data name="canvas_black" xml:space="preserve"><value>Hitam</value></data>
+  <data name="canvas_dark" xml:space="preserve"><value>Biru tua</value></data>
+  <data name="cloud_connect" xml:space="preserve"><value>Hubungkan</value></data>
+  <data name="cloud_guide" xml:space="preserve"><value>Integrasi langsung dengan {0} belum tersedia. Jika aplikasi {0} terpasang dan aktif di perangkat ini, Anda dapat memilihnya sebagai lokasi di pemilih file sistem.</value></data>
+  <data name="cloud_open_picker" xml:space="preserve"><value>Buka pemilih file</value></data>
+  <data name="delete" xml:space="preserve"><value>Hapus</value></data>
+  <data name="demo_badge" xml:space="preserve"><value>Demo</value></data>
+  <data name="demo_explain" xml:space="preserve"><value>Gambar contoh ini adalah geometri yang dibuat oleh aplikasi. Tidak dibaca dari file DWG atau DXF.\n\nBerfungsi pada geometri ini: geser, zoom, paskan, cari teks, ukur dua titik dengan snap, layer, dan catatan yang disimpan di perangkat ini.\n\nSimulasi atau belum tersedia: membaca file DWG/DXF asli, masuk akun, koneksi langsung Google Drive dan Dropbox.</value></data>
+  <data name="error_generic" xml:space="preserve"><value>Terjadi kesalahan.</value></data>
+  <data name="error_missing_file" xml:space="preserve"><value>Salinan {0} di perangkat ini sudah tidak tersedia.</value></data>
+  <data name="error_open_message" xml:space="preserve"><value>File tidak dapat dibuka atau disalin ke perangkat ini. Periksa ruang penyimpanan lalu coba lagi.</value></data>
+  <data name="error_open_title" xml:space="preserve"><value>File tidak dapat dibuka</value></data>
+  <data name="error_read_message" xml:space="preserve"><value>File mungkin rusak, dilindungi kata sandi, atau versi DWG yang belum didukung. File asli tidak diubah.</value></data>
+  <data name="error_read_title" xml:space="preserve"><value>Gambar ini tidak dapat dibaca</value></data>
+  <data name="error_save_note" xml:space="preserve"><value>Catatan tidak dapat disimpan di perangkat ini.</value></data>
+  <data name="error_unsupported_message" xml:space="preserve"><value>Swift CAD membuka file DWG dan DXF. Pilih file berakhiran .dwg atau .dxf.</value></data>
+  <data name="error_unsupported_title" xml:space="preserve"><value>Jenis file tidak didukung</value></data>
+  <data name="exit_fullscreen" xml:space="preserve"><value>Keluar dari layar penuh</value></data>
+  <data name="find_count" xml:space="preserve"><value>Hasil {0} dari {1}</value></data>
+  <data name="find_hint" xml:space="preserve"><value>Cari teks di gambar</value></data>
+  <data name="find_next" xml:space="preserve"><value>Hasil berikutnya</value></data>
+  <data name="find_none" xml:space="preserve"><value>Tidak ada hasil pada layer yang terlihat</value></data>
+  <data name="find_placeholder" xml:space="preserve"><value>Cari teks</value></data>
+  <data name="find_prev" xml:space="preserve"><value>Hasil sebelumnya</value></data>
+  <data name="fit" xml:space="preserve"><value>Paskan ke layar</value></data>
+  <data name="fullscreen" xml:space="preserve"><value>Layar penuh</value></data>
+  <data name="lang_device" xml:space="preserve"><value>Bahasa perangkat</value></data>
+  <data name="layer_none" xml:space="preserve"><value>Tidak ada layer yang cocok</value></data>
+  <data name="layer_search" xml:space="preserve"><value>Cari layer</value></data>
+  <data name="layer_show_all" xml:space="preserve"><value>Tampilkan semua</value></data>
+  <data name="loading" xml:space="preserve"><value>Memuat…</value></data>
+  <data name="loading_file" xml:space="preserve"><value>Membaca {0}…</value></data>
+  <data name="measure_clear" xml:space="preserve"><value>Hapus</value></data>
+  <data name="measure_drawing_units" xml:space="preserve"><value>{0} satuan gambar</value></data>
+  <data name="measure_how" xml:space="preserve"><value>Ketuk titik, atau geser untuk membidik: tanda bidik berada di atas jari Anda. Gunakan dua jari untuk menggeser dan zoom.</value></data>
+  <data name="measure_pick_first" xml:space="preserve"><value>Pilih titik pertama</value></data>
+  <data name="measure_pick_second" xml:space="preserve"><value>Pilih titik kedua</value></data>
+  <data name="measure_set_unit" xml:space="preserve"><value>Satuan gambar</value></data>
+  <data name="measure_set_unit_title" xml:space="preserve"><value>Gambar ini memakai satuan apa?</value></data>
+  <data name="measure_snap" xml:space="preserve"><value>Snap: {0}</value></data>
+  <data name="measure_unit_unknown" xml:space="preserve"><value>Satuan gambar tidak diketahui. Konfirmasi sebelum mengonversi.</value></data>
+  <data name="measure_units_line" xml:space="preserve"><value>Gambar: {0} · Ditampilkan: {1} · {2} ke {3}</value></data>
+  <data name="menu" xml:space="preserve"><value>Menu</value></data>
+  <data name="menu_about_demo" xml:space="preserve"><value>Tentang demo ini</value></data>
+  <data name="menu_bookmark" xml:space="preserve"><value>Tambahkan ke Tersimpan</value></data>
+  <data name="menu_remove" xml:space="preserve"><value>Hapus dari daftar</value></data>
+  <data name="menu_share_copy" xml:space="preserve"><value>Bagikan salinan</value></data>
+  <data name="menu_unbookmark" xml:space="preserve"><value>Hapus dari Tersimpan</value></data>
+  <data name="notes_delete_title" xml:space="preserve"><value>Hapus catatan ini?</value></data>
+  <data name="notes_hint" xml:space="preserve"><value>Ketuk gambar untuk menambahkan teks</value></data>
+  <data name="notes_new_message" xml:space="preserve"><value>Disimpan di perangkat ini, terpisah dari file asli.</value></data>
+  <data name="notes_new_title" xml:space="preserve"><value>Catatan baru</value></data>
+  <data name="notes_separate" xml:space="preserve"><value>Catatan disimpan terpisah. File asli tidak pernah diubah.</value></data>
+  <data name="notice_approximated" xml:space="preserve"><value>Ditampilkan secara perkiraan: {0} (teks rata, MTEXT terbungkus, garis tepi hatch, spline)</value></data>
+  <data name="notice_simplified" xml:space="preserve"><value>Tampilan disederhanakan. Objek yang belum ditampilkan: {0} (masker wipeout, solid 3D…)</value></data>
+  <data name="notice_simplified_basic" xml:space="preserve"><value>Tampilan disederhanakan: hanya garis penuh, jenis dan tebal garis belum ditampilkan</value></data>
+  <data name="notice_unit_unknown" xml:space="preserve"><value>Satuan gambar belum ditetapkan. Konfirmasi sebelum mengukur.</value></data>
+  <data name="notice_xref" xml:space="preserve"><value>{0} referensi eksternal (xref) belum dimuat</value></data>
+  <data name="ok" xml:space="preserve"><value>OK</value></data>
+  <data name="opened_at" xml:space="preserve"><value>Dibuka {0}</value></data>
+  <data name="pick_again" xml:space="preserve"><value>Pilih file lagi</value></data>
+  <data name="pick_file" xml:space="preserve"><value>Pilih file</value></data>
+  <data name="picker_title" xml:space="preserve"><value>Pilih file DWG atau DXF</value></data>
+  <data name="real_tools_disabled" xml:space="preserve"><value>Cari, Ukur, Layer, dan Catatan memerlukan gambar yang berhasil dibaca.</value></data>
+  <data name="recent" xml:space="preserve"><value>Terbaru</value></data>
+  <data name="recent_empty" xml:space="preserve"><value>Belum ada gambar. Gunakan Pilih file untuk membuka DWG atau DXF dari perangkat ini.</value></data>
+  <data name="recent_no_match" xml:space="preserve"><value>Tidak ada gambar terbaru yang cocok dengan “{0}”.</value></data>
+  <data name="save" xml:space="preserve"><value>Simpan</value></data>
+  <data name="saved_empty" xml:space="preserve"><value>Belum ada yang disimpan. Gunakan menu pada gambar untuk menambahkannya di sini.</value></data>
+  <data name="saved_explain" xml:space="preserve"><value>Daftar gambar yang Anda tandai. Menandai gambar tidak mengunduhnya.</value></data>
+  <data name="search_drawings" xml:space="preserve"><value>Cari gambar</value></data>
+  <data name="see_all" xml:space="preserve"><value>Lihat semua</value></data>
+  <data name="see_less" xml:space="preserve"><value>Lihat lebih sedikit</value></data>
+  <data name="settings_about" xml:space="preserve"><value>Tentang</value></data>
+  <data name="settings_account" xml:space="preserve"><value>Akun</value></data>
+  <data name="settings_canvas" xml:space="preserve"><value>Latar gambar</value></data>
+  <data name="settings_language" xml:space="preserve"><value>Bahasa</value></data>
+  <data name="settings_licenses" xml:space="preserve"><value>Lisensi sumber terbuka</value></data>
+  <data name="settings_unit" xml:space="preserve"><value>Satuan tampilan</value></data>
+  <data name="snap_center" xml:space="preserve"><value>pusat</value></data>
+  <data name="snap_endpoint" xml:space="preserve"><value>titik ujung</value></data>
+  <data name="snap_free" xml:space="preserve"><value>titik bebas</value></data>
+  <data name="snap_midpoint" xml:space="preserve"><value>titik tengah</value></data>
+  <data name="tab_drawings" xml:space="preserve"><value>Gambar</value></data>
+  <data name="tab_saved" xml:space="preserve"><value>Tersimpan</value></data>
+  <data name="tab_settings" xml:space="preserve"><value>Pengaturan</value></data>
+  <data name="tool_find" xml:space="preserve"><value>Cari</value></data>
+  <data name="tool_layers" xml:space="preserve"><value>Layer</value></data>
+  <data name="tool_measure" xml:space="preserve"><value>Ukur</value></data>
+  <data name="tool_notes" xml:space="preserve"><value>Catatan</value></data>
+  <data name="unit_cm" xml:space="preserve"><value>Sentimeter (cm)</value></data>
+  <data name="unit_from_drawing" xml:space="preserve"><value>Sama dengan gambar</value></data>
+  <data name="unit_ft" xml:space="preserve"><value>Kaki (ft)</value></data>
+  <data name="unit_in" xml:space="preserve"><value>Inci (in)</value></data>
+  <data name="unit_m" xml:space="preserve"><value>Meter (m)</value></data>
+  <data name="unit_mm" xml:space="preserve"><value>Milimeter (mm)</value></data>
+  <data name="welcome_guest" xml:space="preserve"><value>Gunakan tanpa akun</value></data>
+  <data name="welcome_note" xml:space="preserve"><value>Anda dapat masuk nanti di Pengaturan. File di perangkat ini selalu dibuka tanpa akun.</value></data>
+  <data name="welcome_sign_in_demo" xml:space="preserve"><value>Masuk (Demo)</value></data>
+  <data name="welcome_subtitle" xml:space="preserve"><value>Lihat, cari, ukur, dan beri catatan gambar DWG/DXF di lapangan.</value></data>
+  <data name="annot_arrow" xml:space="preserve"><value>Panah</value></data>
+  <data name="annot_cloud" xml:space="preserve"><value>Tandai area</value></data>
+  <data name="annot_hint_arrow" xml:space="preserve"><value>Geser satu jari dari tempat teks ke titik yang ingin ditunjuk. Gunakan dua jari untuk memindahkan atau zoom.</value></data>
+  <data name="annot_hint_cloud" xml:space="preserve"><value>Geser satu jari melintasi area untuk menandainya. Gunakan dua jari untuk memindahkan atau zoom.</value></data>
+  <data name="annot_no_text" xml:space="preserve"><value>(tanpa teks)</value></data>
+  <data name="annot_text" xml:space="preserve"><value>Teks</value></data>
+  <data name="annot_text_optional" xml:space="preserve"><value>Tambahkan teks (opsional). Disimpan di perangkat ini, terpisah dari file asli.</value></data>
+  <data name="menu_display_info" xml:space="preserve"><value>Detail tampilan</value></data>
+  <data name="pick_any_file" xml:space="preserve"><value>Tidak melihat file Anda? Tampilkan semua jenis file</value></data>
+</root>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="a11y_canvas" xml:space="preserve"><value>Área del plano. Arrastra para desplazar, pellizca para hacer zoom.</value></data>
+  <data name="a11y_cloud" xml:space="preserve"><value>Abrir un plano desde {0}</value></data>
+  <data name="a11y_delete_note" xml:space="preserve"><value>Eliminar nota {0}</value></data>
+  <data name="a11y_file_menu" xml:space="preserve"><value>Más opciones para {0}</value></data>
+  <data name="a11y_layer_toggle" xml:space="preserve"><value>Mostrar capa {0}</value></data>
+  <data name="a11y_open_file" xml:space="preserve"><value>Abrir {0}</value></data>
+  <data name="a11y_selected" xml:space="preserve"><value>{0}, seleccionado</value></data>
+  <data name="about_developer" xml:space="preserve"><value>Desarrollador: {0}</value></data>
+  <data name="about_no_ads" xml:space="preserve"><value>Sin anuncios. Los archivos del dispositivo se abren sin cuenta.</value></data>
+  <data name="about_version" xml:space="preserve"><value>Versión {0} · prototipo</value></data>
+  <data name="account_demo_message" xml:space="preserve"><value>Este prototipo no tiene servidor de cuentas. Iniciar sesión usa solo una identidad de ejemplo y no recopila datos personales.</value></data>
+  <data name="account_demo_title" xml:space="preserve"><value>Inicio de sesión de demostración</value></data>
+  <data name="account_guest" xml:space="preserve"><value>Estás usando Swift CAD como invitado. Todas las funciones del dispositivo están disponibles.</value></data>
+  <data name="account_sign_out" xml:space="preserve"><value>Cerrar sesión</value></data>
+  <data name="account_signed_in" xml:space="preserve"><value>Sesión iniciada como Demo User (identidad de ejemplo).</value></data>
+  <data name="back" xml:space="preserve"><value>Atrás</value></data>
+  <data name="cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="canvas_black" xml:space="preserve"><value>Negro</value></data>
+  <data name="canvas_dark" xml:space="preserve"><value>Azul oscuro</value></data>
+  <data name="cloud_connect" xml:space="preserve"><value>Conectar</value></data>
+  <data name="cloud_guide" xml:space="preserve"><value>La integración directa con {0} aún no está disponible. Si la app {0} está instalada y activada en este dispositivo, puedes elegirla como ubicación en el selector de archivos del sistema.</value></data>
+  <data name="cloud_open_picker" xml:space="preserve"><value>Abrir selector de archivos</value></data>
+  <data name="delete" xml:space="preserve"><value>Eliminar</value></data>
+  <data name="demo_badge" xml:space="preserve"><value>Demo</value></data>
+  <data name="demo_explain" xml:space="preserve"><value>Este plano de ejemplo es geometría generada por la app. No se leyó de un archivo DWG o DXF.\n\nFunciona sobre esta geometría: desplazar, zoom, ajustar, buscar texto, medir entre dos puntos con referencia, capas y notas guardadas en este dispositivo.\n\nSimulado o aún no disponible: lectura de archivos DWG/DXF reales, inicio de sesión, conexión directa con Google Drive y Dropbox.</value></data>
+  <data name="error_generic" xml:space="preserve"><value>Algo salió mal.</value></data>
+  <data name="error_missing_file" xml:space="preserve"><value>La copia de {0} en este dispositivo ya no está disponible.</value></data>
+  <data name="error_open_message" xml:space="preserve"><value>No se pudo abrir ni copiar el archivo en este dispositivo. Comprueba el espacio libre e inténtalo de nuevo.</value></data>
+  <data name="error_open_title" xml:space="preserve"><value>No se pudo abrir el archivo</value></data>
+  <data name="error_read_message" xml:space="preserve"><value>Es posible que el archivo esté dañado, protegido con contraseña o en una versión de DWG aún no compatible. El archivo original no se modificó.</value></data>
+  <data name="error_read_title" xml:space="preserve"><value>No se pudo leer este plano</value></data>
+  <data name="error_save_note" xml:space="preserve"><value>No se pudo guardar la nota en este dispositivo.</value></data>
+  <data name="error_unsupported_message" xml:space="preserve"><value>Swift CAD abre archivos DWG y DXF. Elige un archivo terminado en .dwg o .dxf.</value></data>
+  <data name="error_unsupported_title" xml:space="preserve"><value>Tipo de archivo no compatible</value></data>
+  <data name="exit_fullscreen" xml:space="preserve"><value>Salir de pantalla completa</value></data>
+  <data name="find_count" xml:space="preserve"><value>Resultado {0} de {1}</value></data>
+  <data name="find_hint" xml:space="preserve"><value>Buscar texto en el plano</value></data>
+  <data name="find_next" xml:space="preserve"><value>Resultado siguiente</value></data>
+  <data name="find_none" xml:space="preserve"><value>Sin resultados en las capas visibles</value></data>
+  <data name="find_placeholder" xml:space="preserve"><value>Buscar texto</value></data>
+  <data name="find_prev" xml:space="preserve"><value>Resultado anterior</value></data>
+  <data name="fit" xml:space="preserve"><value>Ajustar a la pantalla</value></data>
+  <data name="fullscreen" xml:space="preserve"><value>Pantalla completa</value></data>
+  <data name="lang_device" xml:space="preserve"><value>Idioma del dispositivo</value></data>
+  <data name="layer_none" xml:space="preserve"><value>No hay capas que coincidan</value></data>
+  <data name="layer_search" xml:space="preserve"><value>Buscar capa</value></data>
+  <data name="layer_show_all" xml:space="preserve"><value>Mostrar todo</value></data>
+  <data name="loading" xml:space="preserve"><value>Cargando…</value></data>
+  <data name="loading_file" xml:space="preserve"><value>Leyendo {0}…</value></data>
+  <data name="measure_clear" xml:space="preserve"><value>Borrar</value></data>
+  <data name="measure_drawing_units" xml:space="preserve"><value>{0} unidades de dibujo</value></data>
+  <data name="measure_how" xml:space="preserve"><value>Toca un punto o arrastra para apuntar: la mira queda sobre tu dedo. Usa dos dedos para desplazar y hacer zoom.</value></data>
+  <data name="measure_pick_first" xml:space="preserve"><value>Elige el primer punto</value></data>
+  <data name="measure_pick_second" xml:space="preserve"><value>Elige el segundo punto</value></data>
+  <data name="measure_set_unit" xml:space="preserve"><value>Unidad del plano</value></data>
+  <data name="measure_set_unit_title" xml:space="preserve"><value>¿En qué unidad está este plano?</value></data>
+  <data name="measure_snap" xml:space="preserve"><value>Referencia: {0}</value></data>
+  <data name="measure_unit_unknown" xml:space="preserve"><value>Se desconoce la unidad del plano. Confírmala antes de convertir.</value></data>
+  <data name="measure_units_line" xml:space="preserve"><value>Plano: {0} · Mostrado: {1} · {2} a {3}</value></data>
+  <data name="menu" xml:space="preserve"><value>Menú</value></data>
+  <data name="menu_about_demo" xml:space="preserve"><value>Acerca de esta demostración</value></data>
+  <data name="menu_bookmark" xml:space="preserve"><value>Añadir a Guardados</value></data>
+  <data name="menu_remove" xml:space="preserve"><value>Quitar de la lista</value></data>
+  <data name="menu_share_copy" xml:space="preserve"><value>Compartir una copia</value></data>
+  <data name="menu_unbookmark" xml:space="preserve"><value>Quitar de Guardados</value></data>
+  <data name="notes_delete_title" xml:space="preserve"><value>¿Eliminar esta nota?</value></data>
+  <data name="notes_hint" xml:space="preserve"><value>Toca el plano para añadir texto</value></data>
+  <data name="notes_new_message" xml:space="preserve"><value>Se guarda en este dispositivo, separado del archivo original.</value></data>
+  <data name="notes_new_title" xml:space="preserve"><value>Nueva nota</value></data>
+  <data name="notes_separate" xml:space="preserve"><value>Las notas se guardan por separado. El archivo original nunca se modifica.</value></data>
+  <data name="notice_approximated" xml:space="preserve"><value>Mostrado de forma aproximada: {0} (texto alineado, MTEXT con ajuste de línea, contornos de sombreado, splines)</value></data>
+  <data name="notice_simplified" xml:space="preserve"><value>Visualización simplificada. Objetos aún no mostrados: {0} (máscaras wipeout, sólidos 3D…)</value></data>
+  <data name="notice_simplified_basic" xml:space="preserve"><value>Visualización simplificada: solo líneas continuas, aún no se muestran tipos ni grosores de línea</value></data>
+  <data name="notice_unit_unknown" xml:space="preserve"><value>El plano no indica su unidad. Confírmala antes de medir.</value></data>
+  <data name="notice_xref" xml:space="preserve"><value>{0} referencias externas (xref) no cargadas</value></data>
+  <data name="ok" xml:space="preserve"><value>Aceptar</value></data>
+  <data name="opened_at" xml:space="preserve"><value>Abierto {0}</value></data>
+  <data name="pick_again" xml:space="preserve"><value>Elegir el archivo de nuevo</value></data>
+  <data name="pick_file" xml:space="preserve"><value>Elegir archivo</value></data>
+  <data name="picker_title" xml:space="preserve"><value>Elige un archivo DWG o DXF</value></data>
+  <data name="real_tools_disabled" xml:space="preserve"><value>Buscar, Medir, Capas y Notas necesitan un plano leído correctamente.</value></data>
+  <data name="recent" xml:space="preserve"><value>Recientes</value></data>
+  <data name="recent_empty" xml:space="preserve"><value>Aún no hay planos. Usa Elegir archivo para abrir un DWG o DXF de este dispositivo.</value></data>
+  <data name="recent_no_match" xml:space="preserve"><value>Ningún plano reciente coincide con «{0}».</value></data>
+  <data name="save" xml:space="preserve"><value>Guardar</value></data>
+  <data name="saved_empty" xml:space="preserve"><value>Aún no hay nada guardado. Usa el menú de un plano para añadirlo aquí.</value></data>
+  <data name="saved_explain" xml:space="preserve"><value>Lista de planos que marcaste. Marcar un plano no lo descarga.</value></data>
+  <data name="search_drawings" xml:space="preserve"><value>Buscar planos</value></data>
+  <data name="see_all" xml:space="preserve"><value>Ver todo</value></data>
+  <data name="see_less" xml:space="preserve"><value>Ver menos</value></data>
+  <data name="settings_about" xml:space="preserve"><value>Información</value></data>
+  <data name="settings_account" xml:space="preserve"><value>Cuenta</value></data>
+  <data name="settings_canvas" xml:space="preserve"><value>Fondo del plano</value></data>
+  <data name="settings_language" xml:space="preserve"><value>Idioma</value></data>
+  <data name="settings_licenses" xml:space="preserve"><value>Licencias de código abierto</value></data>
+  <data name="settings_unit" xml:space="preserve"><value>Unidad de visualización</value></data>
+  <data name="snap_center" xml:space="preserve"><value>centro</value></data>
+  <data name="snap_endpoint" xml:space="preserve"><value>punto final</value></data>
+  <data name="snap_free" xml:space="preserve"><value>punto libre</value></data>
+  <data name="snap_midpoint" xml:space="preserve"><value>punto medio</value></data>
+  <data name="tab_drawings" xml:space="preserve"><value>Planos</value></data>
+  <data name="tab_saved" xml:space="preserve"><value>Guardados</value></data>
+  <data name="tab_settings" xml:space="preserve"><value>Ajustes</value></data>
+  <data name="tool_find" xml:space="preserve"><value>Buscar</value></data>
+  <data name="tool_layers" xml:space="preserve"><value>Capas</value></data>
+  <data name="tool_measure" xml:space="preserve"><value>Medir</value></data>
+  <data name="tool_notes" xml:space="preserve"><value>Notas</value></data>
+  <data name="unit_cm" xml:space="preserve"><value>Centímetros (cm)</value></data>
+  <data name="unit_from_drawing" xml:space="preserve"><value>Igual que el plano</value></data>
+  <data name="unit_ft" xml:space="preserve"><value>Pies (ft)</value></data>
+  <data name="unit_in" xml:space="preserve"><value>Pulgadas (in)</value></data>
+  <data name="unit_m" xml:space="preserve"><value>Metros (m)</value></data>
+  <data name="unit_mm" xml:space="preserve"><value>Milímetros (mm)</value></data>
+  <data name="welcome_guest" xml:space="preserve"><value>Usar sin cuenta</value></data>
+  <data name="welcome_note" xml:space="preserve"><value>Puedes iniciar sesión más tarde en Ajustes. Los archivos del dispositivo siempre se abren sin cuenta.</value></data>
+  <data name="welcome_sign_in_demo" xml:space="preserve"><value>Iniciar sesión (Demo)</value></data>
+  <data name="welcome_subtitle" xml:space="preserve"><value>Visualiza, busca, mide y anota planos DWG/DXF en obra.</value></data>
+  <data name="annot_arrow" xml:space="preserve"><value>Flecha</value></data>
+  <data name="annot_cloud" xml:space="preserve"><value>Marcar zona</value></data>
+  <data name="annot_hint_arrow" xml:space="preserve"><value>Arrastra un dedo desde donde va el texto hasta el punto que quieres señalar. Usa dos dedos para mover o hacer zoom.</value></data>
+  <data name="annot_hint_cloud" xml:space="preserve"><value>Arrastra un dedo en diagonal sobre la zona para marcarla. Usa dos dedos para mover o hacer zoom.</value></data>
+  <data name="annot_no_text" xml:space="preserve"><value>(sin texto)</value></data>
+  <data name="annot_text" xml:space="preserve"><value>Texto</value></data>
+  <data name="annot_text_optional" xml:space="preserve"><value>Añade texto (opcional). Se guarda en este dispositivo, separado del archivo original.</value></data>
+  <data name="menu_display_info" xml:space="preserve"><value>Detalles de visualización</value></data>
+  <data name="pick_any_file" xml:space="preserve"><value>¿No ves tu archivo? Mostrar todos los tipos</value></data>
+</root>

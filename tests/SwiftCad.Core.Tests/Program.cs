@@ -240,6 +240,29 @@ Test("theo thiết bị, dự phòng tiếng Anh", () =>
     Eq("vi", LanguageResolver.Resolve(AppLanguage.Vietnamese, "ja-JP"));
     Eq("en", LanguageResolver.Resolve(AppLanguage.English, "vi-VN"));
 });
+Test("ngôn ngữ mới: Tây Ban Nha, Indonesia, Trung giản thể; phồn thể dùng tiếng Anh", () =>
+{
+    Eq("es", LanguageResolver.Resolve(AppLanguage.Device, "es-MX"));
+    Eq("id", LanguageResolver.Resolve(AppLanguage.Device, "id-ID"));
+    Eq("id", LanguageResolver.Resolve(AppLanguage.Device, "in_ID")); // mã cũ trên Android
+    Eq("zh-Hans", LanguageResolver.Resolve(AppLanguage.Device, "zh-CN"));
+    Eq("zh-Hans", LanguageResolver.Resolve(AppLanguage.Device, "zh-Hans-SG"));
+    Eq("en", LanguageResolver.Resolve(AppLanguage.Device, "zh-TW"));
+    Eq("en", LanguageResolver.Resolve(AppLanguage.Device, "zh-Hant-HK"));
+    Eq("zh-Hans", LanguageResolver.Resolve(AppLanguage.ChineseSimplified, "vi-VN"));
+    Eq("es", LanguageResolver.Resolve(AppLanguage.Spanish, null));
+    Eq(5, LanguageResolver.Languages.Count);
+    True((int)AppLanguage.Vietnamese == 2, "không đổi số của lựa chọn đã lưu");
+});
+Test("định dạng số theo ngôn ngữ mới", () =>
+{
+    Eq("es-MX", LanguageResolver.FormatCulture("es", CultureInfo.GetCultureInfo("es-MX")).Name);
+    Eq("es-ES", LanguageResolver.FormatCulture("es", CultureInfo.GetCultureInfo("en-US")).Name);
+    Eq("zh-CN", LanguageResolver.FormatCulture("zh-Hans", CultureInfo.GetCultureInfo("en-US")).Name);
+    Eq("zh-CN", LanguageResolver.FormatCulture("zh-Hans", CultureInfo.GetCultureInfo("zh-CN")).Name);
+    Eq("id-ID", LanguageResolver.FormatCulture("id", CultureInfo.GetCultureInfo("id-ID")).Name);
+    Eq("12.000,0 mm", Units.Format(12000, DrawingUnit.Millimeter, CultureInfo.GetCultureInfo("id-ID")));
+});
 Test("văn hóa định dạng giữ vùng thiết bị khi cùng ngôn ngữ", () =>
 {
     Eq("en-GB", LanguageResolver.FormatCulture("en", CultureInfo.GetCultureInfo("en-GB")).Name);
@@ -375,6 +398,21 @@ else
         XDocument.Load(p).Root!.Elements("data").ToDictionary(d => d.Attribute("name")!.Value, d => d.Element("value")!.Value);
     var enR = Resx(Path.Combine(locDir, "AppResources.resx"));
     var viR = Resx(Path.Combine(locDir, "AppResources.vi.resx"));
+    Test("mọi ngôn ngữ trong LanguageResolver đều có tệp tài nguyên đủ khóa, đúng tham số", () =>
+    {
+        foreach (var code in LanguageResolver.Supported.Where(c => c != "en"))
+        {
+            var path = Path.Combine(locDir, $"AppResources.{code}.resx");
+            True(File.Exists(path), "thiếu tệp " + path);
+            var r = Resx(path);
+            var miss = enR.Keys.Except(r.Keys).Concat(r.Keys.Except(enR.Keys)).ToList();
+            True(miss.Count == 0, code + " lệch khóa: " + string.Join(", ", miss));
+            var empty = r.Where(k => string.IsNullOrWhiteSpace(k.Value)).Select(k => k.Key).ToList();
+            True(empty.Count == 0, code + " giá trị rỗng: " + string.Join(", ", empty));
+            var bad = enR.Keys.Where(k => Regex.Matches(enR[k], @"\{\d\}").Count != Regex.Matches(r[k], @"\{\d\}").Count).ToList();
+            True(bad.Count == 0, code + " lệch tham số: " + string.Join(", ", bad));
+        }
+    });
     Test("EN và VI có cùng bộ khóa, không giá trị rỗng", () =>
     {
         var miss = enR.Keys.Except(viR.Keys).Concat(viR.Keys.Except(enR.Keys)).ToList();

@@ -231,8 +231,8 @@ public partial class HomePage : ContentPage
 
         var lang = Group(L.T("settings_language"));
         AddLanguage(lang, AppLanguage.Device, L.T("lang_device"));
-        AddLanguage(lang, AppLanguage.English, "English");
-        AddLanguage(lang, AppLanguage.Vietnamese, "Tiếng Việt");
+        // Tên ngôn ngữ viết bằng chính ngôn ngữ đó để người dùng luôn nhận ra (không dịch).
+        foreach (var (value, name) in LanguageResolver.Languages) AddLanguage(lang, value, name);
         col.Add(new SoftSurface(lang));
 
         var unit = Group(L.T("settings_unit"));
@@ -248,7 +248,10 @@ public partial class HomePage : ContentPage
         col.Add(new SoftSurface(canvas));
 
         var about = Group(L.T("settings_about"));
-        // Tên nhà phát triển là tên riêng (pháp nhân), không dịch.
+        // Logo và tên nhà phát triển là tên riêng (pháp nhân), không dịch.
+        var devLogo = new Image { Source = "siscom_logo.png", HeightRequest = 40, Aspect = Aspect.AspectFit, HorizontalOptions = LayoutOptions.Start, Margin = new Thickness(0, 4, 0, 2) };
+        SemanticProperties.SetDescription(devLogo, AppInfoExtra.DeveloperName);
+        about.Add(devLogo);
         about.Add(Ui.Text(L.F("about_developer", AppInfoExtra.DeveloperName), Theme.FontSub, Theme.Text, bold: true));
         about.Add(Ui.Text(L.F("about_version", AppInfo.Current.VersionString), Theme.FontSub, Theme.TextSub));
         about.Add(Ui.Text(L.T("about_no_ads"), Theme.FontSub, Theme.TextSub));

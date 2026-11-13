@@ -78,10 +78,11 @@ Nghĩa vụ của BSD và Apache-2.0 tương tự MIT: giữ thông báo bản q
 | Font SHX của AutoCAD | Không đóng gói, thay bằng font hệ thống và hiện cảnh báo | Font SHX đi kèm AutoCAD thuộc bản quyền Autodesk. |
 | Biểu tượng | Tự vẽ (nét trên lưới 24) | Thuộc sở hữu dự án. |
 | Logo Google Drive, Dropbox | Không dùng. Hiện tên dịch vụ kèm biểu tượng đám mây trung tính | Logo là nhãn hiệu của bên khác, cần tuân thủ hướng dẫn thương hiệu của họ. Chờ Owner quyết. |
-| Biểu tượng ứng dụng | Bản tạm do dự án tự vẽ | Thay bằng biểu tượng xanh gấp hình đã duyệt khi có tệp gốc. |
+| Biểu tượng ứng dụng | `icon_swift_cad.png` do Owner cung cấp 13/11/2026, cắt thành hình vuông tràn viền | Thuộc sở hữu Owner. |
+| Logo nhà phát triển | `your_soid_PNG.png` (SISCOM) do Owner cung cấp 13/11/2026 | Nhãn hiệu của Siscom Technical Trading Joint Stock Company, chỉ dùng trong ứng dụng này. |
 | Bản vẽ mẫu | Tự tạo bằng script trong `samples/` | Thuộc sở hữu dự án, không chứa dữ liệu khách hàng. |
 | Lưu Ghi chú, Gần đây, ngôn ngữ | Tệp JSON trong vùng dữ liệu của ứng dụng | Dùng System.Text.Json có sẵn, không thêm thư viện. |
-| Bản dịch Anh–Việt | Tự viết, lưu trong `.resx` | Thuộc sở hữu dự án. |
+| Bản dịch Anh, Việt, Tây Ban Nha, Indonesia, Trung giản thể | Tự viết, lưu trong `.resx` | Thuộc sở hữu dự án. Bản Tây Ban Nha, Indonesia, Trung do Claude dịch, cần người bản ngữ rà soát trước khi phát hành. |
 
 ## 6. Danh sách loại trừ
 

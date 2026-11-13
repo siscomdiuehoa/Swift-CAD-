@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="a11y_canvas" xml:space="preserve"><value>图纸区域。拖动可平移，双指捏合可缩放。</value></data>
+  <data name="a11y_cloud" xml:space="preserve"><value>从 {0} 打开图纸</value></data>
+  <data name="a11y_delete_note" xml:space="preserve"><value>删除批注 {0}</value></data>
+  <data name="a11y_file_menu" xml:space="preserve"><value>{0} 的更多选项</value></data>
+  <data name="a11y_layer_toggle" xml:space="preserve"><value>显示图层 {0}</value></data>
+  <data name="a11y_open_file" xml:space="preserve"><value>打开 {0}</value></data>
+  <data name="a11y_selected" xml:space="preserve"><value>{0}，已选择</value></data>
+  <data name="about_developer" xml:space="preserve"><value>开发者：{0}</value></data>
+  <data name="about_no_ads" xml:space="preserve"><value>无广告。本机文件无需账户即可打开。</value></data>
+  <data name="about_version" xml:space="preserve"><value>版本 {0} · 测试版</value></data>
+  <data name="account_demo_message" xml:space="preserve"><value>此测试版没有账户服务器。登录仅使用示例身份，不收集任何个人信息。</value></data>
+  <data name="account_demo_title" xml:space="preserve"><value>演示登录</value></data>
+  <data name="account_guest" xml:space="preserve"><value>你正以访客身份使用 Swift CAD。所有本机功能均可使用。</value></data>
+  <data name="account_sign_out" xml:space="preserve"><value>退出登录</value></data>
+  <data name="account_signed_in" xml:space="preserve"><value>已以 Demo User 登录（示例身份）。</value></data>
+  <data name="back" xml:space="preserve"><value>返回</value></data>
+  <data name="cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="canvas_black" xml:space="preserve"><value>黑色</value></data>
+  <data name="canvas_dark" xml:space="preserve"><value>深蓝色</value></data>
+  <data name="cloud_connect" xml:space="preserve"><value>连接</value></data>
+  <data name="cloud_guide" xml:space="preserve"><value>暂不支持直接连接 {0}。如果本机已安装并启用 {0} 应用，可在系统文件选择器中将其选为位置。</value></data>
+  <data name="cloud_open_picker" xml:space="preserve"><value>打开文件选择器</value></data>
+  <data name="delete" xml:space="preserve"><value>删除</value></data>
+  <data name="demo_badge" xml:space="preserve"><value>演示</value></data>
+  <data name="demo_explain" xml:space="preserve"><value>此示例图纸是应用生成的几何图形，并非从 DWG 或 DXF 文件读取。\n\n可在此图形上使用：平移、缩放、适应窗口、文字搜索、带捕捉的两点测量、图层以及保存在本机的批注。\n\n模拟或尚未实现：读取真实 DWG/DXF 文件、账户登录、直接连接 Google Drive 和 Dropbox。</value></data>
+  <data name="error_generic" xml:space="preserve"><value>出现错误。</value></data>
+  <data name="error_missing_file" xml:space="preserve"><value>本机上 {0} 的副本已不可用。</value></data>
+  <data name="error_open_message" xml:space="preserve"><value>无法打开文件或将其复制到本机。请检查可用存储空间后重试。</value></data>
+  <data name="error_open_title" xml:space="preserve"><value>无法打开文件</value></data>
+  <data name="error_read_message" xml:space="preserve"><value>文件可能已损坏、受密码保护，或属于暂不支持的 DWG 版本。原文件未被修改。</value></data>
+  <data name="error_read_title" xml:space="preserve"><value>无法读取此图纸</value></data>
+  <data name="error_save_note" xml:space="preserve"><value>无法在本机保存批注。</value></data>
+  <data name="error_unsupported_message" xml:space="preserve"><value>Swift CAD 可打开 DWG 和 DXF 文件。请选择扩展名为 .dwg 或 .dxf 的文件。</value></data>
+  <data name="error_unsupported_title" xml:space="preserve"><value>不支持的文件类型</value></data>
+  <data name="exit_fullscreen" xml:space="preserve"><value>退出全屏</value></data>
+  <data name="find_count" xml:space="preserve"><value>第 {0} 个，共 {1} 个</value></data>
+  <data name="find_hint" xml:space="preserve"><value>在图纸中搜索文字</value></data>
+  <data name="find_next" xml:space="preserve"><value>下一个结果</value></data>
+  <data name="find_none" xml:space="preserve"><value>可见图层中无结果</value></data>
+  <data name="find_placeholder" xml:space="preserve"><value>搜索文字</value></data>
+  <data name="find_prev" xml:space="preserve"><value>上一个结果</value></data>
+  <data name="fit" xml:space="preserve"><value>适应屏幕</value></data>
+  <data name="fullscreen" xml:space="preserve"><value>全屏</value></data>
+  <data name="lang_device" xml:space="preserve"><value>跟随设备语言</value></data>
+  <data name="layer_none" xml:space="preserve"><value>没有匹配的图层</value></data>
+  <data name="layer_search" xml:space="preserve"><value>搜索图层</value></data>
+  <data name="layer_show_all" xml:space="preserve"><value>全部显示</value></data>
+  <data name="loading" xml:space="preserve"><value>正在加载…</value></data>
+  <data name="loading_file" xml:space="preserve"><value>正在读取 {0}…</value></data>
+  <data name="measure_clear" xml:space="preserve"><value>清除</value></data>
+  <data name="measure_drawing_units" xml:space="preserve"><value>{0} 图形单位</value></data>
+  <data name="measure_how" xml:space="preserve"><value>点击一个点，或拖动瞄准：十字光标位于手指上方。用两根手指平移和缩放。</value></data>
+  <data name="measure_pick_first" xml:space="preserve"><value>选择第一个点</value></data>
+  <data name="measure_pick_second" xml:space="preserve"><value>选择第二个点</value></data>
+  <data name="measure_set_unit" xml:space="preserve"><value>图纸单位</value></data>
+  <data name="measure_set_unit_title" xml:space="preserve"><value>此图纸使用什么单位？</value></data>
+  <data name="measure_snap" xml:space="preserve"><value>捕捉：{0}</value></data>
+  <data name="measure_unit_unknown" xml:space="preserve"><value>图纸单位未知。换算前请先确认。</value></data>
+  <data name="measure_units_line" xml:space="preserve"><value>图纸：{0} · 显示：{1} · {2} 至 {3}</value></data>
+  <data name="menu" xml:space="preserve"><value>菜单</value></data>
+  <data name="menu_about_demo" xml:space="preserve"><value>关于此演示</value></data>
+  <data name="menu_bookmark" xml:space="preserve"><value>添加到已保存</value></data>
+  <data name="menu_remove" xml:space="preserve"><value>从列表中移除</value></data>
+  <data name="menu_share_copy" xml:space="preserve"><value>分享副本</value></data>
+  <data name="menu_unbookmark" xml:space="preserve"><value>从已保存中移除</value></data>
+  <data name="notes_delete_title" xml:space="preserve"><value>删除此批注？</value></data>
+  <data name="notes_hint" xml:space="preserve"><value>点击图纸添加文字</value></data>
+  <data name="notes_new_message" xml:space="preserve"><value>保存在本机，与原文件分开。</value></data>
+  <data name="notes_new_title" xml:space="preserve"><value>新批注</value></data>
+  <data name="notes_separate" xml:space="preserve"><value>批注单独保存，原文件不会被修改。</value></data>
+  <data name="notice_approximated" xml:space="preserve"><value>近似显示：{0}（对齐文字、自动换行的多行文字、填充图案轮廓、样条曲线）</value></data>
+  <data name="notice_simplified" xml:space="preserve"><value>简化显示。尚未显示的对象：{0}（区域覆盖、三维实体…）</value></data>
+  <data name="notice_simplified_basic" xml:space="preserve"><value>简化显示：仅显示实线，暂不显示线型和线宽</value></data>
+  <data name="notice_unit_unknown" xml:space="preserve"><value>图纸未设置单位。测量前请先确认。</value></data>
+  <data name="notice_xref" xml:space="preserve"><value>{0} 个外部参照（xref）未加载</value></data>
+  <data name="ok" xml:space="preserve"><value>确定</value></data>
+  <data name="opened_at" xml:space="preserve"><value>打开于 {0}</value></data>
+  <data name="pick_again" xml:space="preserve"><value>重新选择文件</value></data>
+  <data name="pick_file" xml:space="preserve"><value>选择文件</value></data>
+  <data name="picker_title" xml:space="preserve"><value>选择 DWG 或 DXF 文件</value></data>
+  <data name="real_tools_disabled" xml:space="preserve"><value>查找、测量、图层和批注需要成功读取的图纸。</value></data>
+  <data name="recent" xml:space="preserve"><value>最近</value></data>
+  <data name="recent_empty" xml:space="preserve"><value>还没有图纸。使用“选择文件”打开本机上的 DWG 或 DXF。</value></data>
+  <data name="recent_no_match" xml:space="preserve"><value>没有与“{0}”匹配的最近图纸。</value></data>
+  <data name="save" xml:space="preserve"><value>保存</value></data>
+  <data name="saved_empty" xml:space="preserve"><value>尚未保存任何内容。使用图纸上的菜单将其添加到此处。</value></data>
+  <data name="saved_explain" xml:space="preserve"><value>你标记的图纸列表。标记图纸不会下载它。</value></data>
+  <data name="search_drawings" xml:space="preserve"><value>搜索图纸</value></data>
+  <data name="see_all" xml:space="preserve"><value>查看全部</value></data>
+  <data name="see_less" xml:space="preserve"><value>收起</value></data>
+  <data name="settings_about" xml:space="preserve"><value>关于</value></data>
+  <data name="settings_account" xml:space="preserve"><value>账户</value></data>
+  <data name="settings_canvas" xml:space="preserve"><value>图纸背景</value></data>
+  <data name="settings_language" xml:space="preserve"><value>语言</value></data>
+  <data name="settings_licenses" xml:space="preserve"><value>开源许可</value></data>
+  <data name="settings_unit" xml:space="preserve"><value>显示单位</value></data>
+  <data name="snap_center" xml:space="preserve"><value>圆心</value></data>
+  <data name="snap_endpoint" xml:space="preserve"><value>端点</value></data>
+  <data name="snap_free" xml:space="preserve"><value>自由点</value></data>
+  <data name="snap_midpoint" xml:space="preserve"><value>中点</value></data>
+  <data name="tab_drawings" xml:space="preserve"><value>图纸</value></data>
+  <data name="tab_saved" xml:space="preserve"><value>已保存</value></data>
+  <data name="tab_settings" xml:space="preserve"><value>设置</value></data>
+  <data name="tool_find" xml:space="preserve"><value>查找</value></data>
+  <data name="tool_layers" xml:space="preserve"><value>图层</value></data>
+  <data name="tool_measure" xml:space="preserve"><value>测量</value></data>
+  <data name="tool_notes" xml:space="preserve"><value>批注</value></data>
+  <data name="unit_cm" xml:space="preserve"><value>厘米 (cm)</value></data>
+  <data name="unit_from_drawing" xml:space="preserve"><value>与图纸相同</value></data>
+  <data name="unit_ft" xml:space="preserve"><value>英尺 (ft)</value></data>
+  <data name="unit_in" xml:space="preserve"><value>英寸 (in)</value></data>
+  <data name="unit_m" xml:space="preserve"><value>米 (m)</value></data>
+  <data name="unit_mm" xml:space="preserve"><value>毫米 (mm)</value></data>
+  <data name="welcome_guest" xml:space="preserve"><value>无需账户直接使用</value></data>
+  <data name="welcome_note" xml:space="preserve"><value>你可以稍后在“设置”中登录。本机文件始终无需账户即可打开。</value></data>
+  <data name="welcome_sign_in_demo" xml:space="preserve"><value>登录（演示）</value></data>
+  <data name="welcome_subtitle" xml:space="preserve"><value>在工地查看、搜索、测量和批注 DWG/DXF 图纸。</value></data>
+  <data name="annot_arrow" xml:space="preserve"><value>箭头</value></data>
+  <data name="annot_cloud" xml:space="preserve"><value>圈注区域</value></data>
+  <data name="annot_hint_arrow" xml:space="preserve"><value>用一根手指从文字位置拖到要指向的点。用两根手指移动或缩放。</value></data>
+  <data name="annot_hint_cloud" xml:space="preserve"><value>用一根手指斜拖过要圈注的区域。用两根手指移动或缩放。</value></data>
+  <data name="annot_no_text" xml:space="preserve"><value>（无文字）</value></data>
+  <data name="annot_text" xml:space="preserve"><value>文字</value></data>
+  <data name="annot_text_optional" xml:space="preserve"><value>添加文字（可选）。保存在本机，与原文件分开。</value></data>
+  <data name="menu_display_info" xml:space="preserve"><value>显示详情</value></data>
+  <data name="pick_any_file" xml:space="preserve"><value>看不到文件？显示所有文件类型</value></data>
+</root>

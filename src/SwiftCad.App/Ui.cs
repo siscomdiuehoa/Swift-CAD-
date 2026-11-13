@@ -77,16 +77,11 @@ public static class Ui
         Content = Text(L.T("demo_badge"), 12, Theme.DemoText, bold: true),
     };
 
-    public static View Logo(double size = 36)
+    /// <summary>Biểu tượng ứng dụng đã duyệt (ảnh), dùng ở đầu màn Bản vẽ và màn chào.</summary>
+    public static View Logo(double size = 36) => new Image
     {
-        var g = new Grid { WidthRequest = size, HeightRequest = size, InputTransparent = true };
-        var scale = size / 24.0;
-        var body = Icon(Icons.LogoBody, Theme.Primary, filled: true);
-        var mark = Icon(Icons.LogoMark, Colors.White);
-        body.Scale = scale; mark.Scale = scale;
-        g.Add(body); g.Add(mark);
-        return g;
-    }
+        Source = "swiftcad_mark.png", WidthRequest = size, HeightRequest = size, Aspect = Aspect.AspectFit, InputTransparent = true,
+    };
 
     public static string FileSubtitle(RecentFile f) =>
         FileIdentity.FormatSize(f.SizeBytes, L.FormatCulture) + " · " +
