@@ -46,6 +46,72 @@
 			</array>
 		</dict>
 	</dict>
+	<!-- Mo bang Swift CAD: tep DWG/DXF tu Zalo, Tep, Mail. He thong chep tep vao ung dung (khong mo tai cho, khong sua tep goc). -->
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>AutoCAD Drawing</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.autodesk.dwg</string>
+				<string>com.autodesk.dxf</string>
+			</array>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.autodesk.dwg</string>
+			<key>UTTypeDescription</key>
+			<string>AutoCAD Drawing</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>dwg</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>image/vnd.dwg</string>
+					<string>application/acad</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.autodesk.dxf</string>
+			<key>UTTypeDescription</key>
+			<string>AutoCAD DXF</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>dxf</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>image/vnd.dxf</string>
+					<string>application/dxf</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 </dict>

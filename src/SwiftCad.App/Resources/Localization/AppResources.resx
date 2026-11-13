@@ -73,7 +73,7 @@ Simulated or not built yet: reading real DWG/DXF files, account sign-in, direct 
   <data name="menu_share_copy" xml:space="preserve"><value>Share a copy</value></data>
   <data name="menu_unbookmark" xml:space="preserve"><value>Remove from Saved</value></data>
   <data name="notes_delete_title" xml:space="preserve"><value>Delete this note?</value></data>
-  <data name="notes_hint" xml:space="preserve"><value>Tap the drawing to pin a note</value></data>
+  <data name="notes_hint" xml:space="preserve"><value>Tap the drawing to add text</value></data>
   <data name="notes_new_message" xml:space="preserve"><value>Saved on this device, separate from the original file.</value></data>
   <data name="notes_new_title" xml:space="preserve"><value>New note</value></data>
   <data name="notes_separate" xml:space="preserve"><value>Notes are stored separately. The original file is never changed.</value></data>
@@ -126,4 +126,23 @@ Simulated or not built yet: reading real DWG/DXF files, account sign-in, direct 
   <data name="welcome_note" xml:space="preserve"><value>You can sign in later in Settings. Files on this device always open without an account.</value></data>
   <data name="welcome_sign_in_demo" xml:space="preserve"><value>Sign in (Demo)</value></data>
   <data name="welcome_subtitle" xml:space="preserve"><value>View, search, measure and annotate DWG/DXF drawings on site.</value></data>
+  <data name="annot_arrow" xml:space="preserve"><value>Arrow</value></data>
+  <data name="annot_cloud" xml:space="preserve"><value>Mark area</value></data>
+  <data name="annot_hint_arrow" xml:space="preserve"><value>Drag one finger from where the text goes to the point you want to show. Use two fingers to move or zoom.</value></data>
+  <data name="annot_hint_cloud" xml:space="preserve"><value>Drag one finger across the area to mark it. Use two fingers to move or zoom.</value></data>
+  <data name="annot_no_text" xml:space="preserve"><value>(no text)</value></data>
+  <data name="annot_text" xml:space="preserve"><value>Text</value></data>
+  <data name="annot_text_optional" xml:space="preserve"><value>Add text (optional). Saved on this device, separate from the original file.</value></data>
+  <data name="continue" xml:space="preserve"><value>Continue</value></data>
+  <data name="downloads_add_folder" xml:space="preserve"><value>Add a folder</value></data>
+  <data name="downloads_empty" xml:space="preserve"><value>No DWG/DXF files in the allowed folders yet.</value></data>
+  <data name="downloads_explain" xml:space="preserve"><value>Show DWG/DXF drawings you receive in Zalo or download to this phone, newest first. Only CAD files are listed.</value></data>
+  <data name="downloads_folders" xml:space="preserve"><value>Folders</value></data>
+  <data name="downloads_grant" xml:space="preserve"><value>Allow access to the Zalo folder</value></data>
+  <data name="downloads_grant_help" xml:space="preserve"><value>On the next screen, open Downloads › Zalo (or another folder that holds your drawings) and tap Use this folder, then Allow. Swift CAD only reads DWG/DXF files there and never changes or deletes them.</value></data>
+  <data name="downloads_remove_folder" xml:space="preserve"><value>Stop showing {0}</value></data>
+  <data name="downloads_scanning" xml:space="preserve"><value>Looking for CAD files…</value></data>
+  <data name="downloads_title" xml:space="preserve"><value>New downloads</value></data>
+  <data name="menu_display_info" xml:space="preserve"><value>Display details</value></data>
+  <data name="pick_any_file" xml:space="preserve"><value>Can't see your file? Show all file types</value></data>
 </root>

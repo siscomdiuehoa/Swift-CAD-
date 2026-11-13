@@ -78,6 +78,7 @@ public partial class ViewerPage : ContentPage
             _canvas.MeasureChanged += UpdateMeasure;
             _canvas.AimChanged += UpdateAim;
             _canvas.NoteRequested += p => _ = AddNoteAsync(p);
+            _canvas.ShapeDrawn += (kind, a, b) => _ = AddShapeAsync(kind, a, b);
         }
     }
 
@@ -167,7 +168,7 @@ public partial class ViewerPage : ContentPage
 
         area.Add(_canvas);
         SemanticProperties.SetDescription(_canvas, L.T("a11y_canvas"));
-        if (BuildNotices() is { } notices) area.Add(notices);
+        // Ghi chú mức độ hiển thị không đè lên bản vẽ nữa (Owner yêu cầu ẩn); xem trong menu ⋮ > Mức độ hiển thị.
 
         var overlay = new HorizontalStackLayout { Spacing = 8, HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.End, Margin = 12 };
         overlay.Add(CanvasButton(Icons.Fit, L.T("fit"), () => _canvas.Fit()));
@@ -177,8 +178,11 @@ public partial class ViewerPage : ContentPage
         return area;
     }
 
-    /// <summary>Cảnh báo cho tệp thật: hiển thị đơn giản hóa, đối tượng chưa vẽ, xref thiếu, đơn vị chưa rõ.</summary>
-    private View? BuildNotices()
+    /// <summary>
+    /// Mức độ hiển thị của tệp thật: đối tượng chưa vẽ, vẽ gần đúng, xref thiếu, đơn vị chưa rõ.
+    /// Không hiện đè lên bản vẽ; người dùng mở từ menu khi cần. Null với tệp mẫu hoặc khi đọc lỗi.
+    /// </summary>
+    private string? DisplayInfo()
     {
         if (_report is null) return null;
         // Bản đầu luôn là hiển thị đơn giản hóa (nét liền, chưa có linetype/lineweight); chỉ nêu số đối tượng khi có đối tượng bị bỏ qua.
@@ -186,20 +190,7 @@ public partial class ViewerPage : ContentPage
         if (_report.ApproximatedTotal > 0) lines.Add(L.F("notice_approximated", _report.ApproximatedTotal));
         if (_report.MissingXrefs.Count > 0) lines.Add(L.F("notice_xref", _report.MissingXrefs.Count));
         if (_report.Model.Unit == DrawingUnit.Unknown) lines.Add(L.T("notice_unit_unknown"));
-        var text = Ui.Text(string.Join("\n", lines), 12, Color.FromArgb("#FFE7B0"));
-        return new Border
-        {
-            BackgroundColor = Color.FromArgb("#CC111C25"),
-            Stroke = new SolidColorBrush(Color.FromArgb("#5C4A1F")),
-            StrokeThickness = 1,
-            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 10 },
-            Padding = new Thickness(10, 6),
-            Margin = 10,
-            HorizontalOptions = LayoutOptions.Start,
-            VerticalOptions = LayoutOptions.Start,
-            InputTransparent = true,
-            Content = text,
-        };
+        return string.Join("\n\n", lines);
     }
 
     private static View CanvasButton(string icon, string description, Action action) => new Border
@@ -272,14 +263,16 @@ public partial class ViewerPage : ContentPage
 
     private async Task MenuAsync()
     {
-        var fit = L.T("fit"); var about = L.T("menu_about_demo"); var share = L.T("menu_share_copy");
+        var fit = L.T("fit"); var about = L.T("menu_about_demo"); var share = L.T("menu_share_copy"); var info = L.T("menu_display_info");
         var options = new List<string>();
         if (_model is not null) options.Add(fit);
         if (_file is not null) options.Add(share);
+        if (DisplayInfo() is not null) options.Add(info);
         if (_model?.IsDemo == true) options.Add(about);
         var choice = await DisplayActionSheetAsync(_name, L.T("cancel"), null, options.ToArray());
         if (choice == fit) _canvas.Fit();
         else if (choice == share && _file is not null) await Files.ShareCopyAsync(_file);
+        else if (choice == info && DisplayInfo() is { } text) await DisplayAlertAsync(info, text, L.T("ok"));
         else if (choice == about) await DisplayAlertAsync(L.T("menu_about_demo"), L.T("demo_explain"), L.T("ok"));
     }
 
@@ -456,35 +449,71 @@ public partial class ViewerPage : ContentPage
 
     // ---------- Ghi chú ----------
 
+    /// <summary>
+    /// Ba kiểu ghi chú: Chữ (chạm vào bản vẽ), Mũi tên và Khoanh vùng (kéo một ngón; hai ngón để di chuyển, thu phóng).
+    /// Tất cả lưu riêng theo khóa nội dung tệp, không ghi vào tệp gốc.
+    /// </summary>
     private View BuildNotes()
     {
         var col = new VerticalStackLayout { Spacing = 6 };
-        col.Add(PanelTitle(L.T("notes_hint")));
+        var modes = new Grid { ColumnSpacing = 4 };
+        for (var c = 0; c < 3; c++) modes.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        AddNoteMode(modes, 0, NoteKind.Text, Icons.TextTool, L.T("annot_text"));
+        AddNoteMode(modes, 1, NoteKind.Arrow, Icons.Arrow, L.T("annot_arrow"));
+        AddNoteMode(modes, 2, NoteKind.Cloud, Icons.Region, L.T("annot_cloud"));
+        col.Add(modes);
+        col.Add(PanelTitle(_canvas.NoteTool switch
+        {
+            NoteKind.Arrow => L.T("annot_hint_arrow"),
+            NoteKind.Cloud => L.T("annot_hint_cloud"),
+            _ => L.T("notes_hint"),
+        }));
         col.Add(Ui.Text(L.T("notes_separate"), Theme.FontSub, Theme.TextSub));
         var notes = _canvas.Notes;
         for (var i = 0; i < notes.Count; i++)
         {
             var n = notes[i];
-            var row = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) }, ColumnSpacing = 10, MinimumHeightRequest = Theme.Touch };
+            var row = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) }, ColumnSpacing = 8, MinimumHeightRequest = Theme.Touch };
             row.Add(Ui.Text((i + 1).ToString(L.FormatCulture), Theme.FontBody, Theme.Primary, bold: true), 0);
-            var text = Ui.Text(n.Text, Theme.FontBody);
-            text.Tap(() => _canvas.FocusOn(new Point2(n.X, n.Y)));
-            row.Add(text, 1);
-            row.Add(Ui.IconButton(Icons.Trash, L.F("a11y_delete_note", i + 1), () => _ = DeleteNoteAsync(n), Theme.Danger), 2);
+            row.Add(Ui.Icon(n.Kind switch { NoteKind.Arrow => Icons.Arrow, NoteKind.Cloud => Icons.Region, NoteKind.Text => Icons.TextTool, _ => Icons.Note }, Theme.TextSub), 1);
+            var text = Ui.Text(n.Text.Length > 0 ? n.Text : L.T("annot_no_text"), Theme.FontBody, n.Text.Length > 0 ? Theme.Text : Theme.TextSub);
+            text.Tap(() => _canvas.FocusOn(n.Anchor));
+            row.Add(text, 2);
+            row.Add(Ui.IconButton(Icons.Trash, L.F("a11y_delete_note", i + 1), () => _ = DeleteNoteAsync(n), Theme.Danger), 3);
             col.Add(row);
         }
         return Scrollable(col);
+    }
+
+    private void AddNoteMode(Grid g, int col, NoteKind kind, string icon, string label)
+    {
+        var b = new ToolButton(icon, label, () => { _canvas.NoteTool = kind; _panel.Content = BuildNotes(); });
+        b.SetSelected(_canvas.NoteTool == kind);
+        g.Add(b, col);
     }
 
     private async Task AddNoteAsync(Point2 at)
     {
         var text = await DisplayPromptAsync(L.T("notes_new_title"), L.T("notes_new_message"), L.T("save"), L.T("cancel"), maxLength: 500);
         if (string.IsNullOrWhiteSpace(text)) return;
+        await SaveNoteAsync(NoteKind.Text, at, at, text);
+    }
+
+    /// <summary>Mũi tên hoặc vùng khoanh vừa vẽ: hỏi chữ kèm theo (có thể bỏ trống). Bấm Hủy thì bỏ hình.</summary>
+    private async Task AddShapeAsync(NoteKind kind, Point2 a, Point2 b)
+    {
+        var text = await DisplayPromptAsync(kind == NoteKind.Arrow ? L.T("annot_arrow") : L.T("annot_cloud"), L.T("annot_text_optional"), L.T("save"), L.T("cancel"), maxLength: 500);
+        if (text is null) { _canvas.InvalidateSurface(); return; }
+        await SaveNoteAsync(kind, a, b, text);
+    }
+
+    private async Task SaveNoteAsync(NoteKind kind, Point2 a, Point2 b, string text)
+    {
         try
         {
-            AppState.Notes.Add(_fileKey, at, text, DateTimeOffset.UtcNow);
+            AppState.Notes.Add(_fileKey, kind, a, b, text, DateTimeOffset.UtcNow);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
         {
             await DisplayAlertAsync(L.T("error_generic"), L.T("error_save_note"), L.T("ok"));
             return;

@@ -63,6 +63,12 @@ dxf = "/sdcard/Download/TEST-Flow-Plan.dxf"
 # Tep DXF do ACadSharp ghi tu ban ve kiem thu tu tao (tests/SwiftCad.Cad.Tests), co chu tieng Viet va doi tuong chua ho tro.
 adb("push", os.path.join(os.path.dirname(__file__), "fixtures", "TEST-Flow-Plan.dxf"), dxf)
 adb("shell", "am", "broadcast", "-a", "android.intent.action.MEDIA_SCANNER_SCAN_FILE", "-d", "file://" + dxf)
+# Tep PDF dat canh tep DXF: trinh chon tep cua app chi duoc hien tep CAD, khong hien tep nay.
+pdf = "/sdcard/Download/TEST-Not-CAD.pdf"
+pdf_local = os.path.join(OUT, "TEST-Not-CAD.pdf")
+open(pdf_local, "w").write("%PDF-1.4\n%%EOF\n")
+adb("push", pdf_local, pdf)
+adb("shell", "am", "broadcast", "-a", "android.intent.action.MEDIA_SCANNER_SCAN_FILE", "-d", "file://" + pdf)
 adb("shell", "content", "call", "--uri", "content://media/external/file", "--method", "scan_volume", "--arg", "external_primary")
 time.sleep(3)
 
@@ -123,13 +129,20 @@ def pick_file():
             tap(["Downloads", "Download"], 8)
         except LookupError:
             pass
+    must(find("TEST-Flow-Plan.dxf", 15), "trinh chon khong hien tep DXF")
+    must(not find("TEST-Not-CAD.pdf", 2), "trinh chon hien ca tep PDF (phai chi hien tep CAD)")
     tap("TEST-Flow-Plan.dxf", 15)
     time.sleep(5)
     must(PKG in focused_package(), "khong quay ve app sau khi chon tep")
     # Tep that duoc doc bang ACadSharp: co thanh cong cu, co canh bao hien thi don gian hoa, khong co nhan Demo.
     must(find("Find", 30), "khong mo duoc man hinh xem sau khi doc tep")
-    must(find("Simplified display", 5, contains=True), "thieu canh bao hien thi don gian hoa")
+    # Owner yeu cau an dong canh bao mau vang tren ban ve; noi dung chuyen vao menu > Display details.
+    must(not find("Simplified display", 2, contains=True), "van hien canh bao de len ban ve")
+    tap("Menu")
+    tap("Display details", 8)
+    must(find("Simplified display", 8, contains=True), "menu khong co muc do hien thi")
     must(not find("not shown yet: 0", 2, contains=True), "canh bao neu 0 doi tuong")
+    tap("OK", 8)
     must(find("TEST-Flow-Plan.dxf", 5, contains=True), "khong thay ten tep vua chon")
     must(not find("Demo", 2), "tep that bi gan nhan Demo")
     tap("Find")
@@ -140,7 +153,7 @@ def pick_file():
 step("chon-tep-dxf-tu-trinh-chon", pick_file)
 step("quay-lai-thay-trong-gan-day", lambda: (tap("Back"), must(find("Open TEST-Flow-Plan.dxf", 10), "khong co trong Gan day")))
 step("mo-lai-app-khong-hien-chao", lambda: (restart(), must(find("Choose file", 15) and not find("Use without an account", 2), "man hinh chao hien lai")))
-step("mo-lai-tu-gan-day", lambda: (tap("Open TEST-Flow-Plan.dxf"), must(find("Simplified display", 30, contains=True), "khong mo duoc tu Gan day"), tap("Back")))
+step("mo-lai-tu-gan-day", lambda: (tap("Open TEST-Flow-Plan.dxf"), must(find("Find", 30), "khong mo duoc tu Gan day"), tap("Back")))
 
 
 def picker_cancel():
@@ -156,7 +169,7 @@ def picker_cancel():
 step("huy-chon-tep-khong-bao-loi", picker_cancel)
 step("mo-tep-mau", lambda: (tap("Open MEP-Floor-01.demo"), must(find("Demo", 10), "khong thay nhan Demo")))
 for tool, check in [("Find", "Search text in the drawing"), ("Measure", "Pick the first point"),
-                    ("Layers", "Show all"), ("Notes", "Tap the drawing to pin a note")]:
+                    ("Layers", "Show all"), ("Notes", "Tap the drawing to add text")]:
     step(f"cong-cu-{tool.lower()}", lambda tool=tool, check=check: (tap(tool), must(find(check, 8), f"bang {tool} khong mo")))
 def landscape_check():
     rotate(1)
@@ -201,6 +214,21 @@ def back_during_read():
 
 
 step("back-khi-dang-doc-tep", back_during_read)
+
+
+def open_with_registered():
+    """Owner: bam vao tep DWG/DXF (vd. trong Zalo) thi Swift CAD phai co trong muc Mo bang. Khong hien cho PDF."""
+    out = {}
+    for mime in ["image/vnd.dwg", "image/vnd.dxf", "application/acad", "application/octet-stream", "application/pdf"]:
+        out[mime] = PKG in adb("shell", "cmd", "package", "query-activities", "-a", "android.intent.action.VIEW",
+                               "-t", mime, "-d", "content://x/y")
+    must(all(out[m] for m in ["image/vnd.dwg", "image/vnd.dxf", "application/acad", "application/octet-stream"]),
+         f"Swift CAD khong co trong Mo bang cho tep CAD: {out}")
+    must(not out["application/pdf"], "Swift CAD hien trong Mo bang cho tep PDF")
+    return f"({out})"
+
+
+step("mo-bang-swift-cad-cho-tep-cad", open_with_registered)
 
 if SELFTEST == "android-flow":
     # Kiem thu am: buoc co y that bai de chung minh job do khi co buoc loi.

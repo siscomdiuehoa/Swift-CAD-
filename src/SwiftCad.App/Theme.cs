@@ -61,6 +61,10 @@ public static class Icons
     public const string Down = "M6 9 L12 15 L18 9";
     public const string Trash = "M5 7 H19 M9 7 V4 H15 V7 M7 7 L8 20 H16 L17 7";
     public const string Person = "M12 4 A4 4 0 1 0 12 12 A4 4 0 1 0 12 4 M4 21 A8 8 0 0 1 20 21";
+    public const string TextTool = "M5 6 V4 H19 V6 M12 4 V20 M9 20 H15";
+    public const string Arrow = "M5 19 L19 5 M10 5 H19 V14";
+    public const string Region = "M6 8 A2 2 0 0 1 10 6 A2 2 0 0 1 14 6 A2 2 0 0 1 18 8 A2 2 0 0 1 18 12 A2 2 0 0 1 18 16 A2 2 0 0 1 14 18 A2 2 0 0 1 10 18 A2 2 0 0 1 6 16 A2 2 0 0 1 6 12 A2 2 0 0 1 6 8 Z";
+    public const string Info = "M12 3 A9 9 0 1 0 12 21 A9 9 0 1 0 12 3 M12 11 V16 M12 8 V8.5";
     public const string LogoBody = "M5 2 H15 L21 8 V22 H5 Z";
     public const string LogoMark = "M8 18 L11 12 L14 16 L16 13 L18 18 Z";
 }
