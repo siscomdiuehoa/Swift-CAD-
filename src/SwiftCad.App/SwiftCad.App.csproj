@@ -29,6 +29,12 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
+  <!-- Quyen Dang nhap voi Apple chi ap cho ban ky that (TestFlight/App Store). Ban simulator va ban kiem tra
+       bien dich khong ky (EnableCodeSigning=false) khong dung tep nay vi entitlement bat buoc phai ky ma. -->
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(RuntimeIdentifier)' == 'ios-arm64' and '$(EnableCodeSigning)' != 'false'">
+    <CodesignEntitlements>Platforms\iOS\Entitlements.Distribution.plist</CodesignEntitlements>
+  </PropertyGroup>
+
   <!-- Bản dựng chụp ảnh cho CI: bật ShotMode để mở thẳng từng màn hình. Mặc định tắt. -->
   <PropertyGroup Condition="'$(SwiftCadShots)' == 'true'">
     <DefineConstants>$(DefineConstants);SWIFTCAD_SHOTS</DefineConstants>
