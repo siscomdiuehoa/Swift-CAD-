@@ -230,10 +230,10 @@ Test("vùng tô có khung bao đúng", () =>
     Near(1, b.MinX, 1e-9); Near(9, b.MaxY, 1e-9);
 });
 
-Test("trình chọn tệp không dùng kiểu octet-stream (ẩn tệp không liên quan)", () =>
+Test("trình chọn tệp Android giữ kiểu octet-stream (DWG/DXF trong Tải xuống mang kiểu này)", () =>
 {
-    True(!CadFiles.PickerMimeTypes.Contains("application/octet-stream"), "còn octet-stream");
-    True(CadFiles.PickerMimeTypes.Contains("image/vnd.dwg") && CadFiles.PickerMimeTypes.Contains("image/vnd.dxf"), "thiếu kiểu DWG/DXF");
+    True(CadFiles.AndroidMimeTypes.Contains("application/octet-stream"), "thiếu octet-stream: bản vẽ sẽ không chọn được");
+    True(CadFiles.AndroidMimeTypes.Contains("image/vnd.dwg"), "thiếu kiểu DWG");
 });
 
 Console.WriteLine("Đăng nhập Firebase (máy chủ giả)");

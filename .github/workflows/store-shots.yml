@@ -1,0 +1,42 @@
+name: Anh App Store (iPhone 6.9 inch, iPad 13 inch)
+
+# Chup anh cua hang bang ban ve MEP mau do ung dung tu tao (khong co ban ve khach hang). Khong phat hanh gi.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['store-shots/**']
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Cai workload iOS khop Xcode
+        run: |
+          tools/ci/run.sh python3 tools/ci/pin_ios_workload.py
+          tools/ci/run.sh dotnet workload install maui-ios --from-rollback-file rollback.json
+      - name: Tao cau hinh Firebase tu Secret (khong luu trong repo)
+        env:
+          FB_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON }}
+          FB_PLIST: ${{ secrets.FIREBASE_GOOGLE_SERVICE_INFO_PLIST }}
+        run: python3 tools/ci/firebase_config.py
+      - name: Build iOS simulator co ShotMode
+        run: tools/ci/run.sh dotnet build src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-ios -c Debug -p:SwiftCadPlatform=ios -p:SwiftCadShots=true -p:RuntimeIdentifier=iossimulator-arm64
+      - name: Chup anh
+        run: |
+          APP=$(find src/SwiftCad.App/bin/Debug -name "*.app" -maxdepth 4 -type d | head -1)
+          tools/ci/run.sh python3 tools/ci/store_shots.py "$APP"
+      - name: Dang anh len nhanh ci-store-shots
+        if: always()
+        run: |
+          cd artifacts/store-shots
+          git init -q -b ci-store-shots
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -q -m "Anh App Store cho ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-store-shots

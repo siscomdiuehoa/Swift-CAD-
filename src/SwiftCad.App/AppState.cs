@@ -37,7 +37,7 @@ public static class Files
     /// </summary>
     private static readonly FilePickerFileType CadTypes = new(new Dictionary<DevicePlatform, IEnumerable<string>>
     {
-        [DevicePlatform.Android] = CadFiles.PickerMimeTypes,
+        [DevicePlatform.Android] = CadFiles.AndroidMimeTypes,
         [DevicePlatform.iOS] = ["com.autodesk.dwg", "com.autodesk.dxf"],
     });
 

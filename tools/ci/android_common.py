@@ -222,3 +222,16 @@ def drawn_ratio(path, x0, y0, x1, y1, bg=(0x11, 0x1C, 0x25), step=6):
             if abs(r - bg[0]) + abs(g - bg[1]) + abs(b - bg[2]) > 40:
                 diff += 1
     return diff / max(total, 1)
+
+
+def item_enabled(text, timeout=10):
+    """Trong trinh chon tep he thong: dong chua ten tep co cho chon khong (item_root enabled). None neu khong thay."""
+    end = time.time() + timeout
+    while time.time() < end:
+        root = dump()
+        if root is not None:
+            for n in root.iter("node"):
+                if n.get("resource-id", "").endswith(":id/item_root") and any((c.get("text") or "") == text for c in n.iter("node")):
+                    return n.get("enabled") == "true"
+        time.sleep(1)
+    return None
