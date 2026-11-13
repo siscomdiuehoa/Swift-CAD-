@@ -213,5 +213,63 @@ if (!string.IsNullOrEmpty(samples) && Directory.Exists(samples))
     }
 }
 
+// Đo riêng việc đọc trong một tiến trình mới (đỉnh bộ nhớ không lẫn phần tạo tệp): SWIFTCAD_PERF_READ=<đường dẫn>.
+var perfRead = Environment.GetEnvironmentVariable("SWIFTCAD_PERF_READ");
+if (!string.IsNullOrEmpty(perfRead))
+{
+    var sw = System.Diagnostics.Stopwatch.StartNew();
+    ImportReport rep;
+    using (var fs = File.OpenRead(perfRead)) rep = CadImporter.Read(fs, Path.GetFileName(perfRead));
+    sw.Stop();
+    Console.WriteLine($"PERF {Path.GetFileName(perfRead)}: {new FileInfo(perfRead).Length / 1048576.0:N1} MB, {sw.Elapsed.TotalSeconds:N2} s, " +
+                      $"{rep.Model.Entities.Count:N0} đối tượng, đỉnh bộ nhớ tiến trình {System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64 / 1048576.0:N0} MB");
+    return 0;
+}
+
+// Đo tệp lớn (Issue #4): SWIFTCAD_PERF=<số đối tượng>. Tệp DXF tạo sinh dạng mặt bằng MEP lặp lại, không phải bản vẽ khách hàng.
+if (int.TryParse(Environment.GetEnvironmentVariable("SWIFTCAD_PERF"), out var perfN) && perfN > 0)
+{
+    Console.WriteLine($"Đo tệp lớn ({perfN:N0} đối tượng)");
+    var big = new CadDocument();
+    big.Header.InsUnits = UnitsType.Millimeters;
+    var lw = new Layer("M-DUCT"); var la = new Layer("G-ANNO"); big.Layers.Add(lw); big.Layers.Add(la);
+    var van = new BlockRecord("VAN");
+    van.Entities.Add(new Circle { Center = new XYZ(0, 0, 0), Radius = 80 });
+    van.Entities.Add(new Line { StartPoint = new XYZ(-80, -80, 0), EndPoint = new XYZ(80, 80, 0) });
+    big.BlockRecords.Add(van);
+    var rnd = new Random(7);
+    for (var i = 0; i < perfN; i++)
+    {
+        double x = (i % 1000) * 600, y = (i / 1000) * 600;
+        switch (i % 5)
+        {
+            case 0: big.Entities.Add(new Line { StartPoint = new XYZ(x, y, 0), EndPoint = new XYZ(x + 500, y + rnd.Next(400), 0), Layer = lw }); break;
+            case 1: big.Entities.Add(new LwPolyline(new LwPolyline.Vertex(x, y), new LwPolyline.Vertex(x + 300, y) { Bulge = 0.3 }, new LwPolyline.Vertex(x + 300, y + 300)) { Layer = lw }); break;
+            case 2: big.Entities.Add(new Circle { Center = new XYZ(x, y, 0), Radius = 120, Layer = lw }); break;
+            case 3: big.Entities.Add(new ACadSharp.Entities.TextEntity { Value = "ỐNG " + i, InsertPoint = new XYZ(x, y, 0), Height = 100, Layer = la }); break;
+            default: big.Entities.Add(new Insert(van) { InsertPoint = new XYZ(x, y, 0), Layer = lw }); break;
+        }
+    }
+    foreach (var ext in new[] { ".dxf", ".dwg" })
+    {
+        var path = Path.Combine(Path.GetTempPath(), "swiftcad-perf" + ext);
+        if (ext == ".dwg") DwgWriter.Write(path, big); else DxfWriter.Write(path, big);
+        GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
+        var before = GC.GetTotalMemory(true);
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        ImportReport rep;
+        using (var fs = File.OpenRead(path)) rep = CadImporter.Read(fs, "perf" + ext);
+        sw.Stop();
+        var peakWorkingSet = System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64;
+        var held = GC.GetTotalMemory(true) - before;
+        Console.WriteLine($"       {ext}: tệp {new FileInfo(path).Length / 1048576.0:N1} MB, đọc + chuyển đổi {sw.Elapsed.TotalSeconds:N2} s, " +
+                          $"{rep.Model.Entities.Count:N0} đối tượng hiển thị, mô hình giữ lại {held / 1048576.0:N0} MB, đỉnh bộ nhớ tiến trình {peakWorkingSet / 1048576.0:N0} MB");
+        GC.KeepAlive(rep);
+        var keep = Environment.GetEnvironmentVariable("SWIFTCAD_PERF_KEEP");
+        if (!string.IsNullOrEmpty(keep)) File.Copy(path, Path.Combine(keep, "swiftcad-perf" + ext), true);
+        File.Delete(path);
+    }
+}
+
 Console.WriteLine($"\n{passed} đạt, {failed} lỗi");
 return failed == 0 ? 0 : 1;

@@ -23,8 +23,15 @@ jobs:
         with:
           global-json-file: global.json
       - run: dotnet run --project tests/SwiftCad.Core.Tests -c Release
-      - name: Kiem thu doc DWG/DXF (ACadSharp)
-        run: dotnet run --project tests/SwiftCad.Cad.Tests -c Release
+      - name: Kiem thu doc DWG/DXF (ACadSharp) va do tep lon 300.000 doi tuong
+        shell: bash
+        run: |
+          mkdir -p /tmp/perf
+          SWIFTCAD_PERF=300000 SWIFTCAD_PERF_KEEP=/tmp/perf dotnet run --project tests/SwiftCad.Cad.Tests -c Release
+          for f in /tmp/perf/swiftcad-perf.dxf /tmp/perf/swiftcad-perf.dwg; do
+            R=$(SWIFTCAD_PERF_READ=$f dotnet tests/SwiftCad.Cad.Tests/bin/Release/net10.0/SwiftCad.Cad.Tests.dll | grep PERF)
+            echo "::notice::$R (may Linux CI, khong phai dien thoai)"
+          done
 
   android:
     name: Android - build APK
@@ -43,11 +50,47 @@ jobs:
       - run: dotnet workload list
       - name: Build APK (ky bang khoa debug, chi de thu)
         run: dotnet publish src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-android -c Release -p:SwiftCadPlatform=android -p:AndroidPackageFormat=apk -o artifacts/android
+      - name: Dat ten APK theo phien ban va commit, ghi SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          VER=$(grep -oP '(?<=<ApplicationDisplayVersion>)[^<]+' src/SwiftCad.App/SwiftCad.App.csproj)
+          BUILD=$(grep -oP '(?<=<ApplicationVersion>)[^<]+' src/SwiftCad.App/SwiftCad.App.csproj)
+          SHA=$(git rev-parse --short=7 HEAD)
+          SIGNED=$(ls artifacts/android/*-Signed.apk | head -1)
+          OUT="artifacts/SwiftCad-${VER}-build${BUILD}-${SHA}-debugsigned.apk"
+          cp "$SIGNED" "$OUT"
+          SUM=$(sha256sum "$OUT" | cut -d' ' -f1)
+          echo "$SUM  $(basename "$OUT")" > "$OUT.sha256"
+          echo "::notice::APK thu nghiem $(basename "$OUT") (ky bang khoa debug), SHA-256 $SUM"
+          { echo "### APK thu nghiem"; echo; echo "- Tep: \`$(basename "$OUT")\`"; echo "- Phien ban: $VER (build $BUILD), commit \`$SHA\`"; echo "- SHA-256: \`$SUM\`"; echo "- Ky bang khoa debug: chi de cai thu, khong dua len Play"; } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v5
         with:
           name: swiftcad-android-apk
-          path: artifacts/android/*.apk
+          path: |
+            artifacts/SwiftCad-*.apk
+            artifacts/SwiftCad-*.apk.sha256
           if-no-files-found: error
+
+  ios-device:
+    name: iOS - build thiet bi that ios-arm64 (khong ky)
+    runs-on: macos-26
+    needs: core
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Cai workload iOS khop Xcode
+        run: |
+          tools/ci/run.sh python3 tools/ci/pin_ios_workload.py
+          tools/ci/run.sh dotnet workload install maui-ios --from-rollback-file rollback.json
+      - name: Build ios-arm64 Release (AOT, khong ky) de kiem tra bien dich cho iPhone that
+        shell: bash
+        run: |
+          tools/ci/run.sh dotnet build src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-ios -c Release -p:SwiftCadPlatform=ios -p:RuntimeIdentifier=ios-arm64 -p:EnableCodeSigning=false
+          grep -E "warning (IL2|IL3)" /tmp/run-out.log | sort -u | head -40 | sed 's/^/::warning::/' || true
+          echo "::notice::So canh bao trimming/AOT (IL2xxx/IL3xxx): $(grep -cE 'warning (IL2|IL3)' /tmp/run-out.log || true)"
 
   ios-simulator:
     name: iOS - build cho simulator (khong ky)

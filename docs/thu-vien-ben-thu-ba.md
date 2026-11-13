@@ -116,6 +116,7 @@ Không liên quan giấy phép mã nguồn nhưng không miễn phí:
 | Thành phần | Giấy phép | Ghi chú |
 |---|---|---|
 | `actions/checkout`, `actions/setup-dotnet`, `actions/setup-java`, `actions/upload-artifact` | MIT (theo hiểu biết chung, chưa mở tệp LICENSE trong phiên này) | Hành động chính thức của GitHub |
+| PyJWT (`jpadilla/pyjwt`) | MIT (theo hiểu biết chung, chưa mở tệp LICENSE trong phiên này) | Chỉ trong workflow TestFlight, tạo token App Store Connect API |
 | `reactivecircus/android-emulator-runner` | Apache-2.0 (theo hiểu biết chung, chưa xác minh) | Chỉ dùng trong workflow chụp ảnh chạy tay |
 
 ## 10. Quyết định của Owner
