@@ -236,6 +236,69 @@ Test("trình chọn tệp không dùng kiểu octet-stream (ẩn tệp không li
     True(CadFiles.PickerMimeTypes.Contains("image/vnd.dwg") && CadFiles.PickerMimeTypes.Contains("image/vnd.dxf"), "thiếu kiểu DWG/DXF");
 });
 
+Console.WriteLine("Đăng nhập Firebase (máy chủ giả)");
+{
+    var fixedNow = new DateTimeOffset(2026, 11, 13, 10, 0, 0, TimeSpan.Zero);
+    var cfg = new SwiftCad.Core.Auth.FirebaseConfig("TEST_KEY", "swift-cad-test");
+    Test("đổi id_token Google lấy phiên: đúng địa chỉ, khóa, providerId, thời hạn", () =>
+    {
+        var h = new FakeHttp(_ => (200, """{"localId":"u1","email":"a@b.vn","displayName":"A","idToken":"ID1","refreshToken":"RT1","expiresIn":"3600"}"""));
+        var c = new SwiftCad.Core.Auth.FirebaseAuthClient(new HttpClient(h), cfg, () => fixedNow);
+        var s = c.SignInWithIdTokenAsync(SwiftCad.Core.Auth.AuthProvider.Google, "GTOKEN", "N1").GetAwaiter().GetResult();
+        True(h.LastUrl!.StartsWith("https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=TEST_KEY"), h.LastUrl);
+        True(h.LastBody!.Contains("id_token=GTOKEN") && h.LastBody.Contains("providerId=google.com") && h.LastBody.Contains("nonce=N1"), h.LastBody);
+        Eq("u1", s.UserId); Eq("a@b.vn", s.Email); Eq("RT1", s.RefreshToken);
+        Eq(fixedNow.AddHours(1), s.ExpiresUtc);
+    });
+    Test("Apple dùng providerId apple.com; tên lấy từ fullName khi thiếu displayName", () =>
+    {
+        var h = new FakeHttp(_ => (200, """{"localId":"u2","fullName":"Nam Phong","idToken":"I","refreshToken":"R","expiresIn":"3600"}"""));
+        var s = new SwiftCad.Core.Auth.FirebaseAuthClient(new HttpClient(h), cfg, () => fixedNow)
+            .SignInWithIdTokenAsync(SwiftCad.Core.Auth.AuthProvider.Apple, "AT").GetAwaiter().GetResult();
+        True(h.LastBody!.Contains("providerId=apple.com"), h.LastBody); Eq("Nam Phong", s.DisplayName);
+    });
+    Test("lỗi Firebase trả mã lỗi rõ ràng", () =>
+    {
+        var h = new FakeHttp(_ => (400, """{"error":{"code":400,"message":"INVALID_IDP_RESPONSE : bad token"}}"""));
+        var threw = "";
+        try { new SwiftCad.Core.Auth.FirebaseAuthClient(new HttpClient(h), cfg).SignInWithIdTokenAsync(SwiftCad.Core.Auth.AuthProvider.Google, "x").GetAwaiter().GetResult(); }
+        catch (SwiftCad.Core.Auth.AuthException ex) { threw = ex.Code; }
+        Eq("INVALID_IDP_RESPONSE", threw);
+    });
+    Test("làm mới phiên giữ email, đổi token và thời hạn", () =>
+    {
+        var h = new FakeHttp(_ => (200, """{"id_token":"ID2","refresh_token":"RT2","expires_in":"3600","user_id":"u1"}"""));
+        var c = new SwiftCad.Core.Auth.FirebaseAuthClient(new HttpClient(h), cfg, () => fixedNow);
+        var old = new SwiftCad.Core.Auth.AuthSession("u1", "a@b.vn", "A", "google.com", "ID1", "RT1", fixedNow.AddMinutes(-1));
+        var s = c.RefreshAsync(old).GetAwaiter().GetResult();
+        True(h.LastUrl!.StartsWith("https://securetoken.googleapis.com/v1/token?key=TEST_KEY"), h.LastUrl);
+        True(h.LastBody!.Contains("grant_type=refresh_token") && h.LastBody.Contains("refresh_token=RT1"), h.LastBody);
+        Eq("ID2", s.IdToken); Eq("RT2", s.RefreshToken); Eq("a@b.vn", s.Email); Eq(fixedNow.AddHours(1), s.ExpiresUtc);
+    });
+    Test("xóa tài khoản: làm mới nếu sắp hết hạn rồi gọi accounts:delete với idToken mới", () =>
+    {
+        var calls = new List<string>();
+        var h = new FakeHttp(req => { calls.Add(req); return req.Contains("securetoken") ? (200, """{"id_token":"NEW","refresh_token":"R2","expires_in":"3600"}""") : (200, "{}"); });
+        var c = new SwiftCad.Core.Auth.FirebaseAuthClient(new HttpClient(h), cfg, () => fixedNow);
+        c.DeleteAccountAsync(new SwiftCad.Core.Auth.AuthSession("u", null, null, "google.com", "OLD", "R1", fixedNow)).GetAwaiter().GetResult();
+        Eq(2, calls.Count); True(calls[1].Contains("accounts:delete"), calls[1]); True(h.LastBody!.Contains("\"idToken\":\"NEW\""), h.LastBody);
+    });
+    Test("PKCE: challenge đúng chuẩn RFC 7636 (ví dụ trong RFC)", () =>
+        Eq("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM", SwiftCad.Core.Auth.Pkce.Challenge("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")));
+    Test("URL đăng nhập Google có PKCE S256, state, nonce, đúng redirect", () =>
+    {
+        var u = SwiftCad.Core.Auth.Pkce.GoogleAuthorizeUrl("cid", "http://127.0.0.1:5000/", "CH", "ST", "NO");
+        True(u.StartsWith("https://accounts.google.com/o/oauth2/v2/auth?") && u.Contains("code_challenge=CH") && u.Contains("code_challenge_method=S256")
+             && u.Contains("state=ST") && u.Contains("nonce=NO") && u.Contains("redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2F"), u);
+    });
+    Test("phiên lưu/đọc lại được; chuỗi hỏng trả null", () =>
+    {
+        var s = new SwiftCad.Core.Auth.AuthSession("u", "e", "n", "apple.com", "i", "r", fixedNow);
+        Eq(s, SwiftCad.Core.Auth.AuthSessionCodec.Deserialize(SwiftCad.Core.Auth.AuthSessionCodec.Serialize(s)));
+        True(SwiftCad.Core.Auth.AuthSessionCodec.Deserialize("{hỏng") is null, "phải null");
+    });
+}
+
 Console.WriteLine("Ngôn ngữ");
 Test("theo thiết bị, dự phòng tiếng Anh", () =>
 {
@@ -286,7 +349,6 @@ Test("cài đặt: lưu ngôn ngữ và bỏ qua đăng nhập qua lần mở l�
     new SettingsStore(p).Save(new AppSettings { Language = AppLanguage.Vietnamese, OnboardingDone = true, DisplayUnit = DrawingUnit.Meter });
     var s = new SettingsStore(p).Load();
     Eq(AppLanguage.Vietnamese, s.Language); True(s.OnboardingDone, "onboarding"); Eq(DrawingUnit.Meter, s.DisplayUnit);
-    True(!s.DemoSignedIn, "mặc định là khách");
 });
 Test("cài đặt: tệp hỏng không làm sập", () =>
 {
@@ -484,3 +546,17 @@ if (int.TryParse(Environment.GetEnvironmentVariable("SWIFTCAD_GRID_PERF"), out v
 
 Console.WriteLine($"\n{passed} đạt, {failed} lỗi");
 return failed == 0 ? 0 : 1;
+
+
+/// <summary>Máy chủ HTTP giả: ghi lại yêu cầu cuối, trả phản hồi định sẵn.</summary>
+sealed class FakeHttp(Func<string, (int Status, string Body)> respond) : HttpMessageHandler
+{
+    public string? LastUrl; public string? LastBody;
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+    {
+        LastUrl = request.RequestUri!.ToString();
+        LastBody = request.Content is null ? "" : await request.Content.ReadAsStringAsync(ct);
+        var (status, body) = respond(LastUrl);
+        return new HttpResponseMessage((System.Net.HttpStatusCode)status) { Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json") };
+    }
+}

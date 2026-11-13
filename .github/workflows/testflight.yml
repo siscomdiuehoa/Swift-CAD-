@@ -75,6 +75,13 @@ jobs:
           cp "$S/app.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
           echo "PROFILE_UUID=$UUID" >> "$GITHUB_ENV"
           rm -f "$S/dist.p12"
+      - name: Tao cau hinh Firebase tu Secret (khong luu trong repo)
+        env:
+          FB_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON }}
+          FB_PLIST: ${{ secrets.FIREBASE_GOOGLE_SERVICE_INFO_PLIST }}
+          GOOGLE_DESKTOP_CLIENT_ID: ${{ secrets.GOOGLE_DESKTOP_CLIENT_ID }}
+          GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.GOOGLE_DESKTOP_CLIENT_SECRET }}
+        run: python3 tools/ci/firebase_config.py
       - name: Build IPA ky (Release, ios-arm64)
         shell: bash
         run: |

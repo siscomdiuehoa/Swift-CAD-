@@ -10,3 +10,4 @@ obj/
 *.ipa
 artifacts/
 __pycache__/
+src/SwiftCad.App/Resources/Raw/firebase.json

@@ -214,20 +214,8 @@ public partial class HomePage : ContentPage
         var col = Column();
         col.Add(Heading(L.T("tab_settings")));
 
-        // Tài khoản mẫu: không có máy chủ, không thu thông tin thật. Khách vẫn mở được tệp trên máy.
-        var account = new VerticalStackLayout { Spacing = 8 };
-        var accHead = new HorizontalStackLayout { Spacing = 8 };
-        accHead.Add(Ui.Icon(Icons.Person, Theme.TextSub));
-        accHead.Add(Ui.Text(L.T("settings_account"), Theme.FontBody, bold: true));
-        accHead.Add(Ui.DemoBadge());
-        account.Add(accHead);
-        account.Add(Ui.Text(s.DemoSignedIn ? L.T("account_signed_in") : L.T("account_guest"), Theme.FontSub, Theme.TextSub));
-        account.Add(new PrimaryButton(s.DemoSignedIn ? L.T("account_sign_out") : L.T("welcome_sign_in_demo"), async () =>
-        {
-            if (!s.DemoSignedIn) await DisplayAlertAsync(L.T("account_demo_title"), L.T("account_demo_message"), L.T("ok"));
-            s.DemoSignedIn = !s.DemoSignedIn; AppState.SaveSettings(); Show(HomeTab.Settings);
-        }, secondary: true));
-        col.Add(new SoftSurface(account));
+        // Tài khoản (tùy chọn): đăng nhập Google/Apple qua Firebase. Khách vẫn dùng đầy đủ tính năng xem bản vẽ.
+        col.Add(new SoftSurface(BuildAccount()));
 
         var lang = Group(L.T("settings_language"));
         AddLanguage(lang, AppLanguage.Device, L.T("lang_device"));
@@ -262,6 +250,64 @@ public partial class HomePage : ContentPage
         about.Add(new OptionRow(L.T("settings_licenses"), false, () => _ = Navigation.PushAsync(new LicensesPage())));
         col.Add(new SoftSurface(about));
         return col;
+    }
+
+    private View BuildAccount()
+    {
+        var account = new VerticalStackLayout { Spacing = 8 };
+        var accHead = new HorizontalStackLayout { Spacing = 8 };
+        accHead.Add(Ui.Icon(Icons.Person, Theme.TextSub));
+        accHead.Add(Ui.Text(L.T("settings_account"), Theme.FontBody, bold: true));
+        account.Add(accHead);
+        var me = Auth.AuthService.Current;
+        if (me is not null)
+        {
+            account.Add(Ui.Text(L.F("auth_signed_in_as", me.Email ?? me.DisplayName ?? me.UserId), Theme.FontSub, Theme.Text, bold: true));
+            account.Add(new PrimaryButton(L.T("account_sign_out"), async () => { await Auth.AuthService.SignOutAsync(); Show(HomeTab.Settings); }, secondary: true));
+            var del = Ui.Text(L.T("auth_delete"), Theme.FontSub, Theme.Danger, bold: true);
+            del.MinimumHeightRequest = Theme.Touch;
+            del.Tap(() => _ = DeleteAccountAsync()).A11y(L.T("auth_delete"));
+            account.Add(del);
+            return account;
+        }
+        account.Add(Ui.Text(L.T("account_guest"), Theme.FontSub, Theme.TextSub));
+        if (!Auth.AuthService.IsConfigured)
+        {
+            account.Add(Ui.Text(L.T("auth_not_configured"), Theme.FontSub, Theme.TextSub));
+            return account;
+        }
+        if (Auth.AuthService.CanUseApple)
+            account.Add(new PrimaryButton(L.T("auth_apple"), () => _ = SignInAsync(Auth.AuthService.SignInWithAppleAsync)));
+        if (Auth.AuthService.CanUseGoogle)
+            account.Add(new PrimaryButton(L.T("auth_google"), () => _ = SignInAsync(Auth.AuthService.SignInWithGoogleAsync), secondary: true));
+        return account;
+    }
+
+    private async Task SignInAsync(Func<Task> signIn)
+    {
+        try { await signIn(); }
+        catch (TaskCanceledException) { return; } // người dùng đóng cửa sổ đăng nhập
+        catch (OperationCanceledException) { return; }
+        catch (Exception)
+        {
+            await DisplayAlertAsync(L.T("auth_failed_title"), L.T("auth_failed_message"), L.T("ok"));
+        }
+        Show(HomeTab.Settings);
+    }
+
+    private async Task DeleteAccountAsync()
+    {
+        if (!await DisplayAlertAsync(L.T("auth_delete_confirm_title"), L.T("auth_delete_confirm_message"), L.T("delete"), L.T("cancel"))) return;
+        try
+        {
+            await Auth.AuthService.DeleteAccountAsync();
+            await DisplayAlertAsync(L.T("auth_delete"), L.T("auth_deleted"), L.T("ok"));
+        }
+        catch (Exception)
+        {
+            await DisplayAlertAsync(L.T("auth_failed_title"), L.T("auth_failed_message"), L.T("ok"));
+        }
+        Show(HomeTab.Settings);
     }
 
     private static VerticalStackLayout Group(string title)

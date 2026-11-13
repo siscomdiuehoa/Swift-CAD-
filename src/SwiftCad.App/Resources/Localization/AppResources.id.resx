@@ -14,11 +14,19 @@
   <data name="a11y_selected" xml:space="preserve"><value>{0}, dipilih</value></data>
   <data name="about_developer" xml:space="preserve"><value>Pengembang: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Versi {0} · prototipe</value></data>
-  <data name="account_demo_message" xml:space="preserve"><value>Prototipe ini belum memiliki server akun. Masuk hanya memakai identitas contoh dan tidak mengumpulkan data pribadi.</value></data>
-  <data name="account_demo_title" xml:space="preserve"><value>Masuk demo</value></data>
   <data name="account_guest" xml:space="preserve"><value>Anda menggunakan Swift CAD sebagai tamu. Semua fitur di perangkat tersedia.</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Keluar</value></data>
-  <data name="account_signed_in" xml:space="preserve"><value>Masuk sebagai Demo User (identitas contoh).</value></data>
+  <data name="auth_google" xml:space="preserve"><value>Masuk dengan Google</value></data>
+  <data name="auth_apple" xml:space="preserve"><value>Masuk dengan Apple</value></data>
+  <data name="auth_signed_in_as" xml:space="preserve"><value>Masuk sebagai {0}</value></data>
+  <data name="auth_delete" xml:space="preserve"><value>Hapus akun</value></data>
+  <data name="auth_delete_confirm_title" xml:space="preserve"><value>Hapus akun Anda?</value></data>
+  <data name="auth_delete_confirm_message" xml:space="preserve"><value>Akun Swift CAD Anda akan dihapus permanen. Gambar dan catatan di perangkat ini tetap disimpan.</value></data>
+  <data name="auth_deleted" xml:space="preserve"><value>Akun dihapus.</value></data>
+  <data name="auth_failed_title" xml:space="preserve"><value>Gagal masuk</value></data>
+  <data name="auth_failed_message" xml:space="preserve"><value>Periksa koneksi internet lalu coba lagi.</value></data>
+  <data name="auth_not_configured" xml:space="preserve"><value>Fitur masuk tidak tersedia di versi ini.</value></data>
+  <data name="auth_return_to_app" xml:space="preserve"><value>Berhasil masuk. Anda dapat kembali ke Swift CAD.</value></data>
   <data name="back" xml:space="preserve"><value>Kembali</value></data>
   <data name="cancel" xml:space="preserve"><value>Batal</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Hitam</value></data>
@@ -119,7 +127,6 @@
   <data name="unit_mm" xml:space="preserve"><value>Milimeter (mm)</value></data>
   <data name="welcome_guest" xml:space="preserve"><value>Gunakan tanpa akun</value></data>
   <data name="welcome_note" xml:space="preserve"><value>Anda dapat masuk nanti di Pengaturan. File di perangkat ini selalu dibuka tanpa akun.</value></data>
-  <data name="welcome_sign_in_demo" xml:space="preserve"><value>Masuk (Demo)</value></data>
   <data name="welcome_subtitle" xml:space="preserve"><value>Lihat, cari, ukur, dan beri catatan gambar DWG/DXF di lapangan.</value></data>
   <data name="annot_arrow" xml:space="preserve"><value>Panah</value></data>
   <data name="annot_cloud" xml:space="preserve"><value>Tandai area</value></data>

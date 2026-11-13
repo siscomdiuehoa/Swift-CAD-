@@ -10,8 +10,6 @@ public sealed class AppSettings
     public bool OnboardingDone { get; set; }
     /// <summary>Unknown = hiển thị theo đơn vị của bản vẽ.</summary>
     public DrawingUnit DisplayUnit { get; set; } = DrawingUnit.Unknown;
-    /// <summary>Tài khoản mẫu của prototype. Không có máy chủ, không thu thông tin thật.</summary>
-    public bool DemoSignedIn { get; set; }
     public bool BlackCanvas { get; set; }
 }
 

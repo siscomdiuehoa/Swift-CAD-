@@ -32,8 +32,10 @@ public class WelcomePage : ContentPage
         foreach (var (value, name) in LanguageResolver.Languages) AddLanguage(langs, value, name);
         stack.Add(new SoftSurface(langs));
 
-        stack.Add(new PrimaryButton(L.T("welcome_guest"), () => Finish(signIn: false)));
-        stack.Add(new PrimaryButton(L.T("welcome_sign_in_demo"), () => Finish(signIn: true), secondary: true));
+        stack.Add(new PrimaryButton(L.T("welcome_guest"), () => Finish()));
+        // Đăng nhập là tùy chọn; chỉ hiện khi bản build có cấu hình Firebase.
+        if (Auth.AuthService.CanUseApple) stack.Add(new PrimaryButton(L.T("auth_apple"), () => _ = SignInThenFinish(Auth.AuthService.SignInWithAppleAsync), secondary: true));
+        if (Auth.AuthService.CanUseGoogle) stack.Add(new PrimaryButton(L.T("auth_google"), () => _ = SignInThenFinish(Auth.AuthService.SignInWithGoogleAsync), secondary: true));
         stack.Add(Ui.Text(L.T("welcome_note"), Theme.FontSub, Theme.TextSub));
 
         Content = new ScrollView { Content = stack };
@@ -48,13 +50,22 @@ public class WelcomePage : ContentPage
             Build();
         }));
 
-    private async void Finish(bool signIn)
+    private void Finish()
     {
-        if (signIn)
-            await DisplayAlertAsync(L.T("account_demo_title"), L.T("account_demo_message"), L.T("ok"));
-        AppState.Settings.DemoSignedIn = signIn;
         AppState.Settings.OnboardingDone = true;
         AppState.SaveSettings();
         Nav.ResetRoot();
+    }
+
+    private async Task SignInThenFinish(Func<Task> signIn)
+    {
+        try { await signIn(); }
+        catch (OperationCanceledException) { return; }
+        catch (Exception)
+        {
+            await DisplayAlertAsync(L.T("auth_failed_title"), L.T("auth_failed_message"), L.T("ok"));
+            return;
+        }
+        Finish();
     }
 }
