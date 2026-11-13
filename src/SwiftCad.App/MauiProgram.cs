@@ -20,7 +20,8 @@ public static class MauiProgram
 #elif IOS
             events.AddiOS(ios => ios
                 .SceneWillConnect((scene, session, options) => IncomingUrls.Handle(options.UrlContexts))
-                .SceneOpenUrl((scene, contexts) => IncomingUrls.Handle(contexts)));
+                // SceneOpenUrl phải trả bool: true = ứng dụng đã nhận xử lý URL.
+                .SceneOpenUrl((scene, contexts) => { IncomingUrls.Handle(contexts); return true; }));
 #endif
         });
         return builder.Build();
