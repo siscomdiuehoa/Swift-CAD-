@@ -167,7 +167,9 @@ def picker_cancel():
 
 
 step("huy-chon-tep-khong-bao-loi", picker_cancel)
-step("mo-tep-mau", lambda: (tap("Open MEP-Floor-01.demo"), must(find("Demo", 10), "khong thay nhan Demo")))
+# Owner bo Tep mau khoi man Ban ve: cac cong cu duoc kiem tra tren tep DXF that da mo tu Gan day.
+step("khong-con-tep-mau", lambda: must(find_scrolling("Open MEP-Floor-01.demo", 3) is None, "van hien Tep mau tren man Ban ve"))
+step("mo-tep-that-tu-gan-day", lambda: (tap("Open TEST-Flow-Plan.dxf"), must(find("Find", 30), "khong mo duoc tep"), must(not find("Demo", 2), "tep that bi gan nhan Demo")))
 for tool, check in [("Find", "Search text in the drawing"), ("Measure", "Pick the first point"),
                     ("Layers", "Show all"), ("Notes", "Tap the drawing to add text")]:
     step(f"cong-cu-{tool.lower()}", lambda tool=tool, check=check: (tap(tool), must(find(check, 8), f"bang {tool} khong mo")))

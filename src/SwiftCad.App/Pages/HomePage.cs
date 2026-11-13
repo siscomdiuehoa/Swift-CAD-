@@ -10,14 +10,9 @@ public partial class HomePage : ContentPage
     private readonly ContentView _content = new();
     private readonly Dictionary<HomeTab, ToolButton> _tabButtons = new();
     private VerticalStackLayout? _recentHost;
-    private VerticalStackLayout? _downloadsHost;
     private string _filter = "";
     private bool _showAll;
-    private bool _showAllDownloads;
     private const int RecentPreview = 5;
-    private const int DownloadsPreview = 6;
-    /// <summary>Kết quả quét gần nhất, hiện ngay khi quay lại màn hình trong lúc quét lại.</summary>
-    private static List<DeviceCadFile>? _downloadsCache;
 
     public HomePage(HomeTab tab)
     {
@@ -99,23 +94,6 @@ public partial class HomePage : ContentPage
         anyFile.Tap(() => _ = PickAsync(anyType: true));
         col.Add(anyFile);
 
-        if (DeviceCadFiles.IsSupported)
-        {
-            var dlHeader = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) } };
-            dlHeader.Add(Heading(L.T("downloads_title"), 18), 0);
-            if (DeviceCadFiles.Folders().Count > 0)
-            {
-                var folders = Ui.Text(L.T("downloads_folders"), Theme.FontSub, Theme.Primary, bold: true);
-                folders.MinimumHeightRequest = Theme.Touch; folders.MinimumWidthRequest = Theme.Touch; folders.HorizontalTextAlignment = TextAlignment.End;
-                folders.Tap(() => _ = FoldersMenuAsync());
-                dlHeader.Add(folders, 1);
-            }
-            col.Add(dlHeader);
-            _downloadsHost = new VerticalStackLayout { Spacing = 12 };
-            col.Add(_downloadsHost);
-            _ = RefreshDownloadsAsync();
-        }
-
         var cloud = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Star) }, ColumnSpacing = Theme.Gap };
         // Tên dịch vụ là tên riêng, không dịch. Biểu tượng đám mây trung tính, không dùng logo có bản quyền.
         cloud.Add(new SourceTile(Icons.Cloud, "Google Drive", L.T("cloud_connect"), L.F("a11y_cloud", "Google Drive"), () => _ = CloudAsync("Google Drive")), 0);
@@ -134,9 +112,6 @@ public partial class HomePage : ContentPage
         col.Add(_recentHost);
         RefreshRecents();
 
-        col.Add(Heading(L.T("samples"), 18));
-        col.Add(new DrawingRow(DemoDrawing.FileName, L.T("sample_subtitle"), demo: true,
-            L.F("a11y_open_file", DemoDrawing.FileName), () => _ = OpenDemoAsync()));
         return col;
     }
 
@@ -183,91 +158,6 @@ public partial class HomePage : ContentPage
         }
     }
 
-    // ---------- Mới tải về (Android) ----------
-
-    /// <summary>Tệp DWG/DXF trong thư mục đã cho phép (ví dụ Tải xuống › Zalo), mới tải về đứng đầu. Chỉ hiện tệp CAD.</summary>
-    private async Task RefreshDownloadsAsync()
-    {
-        var host = _downloadsHost;
-        if (host is null) return;
-        if (DeviceCadFiles.Folders().Count == 0)
-        {
-            host.Clear();
-            var box = new VerticalStackLayout { Spacing = 10 };
-            box.Add(Ui.Text(L.T("downloads_explain"), Theme.FontSub, Theme.TextSub));
-            box.Add(new PrimaryButton(L.T("downloads_grant"), () => _ = AddFolderAsync(), secondary: true));
-            host.Add(new SoftSurface(box));
-            return;
-        }
-        if (_downloadsCache is { } cached) FillDownloads(host, cached);
-        else { host.Clear(); host.Add(Ui.Text(L.T("downloads_scanning"), Theme.FontSub, Theme.TextSub)); }
-
-        var files = await DeviceCadFiles.ScanAsync();
-        _downloadsCache = files;
-        // Màn hình đã dựng lại trong lúc quét: chỉ điền vào khung còn hiện.
-        if (ReferenceEquals(host, _downloadsHost)) FillDownloads(host, files);
-    }
-
-    private void FillDownloads(VerticalStackLayout host, List<DeviceCadFile> files)
-    {
-        host.Clear();
-        if (files.Count == 0) { host.Add(Ui.Text(L.T("downloads_empty"), Theme.FontSub, Theme.TextSub)); return; }
-        foreach (var f in _showAllDownloads ? files : files.Take(DownloadsPreview))
-        {
-            var sub = f.Folder + " · " + FileIdentity.FormatSize(f.SizeBytes, L.FormatCulture)
-                + (f.ModifiedUtc > DateTimeOffset.MinValue ? " · " + f.ModifiedUtc.ToLocalTime().ToString("g", L.FormatCulture) : "");
-            host.Add(new DrawingRow(f.Name, sub, demo: false, L.F("a11y_open_file", f.Name), () => _ = OpenDeviceFileAsync(f)));
-        }
-        if (files.Count > DownloadsPreview)
-        {
-            var more = Ui.Text(_showAllDownloads ? L.T("see_less") : L.T("see_all"), Theme.FontSub, Theme.Primary, bold: true);
-            more.MinimumHeightRequest = Theme.Touch; more.HorizontalTextAlignment = TextAlignment.Center;
-            more.Tap(() => { _showAllDownloads = !_showAllDownloads; FillDownloads(host, files); });
-            host.Add(more);
-        }
-    }
-
-    private async Task AddFolderAsync()
-    {
-        var go = await DisplayAlertAsync(L.T("downloads_grant"), L.T("downloads_grant_help"), L.T("continue"), L.T("cancel"));
-        if (!go) return;
-        if (await DeviceCadFiles.AddFolderAsync()) { _downloadsCache = null; Show(HomeTab.Drawings); }
-    }
-
-    private async Task FoldersMenuAsync()
-    {
-        var folders = DeviceCadFiles.Folders();
-        var add = L.T("downloads_add_folder");
-        var options = new List<string> { add };
-        options.AddRange(folders.Select(f => L.F("downloads_remove_folder", f.Name)));
-        var choice = await DisplayActionSheetAsync(L.T("downloads_folders"), L.T("cancel"), null, options.ToArray());
-        if (choice == add) { await AddFolderAsync(); return; }
-        var idx = options.IndexOf(choice ?? "") - 1;
-        if (idx >= 0 && idx < folders.Count)
-        {
-            DeviceCadFiles.RemoveFolder(folders[idx].Uri);
-            _downloadsCache = null;
-            Show(HomeTab.Drawings);
-        }
-    }
-
-    private async Task OpenDeviceFileAsync(DeviceCadFile f)
-    {
-        ImportResult r;
-        try
-        {
-            using var s = await Task.Run(() => DeviceCadFiles.Open(f));
-            r = s is null ? new ImportResult(ImportStatus.Failed, null) : await Files.ImportAsync(s, f.Name);
-        }
-        catch (Exception)
-        {
-            // Tệp đã bị xóa hoặc quyền thư mục bị thu hồi.
-            r = new ImportResult(ImportStatus.Failed, null);
-            _downloadsCache = null;
-        }
-        await HandleImportAsync(r);
-    }
-
     /// <summary>
     /// Chưa có tích hợp trực tiếp: hướng dẫn chọn nhà cung cấp trong trình chọn tệp hệ thống.
     /// Không ghi trạng thái kết nối giả, không thu mật khẩu.
@@ -277,8 +167,6 @@ public partial class HomePage : ContentPage
         var go = await DisplayAlertAsync(provider, L.F("cloud_guide", provider), L.T("cloud_open_picker"), L.T("cancel"));
         if (go) await PickAsync();
     }
-
-    private Task OpenDemoAsync() => Navigation.PushAsync(new ViewerPage());
 
     private async Task OpenRecentAsync(RecentFile f)
     {
@@ -360,6 +248,8 @@ public partial class HomePage : ContentPage
         col.Add(new SoftSurface(canvas));
 
         var about = Group(L.T("settings_about"));
+        // Tên nhà phát triển là tên riêng (pháp nhân), không dịch.
+        about.Add(Ui.Text(L.F("about_developer", AppInfoExtra.DeveloperName), Theme.FontSub, Theme.Text, bold: true));
         about.Add(Ui.Text(L.F("about_version", AppInfo.Current.VersionString), Theme.FontSub, Theme.TextSub));
         about.Add(Ui.Text(L.T("about_no_ads"), Theme.FontSub, Theme.TextSub));
         about.Add(new OptionRow(L.T("settings_licenses"), false, () => _ = Navigation.PushAsync(new LicensesPage())));

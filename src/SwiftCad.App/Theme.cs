@@ -68,3 +68,9 @@ public static class Icons
     public const string LogoBody = "M5 2 H15 L21 8 V22 H5 Z";
     public const string LogoMark = "M8 18 L11 12 L14 16 L16 13 L18 18 Z";
 }
+
+/// <summary>Thông tin nhà phát triển hiển thị trong Cài đặt › Thông tin.</summary>
+public static class AppInfoExtra
+{
+    public const string DeveloperName = "Siscom Technical Trading Joint Stock Company";
+}

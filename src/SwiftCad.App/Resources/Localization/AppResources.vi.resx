@@ -11,6 +11,7 @@
   <data name="a11y_layer_toggle" xml:space="preserve"><value>Hiện layer {0}</value></data>
   <data name="a11y_open_file" xml:space="preserve"><value>Mở {0}</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, đang chọn</value></data>
+  <data name="about_developer" xml:space="preserve"><value>Nhà phát triển: {0}</value></data>
   <data name="about_no_ads" xml:space="preserve"><value>Không quảng cáo. Mở tệp trên máy không cần tài khoản.</value></data>
   <data name="about_version" xml:space="preserve"><value>Phiên bản {0} · bản thử</value></data>
   <data name="account_demo_message" xml:space="preserve"><value>Bản thử này chưa có máy chủ tài khoản. Đăng nhập chỉ dùng danh tính mẫu và không thu thông tin cá nhân.</value></data>
@@ -91,8 +92,6 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="recent" xml:space="preserve"><value>Gần đây</value></data>
   <data name="recent_empty" xml:space="preserve"><value>Chưa có bản vẽ nào. Dùng Chọn tệp để mở DWG hoặc DXF từ máy.</value></data>
   <data name="recent_no_match" xml:space="preserve"><value>Không có bản vẽ gần đây nào khớp “{0}”.</value></data>
-  <data name="sample_subtitle" xml:space="preserve"><value>Hình học mẫu do ứng dụng tự tạo</value></data>
-  <data name="samples" xml:space="preserve"><value>Tệp mẫu</value></data>
   <data name="save" xml:space="preserve"><value>Lưu</value></data>
   <data name="saved_empty" xml:space="preserve"><value>Chưa có mục nào. Dùng menu trên từng bản vẽ để thêm vào đây.</value></data>
   <data name="saved_explain" xml:space="preserve"><value>Danh sách bản vẽ bạn đã đánh dấu. Đánh dấu không có nghĩa là đã tải về.</value></data>
@@ -133,16 +132,6 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="annot_no_text" xml:space="preserve"><value>(không có chữ)</value></data>
   <data name="annot_text" xml:space="preserve"><value>Chữ</value></data>
   <data name="annot_text_optional" xml:space="preserve"><value>Thêm chữ (có thể bỏ trống). Lưu trên máy, tách riêng khỏi tệp gốc.</value></data>
-  <data name="continue" xml:space="preserve"><value>Tiếp tục</value></data>
-  <data name="downloads_add_folder" xml:space="preserve"><value>Thêm thư mục</value></data>
-  <data name="downloads_empty" xml:space="preserve"><value>Chưa có tệp DWG/DXF trong thư mục đã cho phép.</value></data>
-  <data name="downloads_explain" xml:space="preserve"><value>Hiện bản vẽ DWG/DXF nhận qua Zalo hoặc tải về máy, tệp mới nhất ở đầu. Chỉ liệt kê tệp CAD.</value></data>
-  <data name="downloads_folders" xml:space="preserve"><value>Thư mục</value></data>
-  <data name="downloads_grant" xml:space="preserve"><value>Cho phép xem thư mục Zalo</value></data>
-  <data name="downloads_grant_help" xml:space="preserve"><value>Ở màn hình tiếp theo, mở Tải xuống › Zalo (hoặc thư mục chứa bản vẽ của bạn), bấm Sử dụng thư mục này rồi Cho phép. Swift CAD chỉ đọc tệp DWG/DXF trong đó, không sửa hay xóa tệp.</value></data>
-  <data name="downloads_remove_folder" xml:space="preserve"><value>Bỏ thư mục {0}</value></data>
-  <data name="downloads_scanning" xml:space="preserve"><value>Đang tìm tệp CAD…</value></data>
-  <data name="downloads_title" xml:space="preserve"><value>Mới tải về</value></data>
   <data name="menu_display_info" xml:space="preserve"><value>Mức độ hiển thị</value></data>
   <data name="pick_any_file" xml:space="preserve"><value>Không thấy tệp? Hiện mọi loại tệp</value></data>
 </root>
