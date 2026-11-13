@@ -23,6 +23,9 @@ public readonly record struct Bounds2(double MinX, double MinY, double MaxX, dou
 
 public abstract record Entity(string Layer)
 {
+    /// <summary>Màu riêng của đối tượng (ARGB). Null = lấy màu của layer.</summary>
+    public uint? Color { get; init; }
+
     public abstract Bounds2 ExtendBounds(Bounds2 b);
 }
 
@@ -32,6 +35,19 @@ public sealed record LineEntity(string Layer, Point2 A, Point2 B) : Entity(Layer
 }
 
 public sealed record PolylineEntity(string Layer, IReadOnlyList<Point2> Points, bool Closed) : Entity(Layer)
+{
+    public override Bounds2 ExtendBounds(Bounds2 b)
+    {
+        foreach (var p in Points) b = b.Include(p);
+        return b;
+    }
+}
+
+/// <summary>
+/// Vùng tô đa giác. UseBackground = true: vùng che (WIPEOUT) được tô bằng màu nền, che các đối tượng vẽ trước nó.
+/// UseBackground = false: tô màu layer (HATCH đặc, SOLID).
+/// </summary>
+public sealed record FillEntity(string Layer, IReadOnlyList<Point2> Points, bool UseBackground) : Entity(Layer)
 {
     public override Bounds2 ExtendBounds(Bounds2 b)
     {

@@ -202,6 +202,34 @@ Test("căn phải xoay 180°: chữ nằm bên phải điểm neo", () =>
     Near(20, c[0].X, 1e-9); Near(0, c[1].X, 1e-9);
 });
 
+Console.WriteLine("Chỉ mục lưới và vùng tô");
+Test("lưới trả đủ đối tượng giao khung nhìn, đúng thứ tự vẽ, không trùng", () =>
+{
+    var ents = new List<SwiftCad.Core.Entity>();
+    var rnd = new Random(3);
+    for (var i = 0; i < 5000; i++)
+    {
+        double x = rnd.NextDouble() * 10000, y = rnd.NextDouble() * 10000;
+        ents.Add(new LineEntity("0", new(x, y), new(x + rnd.NextDouble() * 80, y + rnd.NextDouble() * 80)));
+    }
+    ents.Add(new FillEntity("0", [new(-100, -100), new(20000, -100), new(20000, 20000), new(-100, 20000)], true)); // vùng lớn
+    var bounds = ents.Aggregate(Bounds2.Empty, (b, e) => e.ExtendBounds(b));
+    var grid = new SwiftCad.Core.SpatialGrid(ents, bounds);
+    var view = new Bounds2(3000, 3000, 4000, 4000);
+    var got = grid.Query(view);
+    True(got.SequenceEqual(got.OrderBy(i => i)), "không theo thứ tự vẽ");
+    True(got.Distinct().Count() == got.Count, "trùng");
+    var expect = Enumerable.Range(0, ents.Count).Where(i => { var b = ents[i].ExtendBounds(Bounds2.Empty); return b.MaxX >= view.MinX && b.MinX <= view.MaxX && b.MaxY >= view.MinY && b.MinY <= view.MaxY; }).ToList();
+    foreach (var i in expect) True(got.Contains(i), "thiếu đối tượng giao khung: " + i);
+    True(got.Count < ents.Count / 4, $"lọc chưa đủ: {got.Count}/{ents.Count}");
+});
+Test("vùng tô có khung bao đúng", () =>
+{
+    var f = new FillEntity("0", [new(1, 2), new(5, 2), new(5, 9)], false);
+    var b = f.ExtendBounds(Bounds2.Empty);
+    Near(1, b.MinX, 1e-9); Near(9, b.MaxY, 1e-9);
+});
+
 Console.WriteLine("Ngôn ngữ");
 Test("theo thiết bị, dự phòng tiếng Anh", () =>
 {
@@ -328,6 +356,29 @@ else
         }
         True(bad.Count == 0, string.Join(" | ", bad));
     });
+}
+
+// Đo chỉ mục lưới (Issue #6): SWIFTCAD_GRID_PERF=<số đối tượng>. Đo trên máy kiểm tra, không phải Android.
+if (int.TryParse(Environment.GetEnvironmentVariable("SWIFTCAD_GRID_PERF"), out var gridN) && gridN > 0)
+{
+    var rnd = new Random(11);
+    var big = new List<SwiftCad.Core.Entity>(gridN);
+    for (var i = 0; i < gridN; i++)
+    {
+        double x = rnd.NextDouble() * 850000, y = rnd.NextDouble() * 500000;
+        big.Add(i % 3 == 0 ? new LineEntity("0", new(x, y), new(x + 400, y + 300))
+              : new CircleEntity("0", new(x, y), 150));
+    }
+    var sb = big.Aggregate(Bounds2.Empty, (b, e) => e.ExtendBounds(b));
+    var sw = System.Diagnostics.Stopwatch.StartNew();
+    var g = new SwiftCad.Core.SpatialGrid(big, sb);
+    var build = sw.Elapsed.TotalMilliseconds;
+    sw.Restart();
+    var view = new Bounds2(100000, 100000, 160000, 160000); // khoảng 1/80 diện tích: một phần nhỏ khi phóng to
+    var hits = 0;
+    for (var k = 0; k < 200; k++) hits = g.Query(view).Count;
+    var query = sw.Elapsed.TotalMilliseconds / 200;
+    Console.WriteLine($"Chỉ mục lưới {gridN:N0} đối tượng: dựng {build:N0} ms; truy vấn khung nhìn {query:N2} ms (trung bình, {hits:N0} đối tượng trong khung).");
 }
 
 Console.WriteLine($"\n{passed} đạt, {failed} lỗi");

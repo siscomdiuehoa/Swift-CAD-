@@ -65,6 +65,49 @@ static CadDocument BuildFixture()
     att.Value = "Đ01"; att.InsertPoint = new XYZ(5100, 5000, 0); att.Height = 40; att.Rotation = Math.PI / 2;
     doc.Entities.Add(tagIns);
     doc.Entities.Add(new Hatch { Layer = wall });
+
+    // Issue #6: HATCH đặc, HATCH mẫu, SPLINE, SOLID, WIPEOUT, và block lồng có các loại này.
+    var solidHatch = new ACadSharp.Entities.Hatch { IsSolid = true, Pattern = ACadSharp.Entities.HatchPattern.Solid, Layer = wall };
+    var sqPath = new ACadSharp.Entities.Hatch.BoundaryPath();
+    sqPath.Edges.Add(new ACadSharp.Entities.Hatch.BoundaryPath.Line { Start = new CSMath.XY(20000, 0), End = new CSMath.XY(21000, 0) });
+    sqPath.Edges.Add(new ACadSharp.Entities.Hatch.BoundaryPath.Line { Start = new CSMath.XY(21000, 0), End = new CSMath.XY(21000, 1000) });
+    sqPath.Edges.Add(new ACadSharp.Entities.Hatch.BoundaryPath.Line { Start = new CSMath.XY(21000, 1000), End = new CSMath.XY(20000, 1000) });
+    sqPath.Edges.Add(new ACadSharp.Entities.Hatch.BoundaryPath.Line { Start = new CSMath.XY(20000, 1000), End = new CSMath.XY(20000, 0) });
+    solidHatch.Paths.Add(sqPath);
+    doc.Entities.Add(solidHatch);
+
+    var patHatch = new ACadSharp.Entities.Hatch { IsSolid = false, Pattern = ACadSharp.Entities.HatchPattern.Solid, Layer = wall };
+    var triPath = new ACadSharp.Entities.Hatch.BoundaryPath();
+    var tri = new ACadSharp.Entities.Hatch.BoundaryPath.Polyline { IsClosed = true };
+    tri.Vertices.Add(new XYZ(20000, 2000, 0)); tri.Vertices.Add(new XYZ(21000, 2000, 0)); tri.Vertices.Add(new XYZ(20500, 3000, 0));
+    triPath.Edges.Add(tri);
+    patHatch.Paths.Add(triPath);
+    doc.Entities.Add(patHatch);
+
+    doc.Entities.Add(new Solid(new XYZ(20000, 4000, 0), new XYZ(21000, 4000, 0), new XYZ(20000, 4500, 0), new XYZ(21000, 4500, 0)) { Layer = wall });
+
+    var wipe = new ACadSharp.Entities.Wipeout { InsertPoint = new XYZ(22000, 0, 0), Layer = anno };
+    wipe.ClipBoundaryVertices.Add(new CSMath.XY(0, 0)); wipe.ClipBoundaryVertices.Add(new CSMath.XY(1000, 500));
+    doc.Entities.Add(wipe);
+
+    // Block động: trạng thái không dùng bị đánh dấu ẩn. Đối tượng trên layer "0" theo layer của INSERT; màu ByBlock theo INSERT.
+    var dyn = new BlockRecord("MIENG-GIO-DONG");
+    dyn.Entities.Add(new Line { StartPoint = new XYZ(0, 0, 0), EndPoint = new XYZ(1200, 0, 0) });
+    dyn.Entities.Add(new Line { StartPoint = new XYZ(0, 0, 0), EndPoint = new XYZ(0, 1200, 0), IsInvisible = true });
+    dyn.Entities.Add(new Circle { Center = new XYZ(600, 0, 0), Radius = 10, Color = new ACadSharp.Color(1) });
+    dyn.Entities.Add(new Circle { Center = new XYZ(700, 0, 0), Radius = 10, Color = ACadSharp.Color.ByBlock });
+    dyn.Entities.Add(new Arc { Center = new XYZ(0, 0, 0), Radius = 100, StartAngle = 0, EndAngle = Math.PI / 2 });
+    doc.BlockRecords.Add(dyn);
+    doc.Entities.Add(new Insert(dyn) { InsertPoint = new XYZ(40000, 0, 0), Layer = anno, Color = new ACadSharp.Color(3) });
+    // INSERT lật gương (tỷ lệ X âm) và xoay 90°.
+    doc.Entities.Add(new Insert(dyn) { InsertPoint = new XYZ(50000, 0, 0), XScale = -1, Rotation = Math.PI / 2, Layer = wall });
+
+    var hvacBlock = new BlockRecord("HVAC-CHI-TIET");
+    hvacBlock.Entities.Add(new ACadSharp.Entities.Hatch { IsSolid = true, Layer = wall });
+    ((ACadSharp.Entities.Hatch)hvacBlock.Entities[^1]).Paths.Add(sqPath);
+    doc.BlockRecords.Add(hvacBlock);
+    doc.Entities.Add(new Insert(hvacBlock) { InsertPoint = new XYZ(30000, 0, 0), XScale = 2, YScale = 0.5, Rotation = Math.PI / 2, Layer = wall });
+
     return doc;
 }
 
@@ -93,7 +136,7 @@ foreach (var (label, ext, binary) in new[] { ("DXF ASCII", ".dxf", false), ("DXF
     Test("tròn và cung (độ)", () =>
     {
         var c = m.Entities.OfType<CircleEntity>().Single(e => Math.Abs(e.Center.X - 3000) < 1e-9); Near(160, c.Radius, 1e-9, "bán kính");
-        var a = m.Entities.OfType<ArcEntity>().Single(); Near(90, a.StartDeg, 1e-9, "góc đầu"); Near(180, a.EndDeg, 1e-9, "góc cuối");
+        var a = m.Entities.OfType<ArcEntity>().Single(x => Math.Abs(x.Center.X - 8000) < 1e-6); Near(90, a.StartDeg, 1e-6, "góc đầu"); Near(180, a.EndDeg, 1e-6, "góc cuối");
     });
     Test("polyline có bulge thành nửa đường tròn", () =>
     {
@@ -166,6 +209,62 @@ foreach (var (label, ext, binary) in new[] { ("DXF ASCII", ".dxf", false), ("DXF
         var t = T("Đ01"); Near(90, t.RotationDeg, 1e-6, "góc"); Near(5100, t.Position.X, 1e-6, "x");
         var bad = m.Entities.OfType<SwiftCad.Core.TextEntity>().Where(x => x.Text is "KHUON" or "SO").Select(x => $"{x.Text}@{x.Position.X:0},{x.Position.Y:0}").ToList();
         True(bad.Count == 0, "hiện khuôn thuộc tính: " + string.Join(" ", bad));
+    });
+    Test("HATCH đặc thành vùng tô đúng layer và đúng đỉnh", () =>
+    {
+        var f = m.Entities.OfType<FillEntity>().Single(x => !x.UseBackground && x.Points.Any(p => Math.Abs(p.X - 20000) < 1e-6 && Math.Abs(p.Y - 0) < 1e-6) && x.Points.Count == 4);
+        Near(21000, f.Points.Max(p => p.X), 1e-6, "x max"); Near(1000, f.Points.Max(p => p.Y), 1e-6, "y max");
+        True(f.Layer == "A-WALL", f.Layer);
+    });
+    Test("HATCH mẫu chỉ vẽ đường bao và được đếm là gần đúng", () =>
+    {
+        var l = m.Entities.OfType<PolylineEntity>().Single(p => p.Closed && p.Points.Any(q => Math.Abs(q.Y - 3000) < 1e-6));
+        True(l.Points.Count == 3, "số đỉnh " + l.Points.Count);
+        True(r.Approximated.GetValueOrDefault("HATCH mẫu chỉ vẽ đường bao") == 1, "chưa đếm HATCH mẫu");
+    });
+    Test("SPLINE không còn bị bỏ qua, xấp xỉ thành polyline", () =>
+        True(r.Skipped.GetValueOrDefault("Spline") == 0, "Spline vẫn bị bỏ qua"));
+    Test("SOLID thành vùng tô 4 đỉnh theo thứ tự 1-2-4-3", () =>
+    {
+        var f = m.Entities.OfType<FillEntity>().Single(x => !x.UseBackground && x.Points.Any(p => Math.Abs(p.Y - 4500) < 1e-6));
+        Near(20000, f.Points[0].X, 1e-6, "đỉnh 1"); Near(21000, f.Points[1].X, 1e-6, "đỉnh 2");
+        Near(21000, f.Points[2].X, 1e-6, "đỉnh 3 (4 của AutoCAD)"); Near(20000, f.Points[3].X, 1e-6, "đỉnh 4 (3 của AutoCAD)");
+    });
+    Test("WIPEOUT không vẽ (tránh che nhầm nét thật) và được báo là chưa hiển thị", () =>
+    {
+        True(!m.Entities.OfType<FillEntity>().Any(x => x.UseBackground), "còn vùng che");
+        True(r.Skipped.GetValueOrDefault("Wipeout") == 1, "chưa đếm Wipeout: " + string.Join(",", r.Skipped.Select(k => k.Key + "=" + k.Value)));
+    });
+    Test("HATCH đặc trong block lồng xoay 90°, tỷ lệ 2 × 0.5 giữ đúng hình", () =>
+    {
+        // Biên trong block: (20000..21000, 0..1000). Scale (2, 0.5) -> (40000..42000, 0..500).
+        // Xoay 90° (x,y)->(-y,x) -> x in [-500, 0], y in [40000, 42000]. Cộng InsertPoint (30000, 0)
+        // -> x in [29500, 30000], y in [40000, 42000].
+        var f = m.Entities.OfType<FillEntity>().Single(x => !x.UseBackground && x.Points.Min(p => p.Y) > 39999 && x.Points.Min(p => p.Y) < 40001);
+        Near(29500, f.Points.Min(p => p.X), 1e-3, "x min"); Near(30000, f.Points.Max(p => p.X), 1e-3, "x max");
+        Near(42000, f.Points.Max(p => p.Y), 1e-3, "y max");
+    });
+    Test("block động: đối tượng ẩn không được vẽ", () =>
+    {
+        True(m.Entities.OfType<LineEntity>().Any(l => Math.Abs(l.A.X - 40000) < 1e-6 && Math.Abs(l.B.X - 41200) < 1e-6), "thiếu đường hiển thị");
+        True(!m.Entities.OfType<LineEntity>().Any(l => Math.Abs(l.A.X - 40000) < 1e-6 && Math.Abs(l.B.Y - 1200) < 1e-6), "đường ẩn vẫn được vẽ");
+    });
+    Test("layer 0 trong block theo layer của INSERT; màu riêng và ByBlock đúng", () =>
+    {
+        var line = m.Entities.OfType<LineEntity>().First(l => Math.Abs(l.A.X - 40000) < 1e-6);
+        True(line.Layer == "G-ANNO", "layer " + line.Layer);
+        var red = m.Entities.OfType<CircleEntity>().Single(c => Math.Abs(c.Center.X - 40600) < 1e-6);
+        True(red.Color == 0xFFFF0000, $"màu riêng {red.Color:X}");
+        var byBlock = m.Entities.OfType<CircleEntity>().Single(c => Math.Abs(c.Center.X - 40700) < 1e-6);
+        True(byBlock.Color == 0xFF00FF00, $"màu ByBlock {byBlock.Color:X}");
+    });
+    Test("INSERT lật gương và xoay 90°: đường và cung đúng vị trí", () =>
+    {
+        // (x,y) -> lật X: (-x,y) -> xoay 90°: (-y,-x) -> cộng (50000,0). Đường (0,0)-(1200,0) thành (50000,0)-(50000,-1200).
+        True(m.Entities.OfType<LineEntity>().Any(l => Math.Abs(l.A.X - 50000) < 1e-6 && Math.Abs(l.B.X - 50000) < 1e-6 && Math.Abs(l.B.Y + 1200) < 1e-6), "đường sai vị trí");
+        // Cung 0..90° bán kính 100: hai đầu (100,0) và (0,100) thành (50000,-100) và (49900,0); cung ngược chiều kim đồng hồ từ 180° tới 270°.
+        var a = m.Entities.OfType<ArcEntity>().Single(x => Math.Abs(x.Center.X - 50000) < 1e-6);
+        Near(100, a.Radius, 1e-6, "bán kính"); Near(180, (a.StartDeg % 360 + 360) % 360, 1e-6, "góc đầu"); Near(270, (a.EndDeg % 360 + 360) % 360, 1e-6, "góc cuối");
     });
     Test("layer tắt trong tệp thì ẩn mặc định", () =>
     {
