@@ -7,6 +7,9 @@ public class App : Application
         // Giao diện sáng cố định theo thiết kế Neumorphism V2.
         UserAppTheme = AppTheme.Light;
         AppState.Init();
+        // Cấu hình và phiên đăng nhập đọc rất nhanh (tệp nhỏ, kho bảo mật); chờ để màn đầu tiên đã biết trạng thái.
+        // Chạy trên luồng nền để không khóa luồng giao diện (tránh treo khi chờ kho bảo mật).
+        Task.Run(Auth.AuthService.InitAsync).GetAwaiter().GetResult();
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

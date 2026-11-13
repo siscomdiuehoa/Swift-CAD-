@@ -14,11 +14,19 @@
   <data name="a11y_selected" xml:space="preserve"><value>{0}，已选择</value></data>
   <data name="about_developer" xml:space="preserve"><value>开发者：{0}</value></data>
   <data name="about_version" xml:space="preserve"><value>版本 {0} · 测试版</value></data>
-  <data name="account_demo_message" xml:space="preserve"><value>此测试版没有账户服务器。登录仅使用示例身份，不收集任何个人信息。</value></data>
-  <data name="account_demo_title" xml:space="preserve"><value>演示登录</value></data>
   <data name="account_guest" xml:space="preserve"><value>你正以访客身份使用 Swift CAD。所有本机功能均可使用。</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>退出登录</value></data>
-  <data name="account_signed_in" xml:space="preserve"><value>已以 Demo User 登录（示例身份）。</value></data>
+  <data name="auth_google" xml:space="preserve"><value>使用 Google 登录</value></data>
+  <data name="auth_apple" xml:space="preserve"><value>通过 Apple 登录</value></data>
+  <data name="auth_signed_in_as" xml:space="preserve"><value>已登录：{0}</value></data>
+  <data name="auth_delete" xml:space="preserve"><value>删除账户</value></data>
+  <data name="auth_delete_confirm_title" xml:space="preserve"><value>删除你的账户？</value></data>
+  <data name="auth_delete_confirm_message" xml:space="preserve"><value>你的 Swift CAD 账户将被永久删除。本机上的图纸和批注会保留。</value></data>
+  <data name="auth_deleted" xml:space="preserve"><value>账户已删除。</value></data>
+  <data name="auth_failed_title" xml:space="preserve"><value>登录失败</value></data>
+  <data name="auth_failed_message" xml:space="preserve"><value>请检查网络连接后重试。</value></data>
+  <data name="auth_not_configured" xml:space="preserve"><value>此版本暂不支持登录。</value></data>
+  <data name="auth_return_to_app" xml:space="preserve"><value>登录成功，可以返回 Swift CAD。</value></data>
   <data name="back" xml:space="preserve"><value>返回</value></data>
   <data name="cancel" xml:space="preserve"><value>取消</value></data>
   <data name="canvas_black" xml:space="preserve"><value>黑色</value></data>
@@ -119,7 +127,6 @@
   <data name="unit_mm" xml:space="preserve"><value>毫米 (mm)</value></data>
   <data name="welcome_guest" xml:space="preserve"><value>无需账户直接使用</value></data>
   <data name="welcome_note" xml:space="preserve"><value>你可以稍后在“设置”中登录。本机文件始终无需账户即可打开。</value></data>
-  <data name="welcome_sign_in_demo" xml:space="preserve"><value>登录（演示）</value></data>
   <data name="welcome_subtitle" xml:space="preserve"><value>在工地查看、搜索、测量和批注 DWG/DXF 图纸。</value></data>
   <data name="annot_arrow" xml:space="preserve"><value>箭头</value></data>
   <data name="annot_cloud" xml:space="preserve"><value>圈注区域</value></data>
