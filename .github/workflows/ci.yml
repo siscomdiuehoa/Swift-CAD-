@@ -22,13 +22,6 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
-      - name: Kiem tra Secret Firebase (chi bao co/khong, khong in noi dung)
-        env:
-          FB_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON }}
-          FB_PLIST: ${{ secrets.FIREBASE_GOOGLE_SERVICE_INFO_PLIST }}
-        run: |
-          [ -n "$FB_JSON" ] && echo "::notice::FIREBASE_GOOGLE_SERVICES_JSON: CO" || echo "::notice::FIREBASE_GOOGLE_SERVICES_JSON: KHONG"
-          [ -n "$FB_PLIST" ] && echo "::notice::FIREBASE_GOOGLE_SERVICE_INFO_PLIST: CO" || echo "::notice::FIREBASE_GOOGLE_SERVICE_INFO_PLIST: KHONG"
       - run: dotnet run --project tests/SwiftCad.Core.Tests -c Release
       - name: Kiem thu doc DWG/DXF (ACadSharp) va do tep lon 300.000 doi tuong
         shell: bash
