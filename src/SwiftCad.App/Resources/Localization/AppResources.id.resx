@@ -10,9 +10,9 @@
   <data name="a11y_file_menu" xml:space="preserve"><value>Opsi lainnya untuk {0}</value></data>
   <data name="a11y_layer_toggle" xml:space="preserve"><value>Tampilkan layer {0}</value></data>
   <data name="a11y_open_file" xml:space="preserve"><value>Buka {0}</value></data>
+  <data name="a11y_open_website" xml:space="preserve"><value>Buka {0} di browser</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, dipilih</value></data>
   <data name="about_developer" xml:space="preserve"><value>Pengembang: {0}</value></data>
-  <data name="about_no_ads" xml:space="preserve"><value>Tanpa iklan. File di perangkat ini dibuka tanpa akun.</value></data>
   <data name="about_version" xml:space="preserve"><value>Versi {0} · prototipe</value></data>
   <data name="account_demo_message" xml:space="preserve"><value>Prototipe ini belum memiliki server akun. Masuk hanya memakai identitas contoh dan tidak mengumpulkan data pribadi.</value></data>
   <data name="account_demo_title" xml:space="preserve"><value>Masuk demo</value></data>

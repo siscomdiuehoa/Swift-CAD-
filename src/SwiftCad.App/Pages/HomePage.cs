@@ -253,8 +253,12 @@ public partial class HomePage : ContentPage
         SemanticProperties.SetDescription(devLogo, AppInfoExtra.DeveloperName);
         about.Add(devLogo);
         about.Add(Ui.Text(L.F("about_developer", AppInfoExtra.DeveloperName), Theme.FontSub, Theme.Text, bold: true));
+        // Trang web nhà phát triển: chạm để mở trình duyệt. Địa chỉ web không dịch.
+        var site = Ui.Text(AppInfoExtra.Website.Replace("https://", ""), Theme.FontSub, Theme.Primary, bold: true);
+        site.MinimumHeightRequest = Theme.Touch;
+        site.Tap(() => _ = Launcher.Default.OpenAsync(new Uri(AppInfoExtra.Website))).A11y(L.F("a11y_open_website", AppInfoExtra.Website));
+        about.Add(site);
         about.Add(Ui.Text(L.F("about_version", AppInfo.Current.VersionString), Theme.FontSub, Theme.TextSub));
-        about.Add(Ui.Text(L.T("about_no_ads"), Theme.FontSub, Theme.TextSub));
         about.Add(new OptionRow(L.T("settings_licenses"), false, () => _ = Navigation.PushAsync(new LicensesPage())));
         col.Add(new SoftSurface(about));
         return col;

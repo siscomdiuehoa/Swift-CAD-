@@ -10,9 +10,9 @@
   <data name="a11y_file_menu" xml:space="preserve"><value>{0} 的更多选项</value></data>
   <data name="a11y_layer_toggle" xml:space="preserve"><value>显示图层 {0}</value></data>
   <data name="a11y_open_file" xml:space="preserve"><value>打开 {0}</value></data>
+  <data name="a11y_open_website" xml:space="preserve"><value>在浏览器中打开 {0}</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}，已选择</value></data>
   <data name="about_developer" xml:space="preserve"><value>开发者：{0}</value></data>
-  <data name="about_no_ads" xml:space="preserve"><value>无广告。本机文件无需账户即可打开。</value></data>
   <data name="about_version" xml:space="preserve"><value>版本 {0} · 测试版</value></data>
   <data name="account_demo_message" xml:space="preserve"><value>此测试版没有账户服务器。登录仅使用示例身份，不收集任何个人信息。</value></data>
   <data name="account_demo_title" xml:space="preserve"><value>演示登录</value></data>

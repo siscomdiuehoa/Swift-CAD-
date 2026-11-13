@@ -73,4 +73,5 @@ public static class Icons
 public static class AppInfoExtra
 {
     public const string DeveloperName = "Siscom Technical Trading Joint Stock Company";
+    public const string Website = "https://siscom.vn";
 }

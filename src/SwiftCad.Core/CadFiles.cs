@@ -23,6 +23,13 @@ public static class CadFiles
         "application/octet-stream",
     ];
 
+    /// <summary>
+    /// Kiểu dùng cho trình chọn tệp: như AndroidMimeTypes nhưng bỏ application/octet-stream, vì kiểu này kéo theo
+    /// rất nhiều tệp không liên quan (zip, bin, tệp không rõ kiểu). Tệp DWG mà máy gán kiểu lạ vẫn mở được qua
+    /// "Hiện mọi loại tệp" (Owner 13/11: ẩn tệp không phải CAD khi mở thư mục).
+    /// </summary>
+    public static readonly string[] PickerMimeTypes = AndroidMimeTypes.Where(m => m != "application/octet-stream").ToArray();
+
     /// <summary>Số byte đầu tệp cần đọc để nhận diện.</summary>
     public const int HeadLength = 4096;
 

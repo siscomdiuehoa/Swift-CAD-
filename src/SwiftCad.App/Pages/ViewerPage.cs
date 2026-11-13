@@ -91,7 +91,7 @@ public partial class ViewerPage : ContentPage
         _landscape = landscape;
         // Bảng công cụ không chiếm quá khoảng một phần ba màn hình, để vùng CAD luôn lớn nhất.
         // Màn hình ngang còn thấp hơn. Camera do CadCanvas tự giữ.
-        _panelMax = landscape ? Math.Max(120, height * 0.55) : Math.Min(280, height * 0.34);
+        _panelMax = landscape ? Math.Max(120, height * 0.62) : Math.Min(280, height * 0.34);
         _panel.MaximumHeightRequest = _panelMax + 24;
         if (rotated) ApplyLayout(landscape);
         if (rotated && _tool != Tool.None) SelectTool(_tool);
@@ -102,18 +102,48 @@ public partial class ViewerPage : ContentPage
 
     /// <summary>
     /// Dọc: thanh trên, vùng CAD, bảng công cụ, thanh công cụ xếp chồng.
-    /// Ngang: vùng CAD chiếm bên trái toàn chiều cao; bảng và thanh công cụ ở cột phải, để bản vẽ không bị ép thấp.
+    /// Ngang: vùng CAD chiếm toàn bộ bề ngang và chiều cao dưới thanh trên. Thanh công cụ thành cột dọc nổi bên phải,
+    /// bảng công cụ nổi cạnh nó, nút Vừa khung/Toàn màn hình chuyển sang góc dưới trái (Owner 13/11: bản vẽ phải full màn).
     /// </summary>
     private void ApplyLayout(bool landscape)
     {
-        _root.ColumnDefinitions[1].Width = landscape ? new GridLength(320) : new GridLength(0);
-        Grid.SetColumnSpan(_topBar, landscape ? 2 : 1);
+        _root.ColumnDefinitions[1].Width = new GridLength(0);
+        Grid.SetColumnSpan(_topBar, 1);
         Grid.SetRow(_canvasArea, 1); Grid.SetColumn(_canvasArea, 0); Grid.SetRowSpan(_canvasArea, landscape ? 3 : 1);
-        Grid.SetRow(_panel, landscape ? 1 : 2); Grid.SetColumn(_panel, landscape ? 1 : 0);
+
+        // Thanh công cụ: hàng ngang khi dọc, cột dọc khi ngang.
+        _toolGrid.ColumnDefinitions.Clear(); _toolGrid.RowDefinitions.Clear();
+        var i = 0;
+        foreach (var b in _toolButtons.Values)
+        {
+            if (landscape) { _toolGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto)); Grid.SetRow(b, i); Grid.SetColumn(b, 0); }
+            else { _toolGrid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star)); Grid.SetColumn(b, i); Grid.SetRow(b, 0); }
+            i++;
+        }
+        if (landscape) _toolGrid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        else _toolGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+        _toolGrid.RowSpacing = landscape ? 2 : 0;
+
+        Grid.SetRow(_toolbar, landscape ? 1 : 3); Grid.SetRowSpan(_toolbar, landscape ? 3 : 1); Grid.SetColumn(_toolbar, 0);
+        _toolbar.HorizontalOptions = landscape ? LayoutOptions.End : LayoutOptions.Fill;
+        _toolbar.VerticalOptions = landscape ? LayoutOptions.Center : LayoutOptions.Fill;
+        _toolbar.WidthRequest = landscape ? ToolbarWidthLandscape : -1;
+        _toolbar.Margin = landscape ? new Thickness(0, 8, 12, 8) : new Thickness(12, 8, 12, 12);
+
+        Grid.SetRow(_panel, landscape ? 1 : 2); Grid.SetRowSpan(_panel, landscape ? 3 : 1); Grid.SetColumn(_panel, 0);
+        _panel.HorizontalOptions = landscape ? LayoutOptions.End : LayoutOptions.Fill;
         _panel.VerticalOptions = landscape ? LayoutOptions.Start : LayoutOptions.Fill;
-        Grid.SetRow(_toolbar, 3); Grid.SetColumn(_toolbar, landscape ? 1 : 0);
+        _panel.WidthRequest = landscape ? 340 : -1;
+        _panel.Margin = landscape ? new Thickness(12, 12, ToolbarWidthLandscape + 20, 12) : new Thickness(12, 8, 12, 0);
+
+        if (_canvasButtons is not null)
+            _canvasButtons.HorizontalOptions = landscape ? LayoutOptions.Start : LayoutOptions.End;
         Dispatcher.Dispatch(() => _canvas.InvalidateSurface());
     }
+
+    private const double ToolbarWidthLandscape = 88;
+    private Grid _toolGrid = null!;
+    private HorizontalStackLayout? _canvasButtons;
 
     /// <summary>Cuộn khi nội dung dài; chiều cao bằng nội dung, không vượt quá giới hạn bảng.</summary>
     private View Scrollable(View content)
@@ -171,6 +201,7 @@ public partial class ViewerPage : ContentPage
         // Ghi chú mức độ hiển thị không đè lên bản vẽ nữa (Owner yêu cầu ẩn); xem trong menu ⋮ > Mức độ hiển thị.
 
         var overlay = new HorizontalStackLayout { Spacing = 8, HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.End, Margin = 12 };
+        _canvasButtons = overlay;
         overlay.Add(CanvasButton(Icons.Fit, L.T("fit"), () => _canvas.Fit()));
         overlay.Add(_fullscreenHost);
         RefreshFullscreenButton();
@@ -223,6 +254,7 @@ public partial class ViewerPage : ContentPage
     private SoftSurface BuildToolbar()
     {
         var g = new Grid { ColumnSpacing = 4 };
+        _toolGrid = g;
         for (var i = 0; i < 4; i++) g.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
         AddTool(g, 0, Tool.Find, Icons.Search, L.T("tool_find"));
         AddTool(g, 1, Tool.Measure, Icons.Measure, L.T("tool_measure"));

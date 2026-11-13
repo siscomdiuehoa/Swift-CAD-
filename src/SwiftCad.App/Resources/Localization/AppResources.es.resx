@@ -10,9 +10,9 @@
   <data name="a11y_file_menu" xml:space="preserve"><value>Más opciones para {0}</value></data>
   <data name="a11y_layer_toggle" xml:space="preserve"><value>Mostrar capa {0}</value></data>
   <data name="a11y_open_file" xml:space="preserve"><value>Abrir {0}</value></data>
+  <data name="a11y_open_website" xml:space="preserve"><value>Abrir {0} en el navegador</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, seleccionado</value></data>
   <data name="about_developer" xml:space="preserve"><value>Desarrollador: {0}</value></data>
-  <data name="about_no_ads" xml:space="preserve"><value>Sin anuncios. Los archivos del dispositivo se abren sin cuenta.</value></data>
   <data name="about_version" xml:space="preserve"><value>Versión {0} · prototipo</value></data>
   <data name="account_demo_message" xml:space="preserve"><value>Este prototipo no tiene servidor de cuentas. Iniciar sesión usa solo una identidad de ejemplo y no recopila datos personales.</value></data>
   <data name="account_demo_title" xml:space="preserve"><value>Inicio de sesión de demostración</value></data>

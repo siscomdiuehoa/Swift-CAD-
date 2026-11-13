@@ -10,9 +10,9 @@
   <data name="a11y_file_menu" xml:space="preserve"><value>More options for {0}</value></data>
   <data name="a11y_layer_toggle" xml:space="preserve"><value>Show layer {0}</value></data>
   <data name="a11y_open_file" xml:space="preserve"><value>Open {0}</value></data>
+  <data name="a11y_open_website" xml:space="preserve"><value>Open {0} in the browser</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, selected</value></data>
   <data name="about_developer" xml:space="preserve"><value>Developer: {0}</value></data>
-  <data name="about_no_ads" xml:space="preserve"><value>No ads. Files on this device open without an account.</value></data>
   <data name="about_version" xml:space="preserve"><value>Version {0} · prototype</value></data>
   <data name="account_demo_message" xml:space="preserve"><value>This prototype has no account server. Signing in uses a sample identity only and collects no personal information.</value></data>
   <data name="account_demo_title" xml:space="preserve"><value>Demo sign-in</value></data>

@@ -230,6 +230,12 @@ Test("vùng tô có khung bao đúng", () =>
     Near(1, b.MinX, 1e-9); Near(9, b.MaxY, 1e-9);
 });
 
+Test("trình chọn tệp không dùng kiểu octet-stream (ẩn tệp không liên quan)", () =>
+{
+    True(!CadFiles.PickerMimeTypes.Contains("application/octet-stream"), "còn octet-stream");
+    True(CadFiles.PickerMimeTypes.Contains("image/vnd.dwg") && CadFiles.PickerMimeTypes.Contains("image/vnd.dxf"), "thiếu kiểu DWG/DXF");
+});
+
 Console.WriteLine("Ngôn ngữ");
 Test("theo thiết bị, dự phòng tiếng Anh", () =>
 {
