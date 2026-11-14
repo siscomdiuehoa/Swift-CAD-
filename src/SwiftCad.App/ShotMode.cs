@@ -50,7 +50,6 @@ public static class ShotMode
             case "settings": return Nav.BuildRoot(HomeTab.Settings);
             case "saved": return Nav.BuildRoot(HomeTab.Saved);
             case "picker": return WithHome(h => h.ShotOpenPicker());
-            case "cloud": return WithHome(h => h.ShotOpenCloud("Google Drive"));
         }
         if (shot.StartsWith("viewer", StringComparison.Ordinal))
         {

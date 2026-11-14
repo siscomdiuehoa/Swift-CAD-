@@ -35,7 +35,6 @@ SHOTS = [
     ("19-cad-layers", "viewer-cad-layers", 0),
     ("20-cad-landscape", "viewer-cad-measure", 1),
     ("13-viewer-measure-landscape", "viewer-measure", 1),
-    ("14-cloud-guide", "cloud", 0),
     ("15-system-picker", "picker", 0),
 ]
 for label, shot, rotation in SHOTS:
@@ -45,7 +44,7 @@ for label, shot, rotation in SHOTS:
     if rotation:
         time.sleep(3)
         rotate(rotation)  # dat lai sau khi mo app; khoa truoc khi mo khong phai luc nao cung giu
-    time.sleep(9 if shot in ("picker", "cloud") or shot.startswith("viewer-cad") else 6)
+    time.sleep(9 if shot in ("picker",) or shot.startswith("viewer-cad") else 6)
     screencap(f"{OUT}/{NAME}-{label}.png")
     log.append(f"{label}: focus={focused_package()}")
 rotate(0)
