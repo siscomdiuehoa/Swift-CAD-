@@ -9,8 +9,8 @@ import json, os, re, struct, subprocess, sys, time
 APP = sys.argv[1]
 BUNDLE = "vn.siscom.swiftcad"
 OUT = "artifacts/store-shots"
-SHOTS = ["store-home", "store-viewer", "store-find", "store-measure", "store-layers", "store-notes"]
-LANGS = [("en", "(en)", "en_US"), ("vi", "(vi)", "vi_VN")]
+SHOTS = ["welcome", "store-home", "store-viewer", "store-find", "store-measure", "store-layers", "store-notes"]
+LANGS = [("en", "(en)", "en_US")]  # Ảnh cửa hàng bằng tiếng Anh
 # Kich thuoc Apple chap nhan (doc), theo tai lieu Screenshot specifications.
 ACCEPT = {"iphone-6.9": {(1320, 2868), (1290, 2796), (1260, 2736)}, "ipad-13": {(2064, 2752), (2048, 2732)}}
 log, failures = [], []
