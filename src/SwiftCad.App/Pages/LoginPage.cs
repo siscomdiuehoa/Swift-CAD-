@@ -64,10 +64,6 @@ public class LoginPage : ContentPage
             stack.Add(none);
         }
 
-        var langs = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap, JustifyContent = Microsoft.Maui.Layouts.FlexJustify.Center, Margin = new Thickness(0, 26, 0, 0) };
-        AddLanguageChip(langs, AppLanguage.Device, L.T("lang_device"));
-        foreach (var (value, name) in LanguageResolver.Languages) AddLanguageChip(langs, value, name);
-        stack.Add(langs);
 
         root.Add(new ScrollView { Content = stack });
         Content = root;
@@ -100,27 +96,6 @@ public class LoginPage : ContentPage
             },
         };
         return b.Tap(onTap).A11y(text);
-    }
-
-    private void AddLanguageChip(FlexLayout host, AppLanguage value, string label)
-    {
-        var selected = AppState.Settings.Language == value;
-        var chip = new Border
-        {
-            BackgroundColor = selected ? DeepBlue : Colors.Transparent,
-            Stroke = new SolidColorBrush(DeepBlue), StrokeThickness = 1,
-            StrokeShape = new RoundRectangle { CornerRadius = 14 },
-            Padding = new Thickness(12, 6), Margin = new Thickness(4),
-            Content = new Label { Text = label, FontSize = 13, TextColor = selected ? Colors.White : DeepBlue, FontAttributes = selected ? FontAttributes.Bold : FontAttributes.None },
-        };
-        chip.Tap(() =>
-        {
-            AppState.Settings.Language = value;
-            AppState.SaveSettings();
-            L.Apply(value);
-            Nav.ResetRoot();
-        }).A11y(label);
-        host.Add(chip);
     }
 
     private async Task SignIn(Func<Task> signIn)
