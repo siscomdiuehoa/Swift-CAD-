@@ -304,16 +304,25 @@ public partial class ViewerPage : ContentPage
         if (DisplayInfo() is not null) options.Add(info);
         if (_model?.IsDemo == true) options.Add(about);
         var choice = await DisplayActionSheetAsync(_name, L.T("cancel"), null, options.ToArray());
-        if (choice == fit) _canvas.Fit();
+        try
+        {
+            if (choice == fit) _canvas.Fit();
         else if (choice == share && _file is not null) await Files.ShareCopyAsync(_file);
         else if (choice == shareNotes && _file is not null)
         {
             var notes = AppState.Notes.Load(_fileKey);
             if (notes.Count == 0) await DisplayAlertAsync(shareNotes, L.T("notes_export_empty"), L.T("ok"));
-            else if (!await Files.ShareWithNotesAsync(_file, notes)) await DisplayAlertAsync(shareNotes, L.T("notes_export_failed"), L.T("ok"));
+            else if (await Files.ShareWithNotesAsync(_file, notes) is { } err)
+                await DisplayAlertAsync(shareNotes, L.T("notes_export_failed") + (err == "missing" ? "" : "\n" + err), L.T("ok"));
         }
         else if (choice == info && DisplayInfo() is { } text) await DisplayAlertAsync(info, text, L.T("ok"));
         else if (choice == about) await DisplayAlertAsync(L.T("menu_about_demo"), L.T("demo_explain"), L.T("ok"));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("Drawing menu failed: " + ex);
+            await DisplayAlertAsync(L.T("share_failed_title"), L.T("share_failed_message"), L.T("ok"));
+        }
     }
 
     private static View PanelTitle(string text)

@@ -28,7 +28,7 @@
   <data name="menu_share_notes" xml:space="preserve"><value>Share drawing with notes</value></data>
   <data name="notes_export_empty" xml:space="preserve"><value>No notes to export yet. Add notes first.</value></data>
   <data name="notes_export_failed" xml:space="preserve"><value>Could not create the drawing with notes. The original file was not changed.</value></data>
-  <data name="back" xml:space="preserve"><value>Back</value></data>
+  <data name="share_failed_title" xml:space="preserve"><value>Could not share</value></data>\n  <data name="share_failed_message" xml:space="preserve"><value>Please try again. The original drawing was not changed.</value></data>\n  <data name="back" xml:space="preserve"><value>Back</value></data>
   <data name="cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Black</value></data>
   <data name="canvas_dark" xml:space="preserve"><value>Dark blue</value></data>

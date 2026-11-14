@@ -28,7 +28,7 @@
   <data name="menu_share_notes" xml:space="preserve"><value>分享带批注的图纸</value></data>
   <data name="notes_export_empty" xml:space="preserve"><value>尚无可导出的批注，请先添加批注。</value></data>
   <data name="notes_export_failed" xml:space="preserve"><value>无法生成带批注的图纸。原文件未被修改。</value></data>
-  <data name="back" xml:space="preserve"><value>返回</value></data>
+  <data name="share_failed_title" xml:space="preserve"><value>无法分享</value></data>\n  <data name="share_failed_message" xml:space="preserve"><value>请重试。原图纸未被修改。</value></data>\n  <data name="back" xml:space="preserve"><value>返回</value></data>
   <data name="cancel" xml:space="preserve"><value>取消</value></data>
   <data name="canvas_black" xml:space="preserve"><value>黑色</value></data>
   <data name="canvas_dark" xml:space="preserve"><value>深蓝色</value></data>

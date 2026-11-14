@@ -28,7 +28,7 @@
   <data name="menu_share_notes" xml:space="preserve"><value>Chia sẻ bản vẽ có ghi chú</value></data>
   <data name="notes_export_empty" xml:space="preserve"><value>Chưa có ghi chú nào để xuất. Hãy thêm ghi chú trước.</value></data>
   <data name="notes_export_failed" xml:space="preserve"><value>Không tạo được bản vẽ có ghi chú. Tệp gốc không bị thay đổi.</value></data>
-  <data name="back" xml:space="preserve"><value>Quay lại</value></data>
+  <data name="share_failed_title" xml:space="preserve"><value>Không chia sẻ được</value></data>\n  <data name="share_failed_message" xml:space="preserve"><value>Vui lòng thử lại. Bản vẽ gốc không bị thay đổi.</value></data>\n  <data name="back" xml:space="preserve"><value>Quay lại</value></data>
   <data name="cancel" xml:space="preserve"><value>Hủy</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Đen</value></data>
   <data name="canvas_dark" xml:space="preserve"><value>Xanh đậm</value></data>

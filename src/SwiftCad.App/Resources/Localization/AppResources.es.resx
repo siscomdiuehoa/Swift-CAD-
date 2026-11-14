@@ -28,7 +28,7 @@
   <data name="menu_share_notes" xml:space="preserve"><value>Compartir plano con notas</value></data>
   <data name="notes_export_empty" xml:space="preserve"><value>Aún no hay notas para exportar. Añade notas primero.</value></data>
   <data name="notes_export_failed" xml:space="preserve"><value>No se pudo crear el plano con notas. El archivo original no se modificó.</value></data>
-  <data name="back" xml:space="preserve"><value>Atrás</value></data>
+  <data name="share_failed_title" xml:space="preserve"><value>No se pudo compartir</value></data>\n  <data name="share_failed_message" xml:space="preserve"><value>Inténtalo de nuevo. El plano original no se modificó.</value></data>\n  <data name="back" xml:space="preserve"><value>Atrás</value></data>
   <data name="cancel" xml:space="preserve"><value>Cancelar</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Negro</value></data>
   <data name="canvas_dark" xml:space="preserve"><value>Azul oscuro</value></data>

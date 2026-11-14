@@ -28,7 +28,7 @@
   <data name="menu_share_notes" xml:space="preserve"><value>Bagikan gambar dengan catatan</value></data>
   <data name="notes_export_empty" xml:space="preserve"><value>Belum ada catatan untuk diekspor. Tambahkan catatan dulu.</value></data>
   <data name="notes_export_failed" xml:space="preserve"><value>Gambar dengan catatan tidak dapat dibuat. File asli tidak diubah.</value></data>
-  <data name="back" xml:space="preserve"><value>Kembali</value></data>
+  <data name="share_failed_title" xml:space="preserve"><value>Tidak dapat membagikan</value></data>\n  <data name="share_failed_message" xml:space="preserve"><value>Silakan coba lagi. Gambar asli tidak diubah.</value></data>\n  <data name="back" xml:space="preserve"><value>Kembali</value></data>
   <data name="cancel" xml:space="preserve"><value>Batal</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Hitam</value></data>
   <data name="canvas_dark" xml:space="preserve"><value>Biru tua</value></data>

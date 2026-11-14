@@ -20,6 +20,19 @@ public static class DrawingNoteExporter
     /// <summary>Đọc tệp gốc (DWG hoặc DXF), thêm ghi chú, ghi ra đường dẫn đích (DWG).</summary>
     public static ExportResult Export(string sourcePath, IReadOnlyList<Note> notes, string targetPath)
     {
+        // Thử DWG trước; nếu bản vẽ có thực thể mà bộ ghi DWG chưa hỗ trợ thì ghi DXF (AutoCAD mở được).
+        var asDwg = Path.ChangeExtension(targetPath, ".dwg");
+        try { return ExportTo(sourcePath, notes, asDwg, dxf: false); }
+        catch (Exception)
+        {
+            if (File.Exists(asDwg)) try { File.Delete(asDwg); } catch (IOException) { }
+            var asDxf = Path.ChangeExtension(targetPath, ".dxf");
+            return ExportTo(sourcePath, notes, asDxf, dxf: true);
+        }
+    }
+
+    private static ExportResult ExportTo(string sourcePath, IReadOnlyList<Note> notes, string targetPath, bool dxf)
+    {
         if (notes.Count == 0) return new ExportResult(0, "Không có ghi chú để xuất.");
         var doc = ReadDocument(sourcePath);
         var layer = doc.Layers.FirstOrDefault(l => l.Name == NotesLayer);
@@ -34,7 +47,8 @@ public static class DrawingNoteExporter
         {
             foreach (var e in Build(n, h)) { e.Layer = layer; doc.Entities.Add(e); added++; }
         }
-        DwgWriter.Write(targetPath, doc);
+        if (dxf) DxfWriter.Write(targetPath, doc);
+        else DwgWriter.Write(targetPath, doc);
         return new ExportResult(added, null);
     }
 

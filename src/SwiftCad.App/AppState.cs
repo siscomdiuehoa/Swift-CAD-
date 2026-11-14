@@ -129,7 +129,7 @@ public static class Files
     /// <summary>Chia sẻ bản sao của tệp với tên gọn (không dùng tên khóa nội bộ như 0f884a...).</summary>
     public static async Task ShareCopyAsync(RecentFile file)
     {
-        if (!File.Exists(file.LocalPath)) return;
+        if (!File.Exists(file.LocalPath)) throw new FileNotFoundException(file.LocalPath);
         var name = FileNames.ForShare(file.DisplayName);
         var path = Path.Combine(FileSystem.CacheDirectory, name);
         File.Copy(file.LocalPath, path, true);
@@ -140,15 +140,25 @@ public static class Files
     /// Xuất BẢN SAO bản vẽ có ghi chú (layer SWIFTCAD_NOTES) rồi chia sẻ. Tệp gốc không bị đổi.
     /// Trả false nếu chưa có ghi chú hoặc không xuất được.
     /// </summary>
-    public static async Task<bool> ShareWithNotesAsync(RecentFile file, IReadOnlyList<Note> notes)
+    public static async Task<string?> ShareWithNotesAsync(RecentFile file, IReadOnlyList<Note> notes)
     {
-        if (notes.Count == 0 || !File.Exists(file.LocalPath)) return false;
-        var name = FileNames.ForShare(file.DisplayName, "ghi-chu");
-        var path = Path.Combine(FileSystem.CacheDirectory, name);
-        if (File.Exists(path)) File.Delete(path);
-        var result = SwiftCad.Cad.DrawingNoteExporter.Export(file.LocalPath, notes, path);
-        if (result.Error is not null || !File.Exists(path)) return false;
-        await Share.Default.RequestAsync(new ShareFileRequest { Title = name, File = new ShareFile(path) { FileName = name } });
-        return true;
+        try
+        {
+            if (!File.Exists(file.LocalPath)) return "missing";
+            var name = FileNames.ForShare(file.DisplayName, "ghi-chu");
+            var target = Path.Combine(FileSystem.CacheDirectory, Path.GetFileNameWithoutExtension(name) + ".dwg");
+            foreach (var old in new[] { target, Path.ChangeExtension(target, ".dxf") }) if (File.Exists(old)) File.Delete(old);
+            var result = SwiftCad.Cad.DrawingNoteExporter.Export(file.LocalPath, notes, target);
+            if (result.Error is not null) return result.Error;
+            var written = new[] { target, Path.ChangeExtension(target, ".dxf") }.First(File.Exists);
+            var shareName = Path.GetFileName(written);
+            await Share.Default.RequestAsync(new ShareFileRequest { Title = shareName, File = new ShareFile(written) { FileName = shareName } });
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("Share drawing with notes failed: " + ex);
+            return ex.Message;
+        }
     }
 }
