@@ -11,7 +11,6 @@
   <data name="a11y_open_file" xml:space="preserve"><value>Open {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>Open {0} in the browser</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, selected</value></data>
-  <data name="about_developer" xml:space="preserve"><value>Developer: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Version {0} · prototype</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Sign out</value></data>
   <data name="auth_google" xml:space="preserve"><value>Sign in with Google</value></data>
@@ -26,6 +25,9 @@
   <data name="auth_not_configured" xml:space="preserve"><value>Sign-in is not available in this build.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Signed in. You can return to Swift CAD.</value></data>
   <data name="login_intro" xml:space="preserve"><value>Sign in with Apple or Google to use Swift CAD. Your drawings stay on this device.</value></data>
+  <data name="menu_share_notes" xml:space="preserve"><value>Share drawing with notes</value></data>
+  <data name="notes_export_empty" xml:space="preserve"><value>No notes to export yet. Add notes first.</value></data>
+  <data name="notes_export_failed" xml:space="preserve"><value>Could not create the drawing with notes. The original file was not changed.</value></data>
   <data name="back" xml:space="preserve"><value>Back</value></data>
   <data name="cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Black</value></data>

@@ -11,7 +11,6 @@
   <data name="a11y_open_file" xml:space="preserve"><value>Abrir {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>Abrir {0} en el navegador</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, seleccionado</value></data>
-  <data name="about_developer" xml:space="preserve"><value>Desarrollador: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Versión {0} · prototipo</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Cerrar sesión</value></data>
   <data name="auth_google" xml:space="preserve"><value>Iniciar sesión con Google</value></data>
@@ -26,6 +25,9 @@
   <data name="auth_not_configured" xml:space="preserve"><value>El inicio de sesión no está disponible en esta versión.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Sesión iniciada. Puedes volver a Swift CAD.</value></data>
   <data name="login_intro" xml:space="preserve"><value>Inicia sesión con Apple o Google para usar Swift CAD. Tus planos permanecen en este dispositivo.</value></data>
+  <data name="menu_share_notes" xml:space="preserve"><value>Compartir plano con notas</value></data>
+  <data name="notes_export_empty" xml:space="preserve"><value>Aún no hay notas para exportar. Añade notas primero.</value></data>
+  <data name="notes_export_failed" xml:space="preserve"><value>No se pudo crear el plano con notas. El archivo original no se modificó.</value></data>
   <data name="back" xml:space="preserve"><value>Atrás</value></data>
   <data name="cancel" xml:space="preserve"><value>Cancelar</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Negro</value></data>

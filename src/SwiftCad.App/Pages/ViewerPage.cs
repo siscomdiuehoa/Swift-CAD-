@@ -296,14 +296,22 @@ public partial class ViewerPage : ContentPage
     private async Task MenuAsync()
     {
         var fit = L.T("fit"); var about = L.T("menu_about_demo"); var share = L.T("menu_share_copy"); var info = L.T("menu_display_info");
+        var shareNotes = L.T("menu_share_notes");
         var options = new List<string>();
         if (_model is not null) options.Add(fit);
         if (_file is not null) options.Add(share);
+        if (_file is not null && _model?.IsDemo != true) options.Add(shareNotes);
         if (DisplayInfo() is not null) options.Add(info);
         if (_model?.IsDemo == true) options.Add(about);
         var choice = await DisplayActionSheetAsync(_name, L.T("cancel"), null, options.ToArray());
         if (choice == fit) _canvas.Fit();
         else if (choice == share && _file is not null) await Files.ShareCopyAsync(_file);
+        else if (choice == shareNotes && _file is not null)
+        {
+            var notes = AppState.Notes.Load(_fileKey);
+            if (notes.Count == 0) await DisplayAlertAsync(shareNotes, L.T("notes_export_empty"), L.T("ok"));
+            else if (!await Files.ShareWithNotesAsync(_file, notes)) await DisplayAlertAsync(shareNotes, L.T("notes_export_failed"), L.T("ok"));
+        }
         else if (choice == info && DisplayInfo() is { } text) await DisplayAlertAsync(info, text, L.T("ok"));
         else if (choice == about) await DisplayAlertAsync(L.T("menu_about_demo"), L.T("demo_explain"), L.T("ok"));
     }

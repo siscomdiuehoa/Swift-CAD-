@@ -11,7 +11,6 @@
   <data name="a11y_open_file" xml:space="preserve"><value>打开 {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>在浏览器中打开 {0}</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}，已选择</value></data>
-  <data name="about_developer" xml:space="preserve"><value>开发者：{0}</value></data>
   <data name="about_version" xml:space="preserve"><value>版本 {0} · 测试版</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>退出登录</value></data>
   <data name="auth_google" xml:space="preserve"><value>使用 Google 登录</value></data>
@@ -26,6 +25,9 @@
   <data name="auth_not_configured" xml:space="preserve"><value>此版本暂不支持登录。</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>登录成功，可以返回 Swift CAD。</value></data>
   <data name="login_intro" xml:space="preserve"><value>请使用 Apple 或 Google 登录以使用 Swift CAD。图纸仍保存在本机。</value></data>
+  <data name="menu_share_notes" xml:space="preserve"><value>分享带批注的图纸</value></data>
+  <data name="notes_export_empty" xml:space="preserve"><value>尚无可导出的批注，请先添加批注。</value></data>
+  <data name="notes_export_failed" xml:space="preserve"><value>无法生成带批注的图纸。原文件未被修改。</value></data>
   <data name="back" xml:space="preserve"><value>返回</value></data>
   <data name="cancel" xml:space="preserve"><value>取消</value></data>
   <data name="canvas_black" xml:space="preserve"><value>黑色</value></data>

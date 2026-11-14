@@ -225,11 +225,11 @@ public partial class HomePage : ContentPage
         col.Add(new SoftSurface(canvas));
 
         var about = Group(L.T("settings_about"));
-        // Logo và tên nhà phát triển là tên riêng (pháp nhân), không dịch.
+        // Logo và tên pháp nhân là tên riêng, không dịch và không có tiền tố.
         var devLogo = new Image { Source = "siscom_logo.png", HeightRequest = 40, Aspect = Aspect.AspectFit, HorizontalOptions = LayoutOptions.Start, Margin = new Thickness(0, 4, 0, 2) };
         SemanticProperties.SetDescription(devLogo, AppInfoExtra.DeveloperName);
         about.Add(devLogo);
-        about.Add(Ui.Text(L.F("about_developer", AppInfoExtra.DeveloperName), Theme.FontSub, Theme.Text, bold: true));
+        about.Add(Ui.Text(AppInfoExtra.DeveloperName, Theme.FontSub, Theme.Text, bold: true));
         // Trang web nhà phát triển: chạm để mở trình duyệt. Địa chỉ web không dịch.
         var site = Ui.Text(AppInfoExtra.Website.Replace("https://", ""), Theme.FontSub, Theme.Primary, bold: true);
         site.MinimumHeightRequest = Theme.Touch;

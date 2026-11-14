@@ -11,7 +11,6 @@
   <data name="a11y_open_file" xml:space="preserve"><value>Mở {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>Mở {0} trong trình duyệt</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, đang chọn</value></data>
-  <data name="about_developer" xml:space="preserve"><value>Nhà phát triển: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Phiên bản {0} · bản thử</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Đăng xuất</value></data>
   <data name="auth_google" xml:space="preserve"><value>Đăng nhập với Google</value></data>
@@ -26,6 +25,9 @@
   <data name="auth_not_configured" xml:space="preserve"><value>Bản này chưa có đăng nhập.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Đăng nhập xong. Bạn có thể quay lại Swift CAD.</value></data>
   <data name="login_intro" xml:space="preserve"><value>Đăng nhập bằng Apple hoặc Google để sử dụng Swift CAD. Bản vẽ vẫn lưu trên máy của bạn.</value></data>
+  <data name="menu_share_notes" xml:space="preserve"><value>Chia sẻ bản vẽ có ghi chú</value></data>
+  <data name="notes_export_empty" xml:space="preserve"><value>Chưa có ghi chú nào để xuất. Hãy thêm ghi chú trước.</value></data>
+  <data name="notes_export_failed" xml:space="preserve"><value>Không tạo được bản vẽ có ghi chú. Tệp gốc không bị thay đổi.</value></data>
   <data name="back" xml:space="preserve"><value>Quay lại</value></data>
   <data name="cancel" xml:space="preserve"><value>Hủy</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Đen</value></data>
