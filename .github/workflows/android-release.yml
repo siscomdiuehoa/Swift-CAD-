@@ -1,0 +1,61 @@
+name: Android phat hanh (AAB ky khoa phat hanh)
+
+# Chay tay. Can cac Secret (xem docs/ban-phat-hanh-android.md):
+#   ANDROID_KEYSTORE_BASE64   noi dung tep .jks ma hoa base64
+#   ANDROID_KEYSTORE_PASSWORD mat khau kho khoa
+#   ANDROID_KEY_ALIAS         ten khoa (alias)
+#   ANDROID_KEY_PASSWORD      mat khau cua khoa
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    env:
+      KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - name: Kiem tra Secret khoa phat hanh
+        shell: bash
+        run: |
+          missing=""
+          for v in KS_B64 KS_PASS KS_ALIAS KEY_PASS; do [ -z "${!v}" ] && missing="$missing $v"; done
+          if [ -n "$missing" ]; then echo "::error::Thieu Secret:$missing"; exit 1; fi
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Cau hinh Firebase tu Secret
+        env:
+          FB_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON }}
+          FB_PLIST: ${{ secrets.FIREBASE_GOOGLE_SERVICE_INFO_PLIST }}
+          GOOGLE_DESKTOP_CLIENT_ID: ${{ secrets.GOOGLE_DESKTOP_CLIENT_ID }}
+          GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.GOOGLE_DESKTOP_CLIENT_SECRET }}
+        run: python3 tools/ci/firebase_config.py
+      - name: Giai ma khoa va build AAB
+        shell: bash
+        run: |
+          set -euo pipefail
+          KS="$RUNNER_TEMP/release.jks"
+          echo "$KS_B64" | base64 --decode > "$KS"
+          BUILD_NO=$((1000 + ${{ github.run_number }}))
+          dotnet publish src/SwiftCad.App/SwiftCad.App.csproj -f net10.0-android -c Release \
+            -p:SwiftCadPlatform=android -p:AndroidPackageFormat=aab \
+            -p:ApplicationVersion=$BUILD_NO \
+            -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$KS" \
+            -p:AndroidSigningKeyAlias="$KS_ALIAS" -p:AndroidSigningKeyPass="$KEY_PASS" -p:AndroidSigningStorePass="$KS_PASS" \
+            -o artifacts/android
+          rm -f "$KS"
+          AAB=$(ls artifacts/android/*.aab | head -1)
+          SUM=$(sha256sum "$AAB" | cut -d' ' -f1)
+          echo "::notice::AAB $(basename "$AAB"), build $BUILD_NO, SHA-256 $SUM"
+      - uses: actions/upload-artifact@v5
+        with:
+          name: swiftcad-android-aab
+          path: artifacts/android/*.aab
+          if-no-files-found: error
