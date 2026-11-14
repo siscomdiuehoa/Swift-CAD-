@@ -122,7 +122,7 @@ for tag in ("se", "std"):
                 try:
                     run("xcrun", "simctl", "launch", "--terminate-running-process", udid, BUNDLE,
                         "-AppleLanguages", langs_arg, "-AppleLocale", locale, env=env)
-                    time.sleep(10 if shot in ("picker", "cloud") or shot.startswith("viewer-cad") else 7)
+                    time.sleep(10 if shot in ("picker",) or shot.startswith("viewer-cad") else 7)
                     run("xcrun", "simctl", "io", udid, "screenshot", name)
                     log.append(f"ok {os.path.basename(name)}")
                 except Exception as e:
