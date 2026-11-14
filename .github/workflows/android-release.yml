@@ -7,6 +7,8 @@ name: Android phat hanh (AAB ky khoa phat hanh)
 #   ANDROID_KEY_PASSWORD      mat khau cua khoa
 on:
   workflow_dispatch:
+  push:
+    branches: ['android-release/**']
 
 permissions:
   contents: read
