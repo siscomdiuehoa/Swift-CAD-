@@ -87,6 +87,15 @@ public static class AuthService
         await Save(session);
     }
 
+#if SWIFTCAD_SHOTS
+    /// <summary>Chỉ bản chụp ảnh/kiểm thử: đặt phiên trong bộ nhớ (không lưu) để kiểm tra các màn sau đăng nhập.</summary>
+    internal static void UseTestSession()
+    {
+        Current ??= new AuthSession("test-user", "tester@example.com", "Test User", "google.com", "test", "test", DateTimeOffset.UtcNow.AddHours(12));
+        Changed?.Invoke();
+    }
+#endif
+
     public static async Task SignOutAsync()
     {
         SecureStorage.Default.Remove(SessionKey);

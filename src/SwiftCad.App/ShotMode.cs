@@ -17,9 +17,13 @@ public static class ShotMode
     /// <summary>Chạy sau khi OpeningPage đọc xong tệp thật và mở màn hình xem.</summary>
     public static Action<ViewerPage>? AfterOpen;
 
+    /// <summary>Intent extra swiftcad_session=test: vào thẳng màn sau đăng nhập (chỉ bản kiểm thử).</summary>
+    public static bool TestSession;
+
     public static Page? Build()
     {
         var shot = Requested ?? Environment.GetEnvironmentVariable("SWIFTCAD_SHOT");
+        if (TestSession || (!string.IsNullOrWhiteSpace(shot) && shot != "welcome")) Auth.AuthService.UseTestSession();
         if (string.IsNullOrWhiteSpace(shot)) return null;
 
         AppState.Settings.Language = AppLanguage.Device;

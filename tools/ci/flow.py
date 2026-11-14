@@ -8,7 +8,7 @@ import os, sys, time
 
 SELFTEST = os.environ.get("SWIFTCAD_SELFTEST", "none")
 sys.path.insert(0, os.path.dirname(__file__))
-from android_common import (ACT, DUMP_ERRORS, PKG, adb, drawn_ratio, find, find_scrolling, item_enabled, focused_package, install, rotate, screen_texts,
+from android_common import (ACT, DUMP_ERRORS, PKG, adb, drawn_ratio, find, find_scrolling, item_enabled, launch_test_session, focused_package, install, rotate, screen_texts,
                             screencap, setup_device, tap)
 
 APK_DIR = sys.argv[1]
@@ -40,7 +40,8 @@ def step(name, fn):
 
 
 def launch():
-    adb("shell", "am", "start", "-W", "-n", ACT)
+    # Moi lan mo lai app trong kiem tra luong deu dung phien kiem thu (khong co trong ban phat hanh).
+    launch_test_session()
     time.sleep(6)
 
 
@@ -72,9 +73,14 @@ adb("shell", "am", "broadcast", "-a", "android.intent.action.MEDIA_SCANNER_SCAN_
 adb("shell", "content", "call", "--uri", "content://media/external/file", "--method", "scan_volume", "--arg", "external_primary")
 time.sleep(3)
 
-launch()
-step("welcome-hien-lan-dau", lambda: must(find_scrolling("Use without an account", 20), "khong thay man hinh chao"))
-step("bam-dung-khong-tai-khoan", lambda: (tap("Use without an account"), must(find_scrolling("Choose file", 15), "khong vao Ban ve")))
+# Bắt buộc đăng nhập: không có phiên thì chỉ hiện màn đăng nhập, không có nút khách.
+adb("shell", "am", "start", "-W", "-n", ACT)
+time.sleep(6)
+step("man-dang-nhap-khong-co-khach", lambda: (must(find_scrolling("Sign in with Apple or Google", 20, contains=True), "khong thay man dang nhap"), must(not find("Use without an account", 3), "van co nut khach")))
+# Phần còn lại của luồng chạy với phiên kiểm thử (máy ảo không đăng nhập Google/Apple thật được).
+launch_test_session()
+time.sleep(6)
+step("chua-dang-nhap-thi-chua-vao-ban-ve", lambda: must(find_scrolling("Choose file", 20) is not None, "khong vao Ban ve sau phien kiem thu"))
 step("khong-co-trang-thai-da-ket-noi", lambda: must(len(screen_texts()) > 0, "khong doc duoc cay giao dien") or must(not any(("Connected" in t or "Syncing" in t) for t in screen_texts()), "co chu Connected/Syncing"))
 
 
