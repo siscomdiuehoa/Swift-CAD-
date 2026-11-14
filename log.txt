@@ -1,0 +1,15 @@
+runtime iOS 26.5; thiet bi {'iphone-6.9': 'iPhone 17 Pro Max', 'ipad-13': 'iPad Pro 13-inch (M5)'}
+ok artifacts/store-shots/iphone-6.9/en/01-welcome.png 1320x2868
+ok artifacts/store-shots/iphone-6.9/en/02-home.png 1320x2868
+ok artifacts/store-shots/iphone-6.9/en/03-viewer.png 1320x2868
+ok artifacts/store-shots/iphone-6.9/en/04-find.png 1320x2868
+ok artifacts/store-shots/iphone-6.9/en/05-measure.png 1320x2868
+ok artifacts/store-shots/iphone-6.9/en/06-layers.png 1320x2868
+ok artifacts/store-shots/iphone-6.9/en/07-notes.png 1320x2868
+ok artifacts/store-shots/ipad-13/en/01-welcome.png 2064x2752
+ok artifacts/store-shots/ipad-13/en/02-home.png 2064x2752
+ok artifacts/store-shots/ipad-13/en/03-viewer.png 2064x2752
+ok artifacts/store-shots/ipad-13/en/04-find.png 2064x2752
+ok artifacts/store-shots/ipad-13/en/05-measure.png 2064x2752
+ok artifacts/store-shots/ipad-13/en/06-layers.png 2064x2752
+ok artifacts/store-shots/ipad-13/en/07-notes.png 2064x2752
