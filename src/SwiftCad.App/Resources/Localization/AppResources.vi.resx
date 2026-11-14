@@ -11,7 +11,7 @@
   <data name="a11y_open_file" xml:space="preserve"><value>Mở {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>Mở {0} trong trình duyệt</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, đang chọn</value></data>
-  <data name="about_version" xml:space="preserve"><value>Phiên bản {0} · bản thử</value></data>
+  <data name="about_version" xml:space="preserve"><value>Phiên bản {0}</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Đăng xuất</value></data>
   <data name="auth_google" xml:space="preserve"><value>Đăng nhập với Google</value></data>
   <data name="auth_apple" xml:space="preserve"><value>Đăng nhập với Apple</value></data>

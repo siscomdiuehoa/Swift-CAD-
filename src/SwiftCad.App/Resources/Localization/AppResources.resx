@@ -11,7 +11,7 @@
   <data name="a11y_open_file" xml:space="preserve"><value>Open {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>Open {0} in the browser</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, selected</value></data>
-  <data name="about_version" xml:space="preserve"><value>Version {0} · prototype</value></data>
+  <data name="about_version" xml:space="preserve"><value>Version {0}</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Sign out</value></data>
   <data name="auth_google" xml:space="preserve"><value>Sign in with Google</value></data>
   <data name="auth_apple" xml:space="preserve"><value>Sign in with Apple</value></data>

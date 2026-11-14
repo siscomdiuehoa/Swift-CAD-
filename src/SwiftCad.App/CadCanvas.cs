@@ -101,6 +101,16 @@ public class CadCanvas : SKCanvasView
 
     // ---------- Chạm ----------
 
+    /// <summary>Xóa trạng thái chạm đang dở (sau khi đổi kiểu ghi chú hoặc sau một hộp thoại), để chạm sau không bị kẹt.</summary>
+    public void ResetGestures()
+    {
+        _touches.Clear();
+        _dragStart = _dragEnd = null;
+        _moved = false;
+        SetAim(null);
+        InvalidateSurface();
+    }
+
     private void OnTouch(object? sender, SKTouchEventArgs e)
     {
         e.Handled = true;

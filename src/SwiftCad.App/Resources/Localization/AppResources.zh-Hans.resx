@@ -11,7 +11,7 @@
   <data name="a11y_open_file" xml:space="preserve"><value>打开 {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>在浏览器中打开 {0}</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}，已选择</value></data>
-  <data name="about_version" xml:space="preserve"><value>版本 {0} · 测试版</value></data>
+  <data name="about_version" xml:space="preserve"><value>版本 {0}</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>退出登录</value></data>
   <data name="auth_google" xml:space="preserve"><value>使用 Google 登录</value></data>
   <data name="auth_apple" xml:space="preserve"><value>通过 Apple 登录</value></data>

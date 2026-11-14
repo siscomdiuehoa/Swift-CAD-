@@ -11,7 +11,7 @@
   <data name="a11y_open_file" xml:space="preserve"><value>Buka {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>Buka {0} di browser</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, dipilih</value></data>
-  <data name="about_version" xml:space="preserve"><value>Versi {0} · prototipe</value></data>
+  <data name="about_version" xml:space="preserve"><value>Versi {0}</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Keluar</value></data>
   <data name="auth_google" xml:space="preserve"><value>Masuk dengan Google</value></data>
   <data name="auth_apple" xml:space="preserve"><value>Masuk dengan Apple</value></data>
