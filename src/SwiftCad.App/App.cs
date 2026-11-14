@@ -26,7 +26,8 @@ public static class Nav
 {
     public static Page BuildRoot(HomeTab tab = HomeTab.Drawings)
     {
-        if (!AppState.Settings.OnboardingDone) return new Pages.WelcomePage();
+        // Bắt buộc đăng nhập: chưa có phiên hợp lệ thì chỉ hiện màn đăng nhập.
+        if (Auth.AuthService.Current is null) return new Pages.LoginPage();
         var nav = new NavigationPage(new Pages.HomePage(tab)) { BarBackgroundColor = Theme.Bg, BarTextColor = Theme.Text };
         return nav;
     }

@@ -21,7 +21,7 @@
     <ApplicationTitle>Swift CAD</ApplicationTitle>
     <!-- Ma dinh danh chinh thuc: trung voi ung dung "Swift CAD Viewer Pro" tren App Store Connect (Issue #4). -->
     <ApplicationId>vn.siscom.swiftcad</ApplicationId>
-    <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>2.03</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <NeutralLanguage>en</NeutralLanguage>
 

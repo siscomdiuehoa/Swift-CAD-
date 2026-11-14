@@ -370,5 +370,37 @@ if (int.TryParse(Environment.GetEnvironmentVariable("SWIFTCAD_PERF"), out var pe
     }
 }
 
+// Xuất bản vẽ có ghi chú (Issue release 2.03): bản sao có ghi chú, file gốc không đổi.
+Test("xuất bản vẽ có ghi chú: đọc lại thấy đủ ghi chú, file gốc không đổi", () =>
+{
+    var src = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "tools", "ci", "fixtures", "TEST-Flow-Plan.dxf");
+    src = Path.GetFullPath(src);
+    True(File.Exists(src), "thieu fixture " + src);
+    var tmp = Path.Combine(Path.GetTempPath(), "swiftcad-notes-" + Guid.NewGuid().ToString("N"));
+    Directory.CreateDirectory(tmp);
+    var copy = Path.Combine(tmp, "source.dxf"); File.Copy(src, copy);
+    var before = File.ReadAllBytes(copy);
+    var notes = new List<SwiftCad.Core.Note>
+    {
+        new() { Kind = SwiftCad.Core.NoteKind.Text, X = 1000, Y = 2000, X2 = 1000, Y2 = 2000, Text = "Kiểm tra van DN100" },
+        new() { Kind = SwiftCad.Core.NoteKind.Arrow, X = 3000, Y = 3000, X2 = 4500, Y2 = 4200, Text = "Miệng gió lệch trục 3" },
+        new() { Kind = SwiftCad.Core.NoteKind.Cloud, X = 5000, Y = 1000, X2 = 6500, Y2 = 2200, Text = "Sửa lại" },
+        new() { Kind = SwiftCad.Core.NoteKind.Pin, X = 7000, Y = 7000, X2 = 7000, Y2 = 7000, Text = "1" },
+    };
+    var outPath = Path.Combine(tmp, "out.dwg");
+    var r = SwiftCad.Cad.DrawingNoteExporter.Export(copy, notes, outPath);
+    True(r.Error is null, r.Error ?? "");
+    True(r.EntitiesAdded >= 8, "so thuc the them " + r.EntitiesAdded);
+    var n = SwiftCad.Cad.DrawingNoteExporter.CountNoteEntities(outPath);
+    True(n == r.EntitiesAdded, $"doc lai {n}, ghi {r.EntitiesAdded}");
+    True(File.ReadAllBytes(copy).SequenceEqual(before), "file goc bi doi");
+    Directory.Delete(tmp, true);
+});
+Test("xuất ghi chú không có nội dung trả lỗi rõ ràng", () =>
+{
+    var r = SwiftCad.Cad.DrawingNoteExporter.Export(Path.GetTempFileName(), [], "x.dwg");
+    True(r.Error is not null, "phai bao loi");
+});
+
 Console.WriteLine($"\n{passed} đạt, {failed} lỗi");
 return failed == 0 ? 0 : 1;

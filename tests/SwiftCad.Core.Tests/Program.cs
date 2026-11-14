@@ -299,6 +299,13 @@ Console.WriteLine("Đăng nhập Firebase (máy chủ giả)");
     });
 }
 
+Test("tên tệp chia sẻ gọn, không dấu, không ký tự lạ", () =>
+{
+    Eq("MAT-BANG-TANG-6-3-ghi-chu.dwg", SwiftCad.Core.FileNames.ForShare("MẶT BẰNG TẦNG 6-3.dwg", "ghi-chu"));
+    Eq("ban-ve.dxf", SwiftCad.Core.FileNames.ForShare("  ???.DXF"));
+    Eq("Dong-Hoa.dwg", SwiftCad.Core.FileNames.ForShare("Đường dẫn/Đông Hòa.dwg"));
+});
+
 Console.WriteLine("Ngôn ngữ");
 Test("theo thiết bị, dự phòng tiếng Anh", () =>
 {

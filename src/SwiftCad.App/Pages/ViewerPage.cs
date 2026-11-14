@@ -296,16 +296,33 @@ public partial class ViewerPage : ContentPage
     private async Task MenuAsync()
     {
         var fit = L.T("fit"); var about = L.T("menu_about_demo"); var share = L.T("menu_share_copy"); var info = L.T("menu_display_info");
+        var shareNotes = L.T("menu_share_notes");
         var options = new List<string>();
         if (_model is not null) options.Add(fit);
         if (_file is not null) options.Add(share);
+        if (_file is not null && _model?.IsDemo != true) options.Add(shareNotes);
         if (DisplayInfo() is not null) options.Add(info);
         if (_model?.IsDemo == true) options.Add(about);
         var choice = await DisplayActionSheetAsync(_name, L.T("cancel"), null, options.ToArray());
-        if (choice == fit) _canvas.Fit();
+        try
+        {
+            if (choice == fit) _canvas.Fit();
         else if (choice == share && _file is not null) await Files.ShareCopyAsync(_file);
+        else if (choice == shareNotes && _file is not null)
+        {
+            var notes = AppState.Notes.Load(_fileKey);
+            if (notes.Count == 0) await DisplayAlertAsync(shareNotes, L.T("notes_export_empty"), L.T("ok"));
+            else if (await Files.ShareWithNotesAsync(_file, notes) is { } err)
+                await DisplayAlertAsync(shareNotes, L.T("notes_export_failed") + (err == "missing" ? "" : "\n" + err), L.T("ok"));
+        }
         else if (choice == info && DisplayInfo() is { } text) await DisplayAlertAsync(info, text, L.T("ok"));
         else if (choice == about) await DisplayAlertAsync(L.T("menu_about_demo"), L.T("demo_explain"), L.T("ok"));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("Drawing menu failed: " + ex);
+            await DisplayAlertAsync(L.T("share_failed_title"), L.T("share_failed_message"), L.T("ok"));
+        }
     }
 
     private static View PanelTitle(string text)
@@ -485,22 +502,51 @@ public partial class ViewerPage : ContentPage
     /// Ba kiểu ghi chú: Chữ (chạm vào bản vẽ), Mũi tên và Khoanh vùng (kéo một ngón; hai ngón để di chuyển, thu phóng).
     /// Tất cả lưu riêng theo khóa nội dung tệp, không ghi vào tệp gốc.
     /// </summary>
+    // Các nút kiểu ghi chú nằm cố định phía trên, ngoài vùng cuộn. Chọn kiểu chỉ đổi trạng thái tại chỗ,
+    // không dựng lại bảng (dựng lại giữa lúc chạm làm các chạm sau bị mất trên iOS).
+    private readonly Dictionary<NoteKind, ToolButton> _noteModeButtons = new();
+    private Label? _noteHint;
+    private VerticalStackLayout? _noteList;
+
     private View BuildNotes()
     {
-        var col = new VerticalStackLayout { Spacing = 6 };
+        var root = new VerticalStackLayout { Spacing = 6 };
         var modes = new Grid { ColumnSpacing = 4 };
         for (var c = 0; c < 3; c++) modes.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        _noteModeButtons.Clear();
         AddNoteMode(modes, 0, NoteKind.Text, Icons.TextTool, L.T("annot_text"));
         AddNoteMode(modes, 1, NoteKind.Arrow, Icons.Arrow, L.T("annot_arrow"));
         AddNoteMode(modes, 2, NoteKind.Cloud, Icons.Region, L.T("annot_cloud"));
-        col.Add(modes);
-        col.Add(PanelTitle(_canvas.NoteTool switch
-        {
-            NoteKind.Arrow => L.T("annot_hint_arrow"),
-            NoteKind.Cloud => L.T("annot_hint_cloud"),
-            _ => L.T("notes_hint"),
-        }));
-        col.Add(Ui.Text(L.T("notes_separate"), Theme.FontSub, Theme.TextSub));
+        root.Add(modes);
+        _noteHint = Ui.Text(NoteHint(_canvas.NoteTool), Theme.FontBody, bold: true);
+        SemanticProperties.SetHeadingLevel(_noteHint, SemanticHeadingLevel.Level2);
+        root.Add(_noteHint);
+        root.Add(Ui.Text(L.T("notes_separate"), Theme.FontSub, Theme.TextSub));
+        _noteList = new VerticalStackLayout { Spacing = 6 };
+        RenderNoteList();
+        root.Add(Scrollable(_noteList));
+        return root;
+    }
+
+    private string NoteHint(NoteKind kind) => kind switch
+    {
+        NoteKind.Arrow => L.T("annot_hint_arrow"),
+        NoteKind.Cloud => L.T("annot_hint_cloud"),
+        _ => L.T("notes_hint"),
+    };
+
+    private void SelectNoteMode(NoteKind kind)
+    {
+        _canvas.NoteTool = kind;
+        _canvas.ResetGestures();
+        foreach (var (k, b) in _noteModeButtons) b.SetSelected(k == kind);
+        if (_noteHint is not null) _noteHint.Text = NoteHint(kind);
+    }
+
+    private void RenderNoteList()
+    {
+        if (_noteList is null) return;
+        _noteList.Clear();
         var notes = _canvas.Notes;
         for (var i = 0; i < notes.Count; i++)
         {
@@ -512,15 +558,15 @@ public partial class ViewerPage : ContentPage
             text.Tap(() => _canvas.FocusOn(n.Anchor));
             row.Add(text, 2);
             row.Add(Ui.IconButton(Icons.Trash, L.F("a11y_delete_note", i + 1), () => _ = DeleteNoteAsync(n), Theme.Danger), 3);
-            col.Add(row);
+            _noteList.Add(row);
         }
-        return Scrollable(col);
     }
 
     private void AddNoteMode(Grid g, int col, NoteKind kind, string icon, string label)
     {
-        var b = new ToolButton(icon, label, () => { _canvas.NoteTool = kind; _panel.Content = BuildNotes(); });
+        var b = new ToolButton(icon, label, () => SelectNoteMode(kind));
         b.SetSelected(_canvas.NoteTool == kind);
+        _noteModeButtons[kind] = b;
         g.Add(b, col);
     }
 
@@ -534,6 +580,7 @@ public partial class ViewerPage : ContentPage
     /// <summary>Mũi tên hoặc vùng khoanh vừa vẽ: hỏi chữ kèm theo (có thể bỏ trống). Bấm Hủy thì bỏ hình.</summary>
     private async Task AddShapeAsync(NoteKind kind, Point2 a, Point2 b)
     {
+        _canvas.ResetGestures();
         var text = await DisplayPromptAsync(kind == NoteKind.Arrow ? L.T("annot_arrow") : L.T("annot_cloud"), L.T("annot_text_optional"), L.T("save"), L.T("cancel"), maxLength: 500);
         if (text is null) { _canvas.InvalidateSurface(); return; }
         await SaveNoteAsync(kind, a, b, text);
@@ -564,6 +611,6 @@ public partial class ViewerPage : ContentPage
     {
         _canvas.Notes = AppState.Notes.Load(_fileKey);
         _canvas.InvalidateSurface();
-        if (_tool == Tool.Notes) _panel.Content = BuildNotes();
+        if (_tool == Tool.Notes) RenderNoteList();
     }
 }

@@ -25,13 +25,8 @@ public static class IncomingFiles
         _delivering = true;
         try
         {
-            // Người dùng mở tệp trực tiếp từ ứng dụng khác: bỏ qua màn hình chào để vào thẳng bản vẽ.
-            if (!AppState.Settings.OnboardingDone)
-            {
-                AppState.Settings.OnboardingDone = true;
-                AppState.SaveSettings();
-                Nav.ResetRoot();
-            }
+            // Chưa đăng nhập: giữ tệp chờ, sẽ mở sau khi đăng nhập xong (màn chính gọi lại).
+            if (Auth.AuthService.Current is null) return;
 
             NavigationPage? nav = null;
             for (var i = 0; i < 60 && nav is null; i++)

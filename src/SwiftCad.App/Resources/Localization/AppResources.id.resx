@@ -5,16 +5,13 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="a11y_canvas" xml:space="preserve"><value>Area gambar. Geser untuk memindahkan, cubit untuk memperbesar.</value></data>
-  <data name="a11y_cloud" xml:space="preserve"><value>Buka gambar dari {0}</value></data>
   <data name="a11y_delete_note" xml:space="preserve"><value>Hapus catatan {0}</value></data>
   <data name="a11y_file_menu" xml:space="preserve"><value>Opsi lainnya untuk {0}</value></data>
   <data name="a11y_layer_toggle" xml:space="preserve"><value>Tampilkan layer {0}</value></data>
   <data name="a11y_open_file" xml:space="preserve"><value>Buka {0}</value></data>
   <data name="a11y_open_website" xml:space="preserve"><value>Buka {0} di browser</value></data>
   <data name="a11y_selected" xml:space="preserve"><value>{0}, dipilih</value></data>
-  <data name="about_developer" xml:space="preserve"><value>Pengembang: {0}</value></data>
-  <data name="about_version" xml:space="preserve"><value>Versi {0} · prototipe</value></data>
-  <data name="account_guest" xml:space="preserve"><value>Anda menggunakan Swift CAD sebagai tamu. Semua fitur di perangkat tersedia.</value></data>
+  <data name="about_version" xml:space="preserve"><value>Versi {0}</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Keluar</value></data>
   <data name="auth_google" xml:space="preserve"><value>Masuk dengan Google</value></data>
   <data name="auth_apple" xml:space="preserve"><value>Masuk dengan Apple</value></data>
@@ -27,13 +24,14 @@
   <data name="auth_failed_message" xml:space="preserve"><value>Periksa koneksi internet lalu coba lagi.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>Fitur masuk tidak tersedia di versi ini.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Berhasil masuk. Anda dapat kembali ke Swift CAD.</value></data>
-  <data name="back" xml:space="preserve"><value>Kembali</value></data>
+  <data name="login_intro" xml:space="preserve"><value>Masuk dengan Apple atau Google untuk menggunakan Swift CAD. Gambar Anda tetap tersimpan di perangkat ini.</value></data>
+  <data name="menu_share_notes" xml:space="preserve"><value>Bagikan gambar dengan catatan</value></data>
+  <data name="notes_export_empty" xml:space="preserve"><value>Belum ada catatan untuk diekspor. Tambahkan catatan dulu.</value></data>
+  <data name="notes_export_failed" xml:space="preserve"><value>Gambar dengan catatan tidak dapat dibuat. File asli tidak diubah.</value></data>
+  <data name="share_failed_title" xml:space="preserve"><value>Tidak dapat membagikan</value></data>\n  <data name="share_failed_message" xml:space="preserve"><value>Silakan coba lagi. Gambar asli tidak diubah.</value></data>\n  <data name="back" xml:space="preserve"><value>Kembali</value></data>
   <data name="cancel" xml:space="preserve"><value>Batal</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Hitam</value></data>
   <data name="canvas_dark" xml:space="preserve"><value>Biru tua</value></data>
-  <data name="cloud_connect" xml:space="preserve"><value>Hubungkan</value></data>
-  <data name="cloud_guide" xml:space="preserve"><value>Integrasi langsung dengan {0} belum tersedia. Jika aplikasi {0} terpasang dan aktif di perangkat ini, Anda dapat memilihnya sebagai lokasi di pemilih file sistem.</value></data>
-  <data name="cloud_open_picker" xml:space="preserve"><value>Buka pemilih file</value></data>
   <data name="delete" xml:space="preserve"><value>Hapus</value></data>
   <data name="demo_badge" xml:space="preserve"><value>Demo</value></data>
   <data name="demo_explain" xml:space="preserve"><value>Gambar contoh ini adalah geometri yang dibuat oleh aplikasi. Tidak dibaca dari file DWG atau DXF.\n\nBerfungsi pada geometri ini: geser, zoom, paskan, cari teks, ukur dua titik dengan snap, layer, dan catatan yang disimpan di perangkat ini.\n\nSimulasi atau belum tersedia: membaca file DWG/DXF asli, masuk akun, koneksi langsung Google Drive dan Dropbox.</value></data>
@@ -125,9 +123,6 @@
   <data name="unit_in" xml:space="preserve"><value>Inci (in)</value></data>
   <data name="unit_m" xml:space="preserve"><value>Meter (m)</value></data>
   <data name="unit_mm" xml:space="preserve"><value>Milimeter (mm)</value></data>
-  <data name="welcome_guest" xml:space="preserve"><value>Gunakan tanpa akun</value></data>
-  <data name="welcome_note" xml:space="preserve"><value>Anda dapat masuk nanti di Pengaturan. File di perangkat ini selalu dibuka tanpa akun.</value></data>
-  <data name="welcome_subtitle" xml:space="preserve"><value>Lihat, cari, ukur, dan beri catatan gambar DWG/DXF di lapangan.</value></data>
   <data name="annot_arrow" xml:space="preserve"><value>Panah</value></data>
   <data name="annot_cloud" xml:space="preserve"><value>Tandai area</value></data>
   <data name="annot_hint_arrow" xml:space="preserve"><value>Geser satu jari dari tempat teks ke titik yang ingin ditunjuk. Gunakan dua jari untuk memindahkan atau zoom.</value></data>

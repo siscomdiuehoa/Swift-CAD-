@@ -94,11 +94,6 @@ public partial class HomePage : ContentPage
         anyFile.Tap(() => _ = PickAsync(anyType: true));
         col.Add(anyFile);
 
-        var cloud = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Star) }, ColumnSpacing = Theme.Gap };
-        // Tên dịch vụ là tên riêng, không dịch. Biểu tượng đám mây trung tính, không dùng logo có bản quyền.
-        cloud.Add(new SourceTile(Icons.Cloud, "Google Drive", L.T("cloud_connect"), L.F("a11y_cloud", "Google Drive"), () => _ = CloudAsync("Google Drive")), 0);
-        cloud.Add(new SourceTile(Icons.Cloud, "Dropbox", L.T("cloud_connect"), L.F("a11y_cloud", "Dropbox"), () => _ = CloudAsync("Dropbox")), 1);
-        col.Add(cloud);
 
         var recentHeader = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) } };
         recentHeader.Add(Heading(L.T("recent"), 18), 0);
@@ -162,12 +157,6 @@ public partial class HomePage : ContentPage
     /// Chưa có tích hợp trực tiếp: hướng dẫn chọn nhà cung cấp trong trình chọn tệp hệ thống.
     /// Không ghi trạng thái kết nối giả, không thu mật khẩu.
     /// </summary>
-    private async Task CloudAsync(string provider)
-    {
-        var go = await DisplayAlertAsync(provider, L.F("cloud_guide", provider), L.T("cloud_open_picker"), L.T("cancel"));
-        if (go) await PickAsync();
-    }
-
     private async Task OpenRecentAsync(RecentFile f)
     {
         if (File.Exists(f.LocalPath))
@@ -236,11 +225,11 @@ public partial class HomePage : ContentPage
         col.Add(new SoftSurface(canvas));
 
         var about = Group(L.T("settings_about"));
-        // Logo và tên nhà phát triển là tên riêng (pháp nhân), không dịch.
+        // Logo và tên pháp nhân là tên riêng, không dịch và không có tiền tố.
         var devLogo = new Image { Source = "siscom_logo.png", HeightRequest = 40, Aspect = Aspect.AspectFit, HorizontalOptions = LayoutOptions.Start, Margin = new Thickness(0, 4, 0, 2) };
         SemanticProperties.SetDescription(devLogo, AppInfoExtra.DeveloperName);
         about.Add(devLogo);
-        about.Add(Ui.Text(L.F("about_developer", AppInfoExtra.DeveloperName), Theme.FontSub, Theme.Text, bold: true));
+        about.Add(Ui.Text(AppInfoExtra.DeveloperName, Theme.FontSub, Theme.Text, bold: true));
         // Trang web nhà phát triển: chạm để mở trình duyệt. Địa chỉ web không dịch.
         var site = Ui.Text(AppInfoExtra.Website.Replace("https://", ""), Theme.FontSub, Theme.Primary, bold: true);
         site.MinimumHeightRequest = Theme.Touch;
@@ -270,7 +259,6 @@ public partial class HomePage : ContentPage
             account.Add(del);
             return account;
         }
-        account.Add(Ui.Text(L.T("account_guest"), Theme.FontSub, Theme.TextSub));
         if (!Auth.AuthService.IsConfigured)
         {
             account.Add(Ui.Text(L.T("auth_not_configured"), Theme.FontSub, Theme.TextSub));

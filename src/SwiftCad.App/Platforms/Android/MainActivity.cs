@@ -20,6 +20,7 @@ public class MainActivity : MauiAppCompatActivity
     {
         // adb shell am start -n com.swiftcad.app/com.swiftcad.app.MainActivity --es swiftcad_shot viewer-find
         ShotMode.Requested = Intent?.GetStringExtra("swiftcad_shot");
+        ShotMode.TestSession = Intent?.GetStringExtra("swiftcad_session") == "test";
         // adb shell am start ... --ei swiftcad_read_delay_ms 8000 : làm chậm việc đọc tệp để kiểm tra Back giữa chừng.
         SwiftCad.App.Pages.OpeningPage.TestReadDelayMs = Intent?.GetIntExtra("swiftcad_read_delay_ms", 0) ?? 0;
         base.OnCreate(savedInstanceState);

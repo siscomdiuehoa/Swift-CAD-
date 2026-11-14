@@ -235,3 +235,8 @@ def item_enabled(text, timeout=10):
                     return n.get("enabled") == "true"
         time.sleep(1)
     return None
+
+
+def launch_test_session():
+    """Mo app voi phien kiem thu (chi co trong ban chup anh/kiem thu, khong co trong ban phat hanh)."""
+    adb("shell", "am", "start", "-W", "-n", ACT, "--es", "swiftcad_session", "test")
