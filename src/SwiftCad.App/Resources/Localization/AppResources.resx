@@ -14,7 +14,6 @@
   <data name="a11y_selected" xml:space="preserve"><value>{0}, selected</value></data>
   <data name="about_developer" xml:space="preserve"><value>Developer: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Version {0} · prototype</value></data>
-  <data name="account_guest" xml:space="preserve"><value>You are using Swift CAD as a guest. All on-device features are available.</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Sign out</value></data>
   <data name="auth_google" xml:space="preserve"><value>Sign in with Google</value></data>
   <data name="auth_apple" xml:space="preserve"><value>Sign in with Apple</value></data>
@@ -27,6 +26,7 @@
   <data name="auth_failed_message" xml:space="preserve"><value>Please check your internet connection and try again.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>Sign-in is not available in this build.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Signed in. You can return to Swift CAD.</value></data>
+  <data name="login_intro" xml:space="preserve"><value>Sign in with Apple or Google to use Swift CAD. Your drawings stay on this device.</value></data>
   <data name="back" xml:space="preserve"><value>Back</value></data>
   <data name="cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Black</value></data>
@@ -129,9 +129,6 @@ Simulated or not built yet: reading real DWG/DXF files, account sign-in, direct 
   <data name="unit_in" xml:space="preserve"><value>Inches (in)</value></data>
   <data name="unit_m" xml:space="preserve"><value>Meters (m)</value></data>
   <data name="unit_mm" xml:space="preserve"><value>Millimeters (mm)</value></data>
-  <data name="welcome_guest" xml:space="preserve"><value>Use without an account</value></data>
-  <data name="welcome_note" xml:space="preserve"><value>You can sign in later in Settings. Files on this device always open without an account.</value></data>
-  <data name="welcome_subtitle" xml:space="preserve"><value>View, search, measure and annotate DWG/DXF drawings on site.</value></data>
   <data name="annot_arrow" xml:space="preserve"><value>Arrow</value></data>
   <data name="annot_cloud" xml:space="preserve"><value>Mark area</value></data>
   <data name="annot_hint_arrow" xml:space="preserve"><value>Drag one finger from where the text goes to the point you want to show. Use two fingers to move or zoom.</value></data>

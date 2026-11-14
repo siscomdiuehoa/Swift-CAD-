@@ -23,7 +23,7 @@ public static class ShotMode
         if (string.IsNullOrWhiteSpace(shot)) return null;
 
         AppState.Settings.Language = AppLanguage.Device;
-        AppState.Settings.OnboardingDone = shot != "welcome";
+        AppState.Settings.OnboardingDone = true;
         AppState.Settings.DisplayUnit = DrawingUnit.Unknown;
         L.Apply(AppLanguage.Device);
         if (shot == "drawings-empty") ClearRecents(); else if (shot != "welcome") SeedRecents();
@@ -40,7 +40,7 @@ public static class ShotMode
         }
         switch (shot)
         {
-            case "welcome": return new WelcomePage();
+            case "welcome": return new LoginPage();
             case "drawings":
             case "drawings-empty": return Nav.BuildRoot();
             case "settings": return Nav.BuildRoot(HomeTab.Settings);

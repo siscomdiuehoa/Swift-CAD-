@@ -38,6 +38,19 @@ public static class AuthService
         catch (Exception) { _config = null; }
         try { Current = AuthSessionCodec.Deserialize(await SecureStorage.Default.GetAsync(SessionKey)); }
         catch (Exception) { Current = null; }
+        if (Current is null || _config is null) return;
+        // Làm mới phiên khi sắp hết hạn. Mất mạng thì giữ phiên (vẫn xem bản vẽ tại công trường);
+        // chỉ đăng xuất khi máy chủ báo phiên không còn hợp lệ.
+        if (Current.NeedsRefresh(DateTimeOffset.UtcNow))
+        {
+            try { await Save(await Firebase().RefreshAsync(Current)); }
+            catch (AuthException ex) when (ex.Code is "network") { }
+            catch (AuthException)
+            {
+                SecureStorage.Default.Remove(SessionKey);
+                Current = null;
+            }
+        }
     }
 
     private static FirebaseAuthClient Firebase() => new(Http, new FirebaseConfig(_config!.ApiKey, _config.ProjectId));

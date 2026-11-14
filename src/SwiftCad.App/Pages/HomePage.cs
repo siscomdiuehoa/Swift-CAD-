@@ -270,7 +270,6 @@ public partial class HomePage : ContentPage
             account.Add(del);
             return account;
         }
-        account.Add(Ui.Text(L.T("account_guest"), Theme.FontSub, Theme.TextSub));
         if (!Auth.AuthService.IsConfigured)
         {
             account.Add(Ui.Text(L.T("auth_not_configured"), Theme.FontSub, Theme.TextSub));

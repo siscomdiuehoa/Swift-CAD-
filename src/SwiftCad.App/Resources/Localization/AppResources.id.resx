@@ -14,7 +14,6 @@
   <data name="a11y_selected" xml:space="preserve"><value>{0}, dipilih</value></data>
   <data name="about_developer" xml:space="preserve"><value>Pengembang: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Versi {0} · prototipe</value></data>
-  <data name="account_guest" xml:space="preserve"><value>Anda menggunakan Swift CAD sebagai tamu. Semua fitur di perangkat tersedia.</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Keluar</value></data>
   <data name="auth_google" xml:space="preserve"><value>Masuk dengan Google</value></data>
   <data name="auth_apple" xml:space="preserve"><value>Masuk dengan Apple</value></data>
@@ -27,6 +26,7 @@
   <data name="auth_failed_message" xml:space="preserve"><value>Periksa koneksi internet lalu coba lagi.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>Fitur masuk tidak tersedia di versi ini.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Berhasil masuk. Anda dapat kembali ke Swift CAD.</value></data>
+  <data name="login_intro" xml:space="preserve"><value>Masuk dengan Apple atau Google untuk menggunakan Swift CAD. Gambar Anda tetap tersimpan di perangkat ini.</value></data>
   <data name="back" xml:space="preserve"><value>Kembali</value></data>
   <data name="cancel" xml:space="preserve"><value>Batal</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Hitam</value></data>
@@ -125,9 +125,6 @@
   <data name="unit_in" xml:space="preserve"><value>Inci (in)</value></data>
   <data name="unit_m" xml:space="preserve"><value>Meter (m)</value></data>
   <data name="unit_mm" xml:space="preserve"><value>Milimeter (mm)</value></data>
-  <data name="welcome_guest" xml:space="preserve"><value>Gunakan tanpa akun</value></data>
-  <data name="welcome_note" xml:space="preserve"><value>Anda dapat masuk nanti di Pengaturan. File di perangkat ini selalu dibuka tanpa akun.</value></data>
-  <data name="welcome_subtitle" xml:space="preserve"><value>Lihat, cari, ukur, dan beri catatan gambar DWG/DXF di lapangan.</value></data>
   <data name="annot_arrow" xml:space="preserve"><value>Panah</value></data>
   <data name="annot_cloud" xml:space="preserve"><value>Tandai area</value></data>
   <data name="annot_hint_arrow" xml:space="preserve"><value>Geser satu jari dari tempat teks ke titik yang ingin ditunjuk. Gunakan dua jari untuk memindahkan atau zoom.</value></data>

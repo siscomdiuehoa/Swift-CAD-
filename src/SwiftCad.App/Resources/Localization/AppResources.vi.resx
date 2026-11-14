@@ -14,7 +14,6 @@
   <data name="a11y_selected" xml:space="preserve"><value>{0}, đang chọn</value></data>
   <data name="about_developer" xml:space="preserve"><value>Nhà phát triển: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Phiên bản {0} · bản thử</value></data>
-  <data name="account_guest" xml:space="preserve"><value>Bạn đang dùng Swift CAD với tư cách khách. Mọi tính năng trên máy đều dùng được.</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Đăng xuất</value></data>
   <data name="auth_google" xml:space="preserve"><value>Đăng nhập với Google</value></data>
   <data name="auth_apple" xml:space="preserve"><value>Đăng nhập với Apple</value></data>
@@ -27,6 +26,7 @@
   <data name="auth_failed_message" xml:space="preserve"><value>Hãy kiểm tra kết nối mạng rồi thử lại.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>Bản này chưa có đăng nhập.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Đăng nhập xong. Bạn có thể quay lại Swift CAD.</value></data>
+  <data name="login_intro" xml:space="preserve"><value>Đăng nhập bằng Apple hoặc Google để sử dụng Swift CAD. Bản vẽ vẫn lưu trên máy của bạn.</value></data>
   <data name="back" xml:space="preserve"><value>Quay lại</value></data>
   <data name="cancel" xml:space="preserve"><value>Hủy</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Đen</value></data>
@@ -129,9 +129,6 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="unit_in" xml:space="preserve"><value>Inch (in)</value></data>
   <data name="unit_m" xml:space="preserve"><value>Mét (m)</value></data>
   <data name="unit_mm" xml:space="preserve"><value>Milimét (mm)</value></data>
-  <data name="welcome_guest" xml:space="preserve"><value>Dùng không cần tài khoản</value></data>
-  <data name="welcome_note" xml:space="preserve"><value>Bạn có thể đăng nhập sau trong Cài đặt. Tệp trên máy luôn mở được mà không cần tài khoản.</value></data>
-  <data name="welcome_subtitle" xml:space="preserve"><value>Xem, tìm, đo và ghi chú bản vẽ DWG/DXF tại công trường.</value></data>
   <data name="annot_arrow" xml:space="preserve"><value>Mũi tên</value></data>
   <data name="annot_cloud" xml:space="preserve"><value>Khoanh vùng</value></data>
   <data name="annot_hint_arrow" xml:space="preserve"><value>Kéo một ngón từ chỗ đặt chữ tới điểm cần chỉ. Dùng hai ngón để di chuyển, thu phóng.</value></data>

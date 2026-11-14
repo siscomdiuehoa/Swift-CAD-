@@ -14,7 +14,6 @@
   <data name="a11y_selected" xml:space="preserve"><value>{0}, seleccionado</value></data>
   <data name="about_developer" xml:space="preserve"><value>Desarrollador: {0}</value></data>
   <data name="about_version" xml:space="preserve"><value>Versión {0} · prototipo</value></data>
-  <data name="account_guest" xml:space="preserve"><value>Estás usando Swift CAD como invitado. Todas las funciones del dispositivo están disponibles.</value></data>
   <data name="account_sign_out" xml:space="preserve"><value>Cerrar sesión</value></data>
   <data name="auth_google" xml:space="preserve"><value>Iniciar sesión con Google</value></data>
   <data name="auth_apple" xml:space="preserve"><value>Iniciar sesión con Apple</value></data>
@@ -27,6 +26,7 @@
   <data name="auth_failed_message" xml:space="preserve"><value>Comprueba tu conexión a internet e inténtalo de nuevo.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>El inicio de sesión no está disponible en esta versión.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Sesión iniciada. Puedes volver a Swift CAD.</value></data>
+  <data name="login_intro" xml:space="preserve"><value>Inicia sesión con Apple o Google para usar Swift CAD. Tus planos permanecen en este dispositivo.</value></data>
   <data name="back" xml:space="preserve"><value>Atrás</value></data>
   <data name="cancel" xml:space="preserve"><value>Cancelar</value></data>
   <data name="canvas_black" xml:space="preserve"><value>Negro</value></data>
@@ -125,9 +125,6 @@
   <data name="unit_in" xml:space="preserve"><value>Pulgadas (in)</value></data>
   <data name="unit_m" xml:space="preserve"><value>Metros (m)</value></data>
   <data name="unit_mm" xml:space="preserve"><value>Milímetros (mm)</value></data>
-  <data name="welcome_guest" xml:space="preserve"><value>Usar sin cuenta</value></data>
-  <data name="welcome_note" xml:space="preserve"><value>Puedes iniciar sesión más tarde en Ajustes. Los archivos del dispositivo siempre se abren sin cuenta.</value></data>
-  <data name="welcome_subtitle" xml:space="preserve"><value>Visualiza, busca, mide y anota planos DWG/DXF en obra.</value></data>
   <data name="annot_arrow" xml:space="preserve"><value>Flecha</value></data>
   <data name="annot_cloud" xml:space="preserve"><value>Marcar zona</value></data>
   <data name="annot_hint_arrow" xml:space="preserve"><value>Arrastra un dedo desde donde va el texto hasta el punto que quieres señalar. Usa dos dedos para mover o hacer zoom.</value></data>
