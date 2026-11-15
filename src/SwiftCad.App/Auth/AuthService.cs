@@ -8,7 +8,10 @@ namespace SwiftCad.App.Auth;
 /// <summary>
 /// Đăng nhập tùy chọn bằng Google và Apple qua Firebase (gói Spark). Không đăng nhập vẫn dùng đầy đủ tính năng xem bản vẽ.
 /// - Google trên iOS: trình duyệt hệ thống (ASWebAuthenticationSession) với OAuth client iOS, PKCE.
-/// - Google trên Android: trình duyệt hệ thống + máy chủ cục bộ 127.0.0.1 (OAuth client loại Desktop), PKCE.
+/// - Google trên Android: trình duyệt hệ thống (Custom Tabs), Google trả kết quả về ứng dụng qua liên kết riêng
+///   (cùng OAuth client và cùng cách với iOS), PKCE. Hệ điều hành tự đưa ứng dụng trở lại phía trước nên không phụ thuộc
+///   việc ứng dụng còn chạy nền hay không. Máy chủ cục bộ 127.0.0.1 (OAuth client Desktop) chỉ còn là phương án dự phòng
+///   khi bản dựng không có cấu hình liên kết riêng: Android có thể đóng băng ứng dụng đang ở nền nên cách này không ổn định.
 ///   Không dùng SDK Google Play Services (điều khoản không phải MIT).
 /// - Apple trên iOS: AuthenticationServices gốc qua AppleSignInAuthenticator của MAUI.
 /// Phiên (refresh token) chỉ lưu trong kho bảo mật của hệ điều hành (Keychain/Keystore).
@@ -23,7 +26,14 @@ public static class AuthService
     public static event Action? Changed;
 
     public static bool IsConfigured => _config is not null;
-    public static bool CanUseGoogle => _config is { } c && (DeviceInfo.Platform == DevicePlatform.iOS ? c.IosClientId.Length > 0 : c.DesktopClientId.Length > 0);
+    public static bool CanUseGoogle => _config is { } c && (DeviceInfo.Platform == DevicePlatform.iOS ? c.IosClientId.Length > 0 : UsesAppLink(c) || c.DesktopClientId.Length > 0);
+
+    /// <summary>
+    /// Google trả kết quả về ứng dụng qua liên kết riêng (scheme = REVERSED_CLIENT_ID). iOS luôn dùng cách này.
+    /// Android dùng khi bản dựng đã đăng ký đúng scheme đó cho AuthCallbackActivity (CI ghi vào AuthCallbackScheme).
+    /// </summary>
+    private static bool UsesAppLink(AuthConfig c) => c.IosClientId.Length > 0 && c.IosReversedClientId.Length > 0
+        && (DeviceInfo.Platform == DevicePlatform.iOS || c.IosReversedClientId == AuthCallbackScheme.Value);
     public static bool CanUseApple => _config is not null && DeviceInfo.Platform == DevicePlatform.iOS;
 
     /// <summary>Đọc cấu hình (tệp firebase.json do CI tạo từ Secret) và phiên đã lưu. Không có cấu hình thì đăng nhập bị ẩn.</summary>
@@ -55,12 +65,28 @@ public static class AuthService
 
     private static FirebaseAuthClient Firebase() => new(Http, new FirebaseConfig(_config!.ApiKey, _config.ProjectId));
 
+    /// <summary>
+    /// Mô tả ngắn lỗi đăng nhập (mã lỗi + nguyên nhân bên trong) để hiện trong thông báo, giúp người dùng chụp màn hình gửi hỗ trợ.
+    /// Không chứa token, mã ủy quyền hay bí mật.
+    /// </summary>
+    public static string Describe(Exception ex)
+    {
+        var parts = new List<string>();
+        for (Exception? e = ex; e is not null && parts.Count < 3; e = e.InnerException)
+        {
+            var text = e is AuthException a ? (a.Message.StartsWith(a.Code, StringComparison.Ordinal) ? a.Message : a.Code + " · " + a.Message)
+                : e.GetType().Name + " · " + e.Message;
+            parts.Add(text.Length > 160 ? text[..160] + "…" : text);
+        }
+        return string.Join(" | ", parts);
+    }
+
     public static async Task SignInWithGoogleAsync()
     {
         if (!CanUseGoogle) throw new AuthException("not_configured", "Google sign-in is not configured.");
         var verifier = Pkce.RandomUrlSafe(); var state = Pkce.RandomUrlSafe(16); var nonce = Pkce.RandomUrlSafe(16);
         string idToken;
-        if (DeviceInfo.Platform == DevicePlatform.iOS)
+        if (UsesAppLink(_config!))
         {
             var redirect = _config!.IosReversedClientId + ":/oauth2redirect";
             var url = Pkce.GoogleAuthorizeUrl(_config.IosClientId, redirect, Pkce.Challenge(verifier), state, nonce);

@@ -21,6 +21,7 @@
   <data name="auth_delete_confirm_message" xml:space="preserve"><value>Tu cuenta de Swift CAD se eliminará de forma permanente. Los planos y notas de este dispositivo se conservan.</value></data>
   <data name="auth_deleted" xml:space="preserve"><value>Cuenta eliminada.</value></data>
   <data name="auth_failed_title" xml:space="preserve"><value>Error al iniciar sesión</value></data>
+  <data name="auth_failed_code" xml:space="preserve"><value>Detalles: {0}</value></data>
   <data name="auth_failed_message" xml:space="preserve"><value>Comprueba tu conexión a internet e inténtalo de nuevo.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>El inicio de sesión no está disponible en esta versión.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Sesión iniciada. Puedes volver a Swift CAD.</value></data>

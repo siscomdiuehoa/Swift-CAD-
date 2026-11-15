@@ -21,6 +21,7 @@
   <data name="auth_delete_confirm_message" xml:space="preserve"><value>Akun Swift CAD Anda akan dihapus permanen. Gambar dan catatan di perangkat ini tetap disimpan.</value></data>
   <data name="auth_deleted" xml:space="preserve"><value>Akun dihapus.</value></data>
   <data name="auth_failed_title" xml:space="preserve"><value>Gagal masuk</value></data>
+  <data name="auth_failed_code" xml:space="preserve"><value>Detail: {0}</value></data>
   <data name="auth_failed_message" xml:space="preserve"><value>Periksa koneksi internet lalu coba lagi.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>Fitur masuk tidak tersedia di versi ini.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Berhasil masuk. Anda dapat kembali ke Swift CAD.</value></data>
