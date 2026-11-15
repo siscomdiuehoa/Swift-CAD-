@@ -21,6 +21,7 @@
   <data name="auth_delete_confirm_message" xml:space="preserve"><value>Tài khoản Swift CAD sẽ bị xóa vĩnh viễn. Bản vẽ và ghi chú trên máy vẫn được giữ.</value></data>
   <data name="auth_deleted" xml:space="preserve"><value>Đã xóa tài khoản.</value></data>
   <data name="auth_failed_title" xml:space="preserve"><value>Đăng nhập không thành công</value></data>
+  <data name="auth_failed_code" xml:space="preserve"><value>Chi tiết: {0}</value></data>
   <data name="auth_failed_message" xml:space="preserve"><value>Hãy kiểm tra kết nối mạng rồi thử lại.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>Bản này chưa có đăng nhập.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Đăng nhập xong. Bạn có thể quay lại Swift CAD.</value></data>

@@ -276,9 +276,10 @@ public partial class HomePage : ContentPage
         try { await signIn(); }
         catch (TaskCanceledException) { return; } // người dùng đóng cửa sổ đăng nhập
         catch (OperationCanceledException) { return; }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await DisplayAlertAsync(L.T("auth_failed_title"), L.T("auth_failed_message"), L.T("ok"));
+            await DisplayAlertAsync(L.T("auth_failed_title"),
+                L.T("auth_failed_message") + "\n\n" + L.F("auth_failed_code", Auth.AuthService.Describe(ex)), L.T("ok"));
         }
         Show(HomeTab.Settings);
     }
@@ -291,9 +292,10 @@ public partial class HomePage : ContentPage
             await Auth.AuthService.DeleteAccountAsync();
             await DisplayAlertAsync(L.T("auth_delete"), L.T("auth_deleted"), L.T("ok"));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await DisplayAlertAsync(L.T("auth_failed_title"), L.T("auth_failed_message"), L.T("ok"));
+            await DisplayAlertAsync(L.T("auth_failed_title"),
+                L.T("auth_failed_message") + "\n\n" + L.F("auth_failed_code", Auth.AuthService.Describe(ex)), L.T("ok"));
         }
         Show(HomeTab.Settings);
     }

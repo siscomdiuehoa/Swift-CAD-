@@ -102,9 +102,10 @@ public class LoginPage : ContentPage
     {
         try { await signIn(); }
         catch (OperationCanceledException) { return; }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await DisplayAlertAsync(L.T("auth_failed_title"), L.T("auth_failed_message"), L.T("ok"));
+            await DisplayAlertAsync(L.T("auth_failed_title"),
+                L.T("auth_failed_message") + "\n\n" + L.F("auth_failed_code", Auth.AuthService.Describe(ex)), L.T("ok"));
             return;
         }
         Nav.ResetRoot();

@@ -55,6 +55,22 @@ public static class AuthService
 
     private static FirebaseAuthClient Firebase() => new(Http, new FirebaseConfig(_config!.ApiKey, _config.ProjectId));
 
+    /// <summary>
+    /// Mô tả ngắn lỗi đăng nhập (mã lỗi + nguyên nhân bên trong) để hiện trong thông báo, giúp người dùng chụp màn hình gửi hỗ trợ.
+    /// Không chứa token, mã ủy quyền hay bí mật.
+    /// </summary>
+    public static string Describe(Exception ex)
+    {
+        var parts = new List<string>();
+        for (Exception? e = ex; e is not null && parts.Count < 3; e = e.InnerException)
+        {
+            var text = e is AuthException a ? (a.Message.StartsWith(a.Code, StringComparison.Ordinal) ? a.Message : a.Code + " · " + a.Message)
+                : e.GetType().Name + " · " + e.Message;
+            parts.Add(text.Length > 160 ? text[..160] + "…" : text);
+        }
+        return string.Join(" | ", parts);
+    }
+
     public static async Task SignInWithGoogleAsync()
     {
         if (!CanUseGoogle) throw new AuthException("not_configured", "Google sign-in is not configured.");
