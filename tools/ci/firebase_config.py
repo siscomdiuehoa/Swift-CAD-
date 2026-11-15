@@ -5,7 +5,7 @@ Bien moi truong: FB_PLIST (noi dung GoogleService-Info.plist), FB_JSON (google-s
 GOOGLE_DESKTOP_CLIENT_ID va GOOGLE_DESKTOP_CLIENT_SECRET (OAuth client loai Desktop cho Android, tuy chon).
 Thieu cau hinh Firebase thi khong tao tep: ung dung an phan dang nhap. Khong in gia tri bi mat.
 """
-import json, os, plistlib, sys
+import json, os, plistlib, re, sys
 
 out = "src/SwiftCad.App/Resources/Raw/firebase.json"
 plist_txt, json_txt = os.environ.get("FB_PLIST", ""), os.environ.get("FB_JSON", "")
@@ -26,5 +26,15 @@ cfg = {
 assert p.get("BUNDLE_ID") in (None, "vn.siscom.swiftcad"), "GoogleService-Info.plist sai bundle ID"
 os.makedirs(os.path.dirname(out), exist_ok=True)
 json.dump(cfg, open(out, "w"))
+# Android dang ky scheme nay luc bien dich (AuthCallbackActivity). Khong phai bi mat: nam cong khai trong moi ban cai.
+scheme = cfg["iosReversedClientId"]
+if scheme:
+    assert re.fullmatch(r"[a-z][a-z0-9+.\-]*", scheme), "REVERSED_CLIENT_ID khong hop le"
+    path = "src/SwiftCad.App/Auth/AuthCallbackScheme.cs"
+    src = open(path, encoding="utf-8").read()
+    new, n = re.subn(r'public const string Value = "[^"]*";', 'public const string Value = "%s";' % scheme, src)
+    assert n == 1, "Khong tim thay hang Value trong AuthCallbackScheme.cs"
+    open(path, "w", encoding="utf-8").write(new)
+    print("::notice::Android: da dang ky lien ket dang nhap Google (scheme REVERSED_CLIENT_ID)")
 print(f"::notice::Da tao firebase.json (du an {cfg['projectId']}; Google iOS: {'co' if cfg['iosClientId'] else 'khong'}; "
       f"Google Android: {'co' if cfg['desktopClientId'] else 'khong (thieu OAuth client Desktop)'})")
