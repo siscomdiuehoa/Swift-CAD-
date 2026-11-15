@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- Khong xin quyen mang hay bo nho: tep mo qua trinh chon tep, thu muc nguoi dung cho phep (Storage Access Framework), hoac Mo bang tu ung dung khac. -->
+	<!-- INTERNET: bat buoc cho dang nhap Google/Firebase (goi HTTPS va may chu cuc bo 127.0.0.1 nhan ket qua dang nhap).
+	     Ban Debug tu them quyen nay nen chay duoc; ban Release (CH Play) thi khong, thieu dong nay la dang nhap bao loi mang.
+	     Khong xin quyen bo nho: tep mo qua trinh chon tep hoac Mo bang tu ung dung khac. -->
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
 </manifest>
