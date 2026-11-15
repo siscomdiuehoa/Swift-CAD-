@@ -23,6 +23,10 @@ jobs:
         with:
           global-json-file: global.json
       - run: dotnet run --project tests/SwiftCad.Core.Tests -c Release
+      - name: Kiem tra quyen INTERNET trong AndroidManifest (dang nhap can mang; ban Release khong tu them)
+        run: |
+          grep -q 'android.permission.INTERNET' src/SwiftCad.App/Platforms/Android/AndroidManifest.xml \
+            || { echo "::error::AndroidManifest thieu quyen INTERNET: ban CH Play se khong dang nhap duoc"; exit 1; }
       - name: Kiem thu doc DWG/DXF (ACadSharp) va do tep lon 300.000 doi tuong
         shell: bash
         run: |
