@@ -551,6 +551,25 @@ if (int.TryParse(Environment.GetEnvironmentVariable("SWIFTCAD_GRID_PERF"), out v
     Console.WriteLine($"Chỉ mục lưới {gridN:N0} đối tượng: dựng {build:N0} ms; truy vấn khung nhìn {query:N2} ms (trung bình, {hits:N0} đối tượng trong khung).");
 }
 
+Test("lỗi đổi mã Google: lấy mã lỗi để hiện cho người dùng", () =>
+{
+    Eq("invalid_client (The OAuth client was not found.)",
+        SwiftCad.Core.Auth.GoogleTokenClient.GoogleError("{\"error\":\"invalid_client\",\"error_description\":\"The OAuth client was not found.\"}", 401));
+    Eq("invalid_grant", SwiftCad.Core.Auth.GoogleTokenClient.GoogleError("{\"error\":\"invalid_grant\"}", 400));
+    Eq("HTTP 502", SwiftCad.Core.Auth.GoogleTokenClient.GoogleError("<html>bad gateway</html>", 502));
+    var h = new FakeHttp(_ => (400, "{\"error\":\"redirect_uri_mismatch\"}"));
+    try
+    {
+        new SwiftCad.Core.Auth.GoogleTokenClient(new HttpClient(h)).ExchangeCodeAsync("c", "id", "sec", "http://127.0.0.1:1/", "v").GetAwaiter().GetResult();
+        throw new Exception("phải báo lỗi");
+    }
+    catch (SwiftCad.Core.Auth.AuthException ex)
+    {
+        Eq("google_token", ex.Code);
+        True(ex.Message.Contains("redirect_uri_mismatch"), "thông báo có mã lỗi của Google");
+    }
+});
+
 Console.WriteLine($"\n{passed} đạt, {failed} lỗi");
 return failed == 0 ? 0 : 1;
 

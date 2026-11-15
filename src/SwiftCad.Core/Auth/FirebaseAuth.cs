@@ -120,6 +120,21 @@ public static class Pkce
 /// <summary>Đổi mã ủy quyền Google lấy id_token (endpoint token của Google).</summary>
 public sealed class GoogleTokenClient(HttpClient http)
 {
+    /// <summary>Lấy "error"/"error_description" trong phản hồi lỗi của Google (không chứa bí mật) để hiện cho người dùng gửi hỗ trợ.</summary>
+    public static string GoogleError(string body, int status)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var err = root.TryGetProperty("error", out var e) && e.ValueKind == JsonValueKind.String ? e.GetString() : null;
+            var desc = root.TryGetProperty("error_description", out var d) && d.ValueKind == JsonValueKind.String ? d.GetString() : null;
+            if (err is not null) return desc is null ? err : err + " (" + desc + ")";
+        }
+        catch (JsonException) { }
+        return "HTTP " + status;
+    }
+
     public async Task<string> ExchangeCodeAsync(string code, string clientId, string? clientSecret, string redirectUri, string verifier, CancellationToken ct = default)
     {
         var form = new List<KeyValuePair<string, string>>
@@ -134,7 +149,7 @@ public sealed class GoogleTokenClient(HttpClient http)
         using (resp)
         {
             var text = await resp.Content.ReadAsStringAsync(ct);
-            if (!resp.IsSuccessStatusCode) throw new AuthException("google_token", "Google từ chối mã đăng nhập.");
+            if (!resp.IsSuccessStatusCode) throw new AuthException("google_token", "Google từ chối mã đăng nhập: " + GoogleError(text, (int)resp.StatusCode));
             var r = JsonSerializer.Deserialize(text, AuthJson.Default.GoogleTokenResponse);
             return r?.IdToken ?? throw new AuthException("google_token", "Google không trả id_token.");
         }

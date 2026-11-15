@@ -21,6 +21,7 @@
   <data name="auth_delete_confirm_message" xml:space="preserve"><value>你的 Swift CAD 账户将被永久删除。本机上的图纸和批注会保留。</value></data>
   <data name="auth_deleted" xml:space="preserve"><value>账户已删除。</value></data>
   <data name="auth_failed_title" xml:space="preserve"><value>登录失败</value></data>
+  <data name="auth_failed_code" xml:space="preserve"><value>详细信息：{0}</value></data>
   <data name="auth_failed_message" xml:space="preserve"><value>请检查网络连接后重试。</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>此版本暂不支持登录。</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>登录成功，可以返回 Swift CAD。</value></data>

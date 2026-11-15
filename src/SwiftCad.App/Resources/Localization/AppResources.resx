@@ -21,6 +21,7 @@
   <data name="auth_delete_confirm_message" xml:space="preserve"><value>Your Swift CAD account will be permanently deleted. Drawings and notes on this device are kept.</value></data>
   <data name="auth_deleted" xml:space="preserve"><value>Account deleted.</value></data>
   <data name="auth_failed_title" xml:space="preserve"><value>Sign-in failed</value></data>
+  <data name="auth_failed_code" xml:space="preserve"><value>Details: {0}</value></data>
   <data name="auth_failed_message" xml:space="preserve"><value>Please check your internet connection and try again.</value></data>
   <data name="auth_not_configured" xml:space="preserve"><value>Sign-in is not available in this build.</value></data>
   <data name="auth_return_to_app" xml:space="preserve"><value>Signed in. You can return to Swift CAD.</value></data>
