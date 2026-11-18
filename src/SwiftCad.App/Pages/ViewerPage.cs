@@ -146,7 +146,7 @@ public partial class ViewerPage : ContentPage
     private HorizontalStackLayout? _canvasButtons;
 
     /// <summary>Cuộn khi nội dung dài; chiều cao bằng nội dung, không vượt quá giới hạn bảng.</summary>
-    private View Scrollable(View content)
+    private View Scrollable(View content, double reserve = 0)
     {
         var sv = new ScrollView { Content = content };
         // Đo chiều cao nội dung khi không giới hạn (Height của nội dung trong ScrollView có thể bằng cả khung).
@@ -155,7 +155,7 @@ public partial class ViewerPage : ContentPage
             var w = sv.Width > 0 ? sv.Width : _panel.Width - 24;
             if (w <= 0) return;
             var desired = ((IView)content).Measure(w, double.PositiveInfinity).Height;
-            var target = Math.Min(desired, _panelMax);
+            var target = Math.Min(desired, Math.Max(80, _panelMax - reserve));
             if (desired > 0 && Math.Abs(sv.HeightRequest - target) > 1) sv.HeightRequest = target;
         }
         content.SizeChanged += (_, _) => Fit();
@@ -451,39 +451,88 @@ public partial class ViewerPage : ContentPage
 
     // ---------- Layer ----------
 
+    private Label? _layerCount;
+
+    // Thanh tìm và nút Hiện/Ẩn tất cả cố định phía trên; chỉ danh sách layer cuộn (như bảng Ghi chú).
+    // Mỗi dòng chạm được toàn bộ để bật/tắt: không dựa vào công tắc hệ thống nhỏ nằm trong vùng cuộn,
+    // vì trên iPhone chạm vào đó có lúc bị vùng cuộn nuốt mất (video lỗi 18/11: gạt không đổi, bản vẽ không đổi).
     private View BuildLayers()
     {
-        var col = new VerticalStackLayout { Spacing = 6 };
+        var root = new VerticalStackLayout { Spacing = 6 };
         var list = new VerticalStackLayout { Spacing = 2 };
-        var top = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) }, ColumnSpacing = 8 };
+        var top = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Auto) }, ColumnSpacing = 10 };
         var field = new SearchField(L.T("layer_search"), q => { _layerFilter = q; FillLayers(list); });
         field.Entry.Text = _layerFilter;
         top.Add(field, 0);
         var showAll = Ui.Text(L.T("layer_show_all"), Theme.FontSub, Theme.Primary, bold: true);
-        showAll.MinimumHeightRequest = Theme.Touch;
+        showAll.MinimumHeightRequest = Theme.Touch; showAll.VerticalTextAlignment = TextAlignment.Center;
         showAll.Tap(() => { _canvas.Layers.ShowAll(); FillLayers(list); RefreshAfterLayerChange(); });
         top.Add(showAll, 1);
-        col.Add(top);
-        col.Add(list);
+        var hideAll = Ui.Text(L.T("layer_hide_all"), Theme.FontSub, Theme.Primary, bold: true);
+        hideAll.MinimumHeightRequest = Theme.Touch; hideAll.VerticalTextAlignment = TextAlignment.Center;
+        hideAll.Tap(() =>
+        {
+            foreach (var l in LayerState.Filter(_model!.Layers, _layerFilter)) _canvas.Layers.Set(l.Name, false);
+            FillLayers(list); RefreshAfterLayerChange();
+        });
+        top.Add(hideAll, 2);
+        root.Add(top);
+        _layerCount = Ui.Text("", Theme.FontSub, Theme.TextSub);
+        root.Add(_layerCount);
+        root.Add(Scrollable(list, reserve: 96));
         FillLayers(list);
-        return Scrollable(col);
+        return root;
+    }
+
+    private void UpdateLayerCount()
+    {
+        if (_layerCount is null || _model is null) return;
+        var total = _model.Layers.Count;
+        _layerCount.Text = L.F("layer_count", total - _canvas.Layers.HiddenCount, total);
+    }
+
+    private static readonly Color LayerOffColor = Color.FromArgb("#B8C4D2");
+
+    private static Border LayerToggle(bool on)
+    {
+        var knob = new BoxView { Color = Colors.White, WidthRequest = 22, HeightRequest = 22, CornerRadius = 11, VerticalOptions = LayoutOptions.Center, HorizontalOptions = on ? LayoutOptions.End : LayoutOptions.Start, InputTransparent = true };
+        return new Border
+        {
+            WidthRequest = 50, HeightRequest = 30, Padding = new Thickness(4, 0), StrokeThickness = 0,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 15 },
+            BackgroundColor = on ? Theme.Primary : LayerOffColor,
+            VerticalOptions = LayoutOptions.Center, InputTransparent = true,
+            Content = knob,
+        };
     }
 
     private void FillLayers(VerticalStackLayout list)
     {
         list.Clear();
+        UpdateLayerCount();
         var layers = LayerState.Filter(_model!.Layers, _layerFilter).ToList();
         if (layers.Count == 0) { list.Add(Ui.Text(L.T("layer_none"), Theme.FontSub, Theme.TextSub)); return; }
         foreach (var layer in layers)
         {
-            var row = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) }, ColumnSpacing = 10, MinimumHeightRequest = Theme.Touch };
-            row.Add(new BoxView { Color = Color.FromRgba((int)((layer.ColorArgb >> 16) & 0xFF), (int)((layer.ColorArgb >> 8) & 0xFF), (int)(layer.ColorArgb & 0xFF), 255), WidthRequest = 14, HeightRequest = 14, CornerRadius = 7, VerticalOptions = LayoutOptions.Center }, 0);
+            var row = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) }, ColumnSpacing = 10, MinimumHeightRequest = Theme.Touch, BackgroundColor = Colors.Transparent };
+            row.Add(new BoxView { Color = Color.FromRgba((int)((layer.ColorArgb >> 16) & 0xFF), (int)((layer.ColorArgb >> 8) & 0xFF), (int)(layer.ColorArgb & 0xFF), 255), WidthRequest = 14, HeightRequest = 14, CornerRadius = 7, VerticalOptions = LayoutOptions.Center, InputTransparent = true }, 0);
             // Tên layer là nội dung bản vẽ, giữ nguyên.
-            row.Add(Ui.Text(layer.Name, Theme.FontBody), 1);
-            var sw = new Switch { IsToggled = _canvas.Layers.IsVisible(layer.Name), OnColor = Theme.Primary, VerticalOptions = LayoutOptions.Center };
-            SemanticProperties.SetDescription(sw, L.F("a11y_layer_toggle", layer.Name));
-            sw.Toggled += (_, e) => { _canvas.Layers.Set(layer.Name, e.Value); RefreshAfterLayerChange(); };
-            row.Add(sw, 2);
+            var name = Ui.Text(layer.Name, Theme.FontBody);
+            name.VerticalOptions = LayoutOptions.Center; name.InputTransparent = true;
+            row.Add(name, 1);
+            var on = _canvas.Layers.IsVisible(layer.Name);
+            var toggle = LayerToggle(on);
+            row.Add(toggle, 2);
+            row.Tap(() =>
+            {
+                on = !on;
+                _canvas.Layers.Set(layer.Name, on);
+                toggle.BackgroundColor = on ? Theme.Primary : LayerOffColor;
+                ((BoxView)toggle.Content!).HorizontalOptions = on ? LayoutOptions.End : LayoutOptions.Start;
+                UpdateLayerCount();
+                RefreshAfterLayerChange();
+            });
+            SemanticProperties.SetDescription(row, L.F("a11y_layer_toggle", layer.Name));
             list.Add(row);
         }
     }

@@ -58,6 +58,10 @@
   <data name="layer_none" xml:space="preserve"><value>No hay capas que coincidan</value></data>
   <data name="layer_search" xml:space="preserve"><value>Buscar capa</value></data>
   <data name="layer_show_all" xml:space="preserve"><value>Mostrar todo</value></data>
+  <data name="layer_hide_all" xml:space="preserve"><value>Ocultar todo</value></data>
+  <data name="layer_count" xml:space="preserve"><value>{0} de {1} capas visibles</value></data>
+  <data name="sample_title" xml:space="preserve"><value>Dibujo de muestra</value></data>
+  <data name="sample_subtitle" xml:space="preserve"><value>Detalles de instalación MEP. Prueba Buscar, Medir, Capas y Notas.</value></data>
   <data name="loading" xml:space="preserve"><value>Cargando…</value></data>
   <data name="loading_file" xml:space="preserve"><value>Leyendo {0}…</value></data>
   <data name="measure_clear" xml:space="preserve"><value>Borrar</value></data>

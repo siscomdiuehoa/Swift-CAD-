@@ -62,6 +62,10 @@ Chạy thật trên hình học này: kéo, thu phóng, vừa khung, tìm chữ,
   <data name="layer_none" xml:space="preserve"><value>Không có layer phù hợp</value></data>
   <data name="layer_search" xml:space="preserve"><value>Tìm layer</value></data>
   <data name="layer_show_all" xml:space="preserve"><value>Hiện tất cả</value></data>
+  <data name="layer_hide_all" xml:space="preserve"><value>Ẩn tất cả</value></data>
+  <data name="layer_count" xml:space="preserve"><value>Đang hiện {0}/{1} layer</value></data>
+  <data name="sample_title" xml:space="preserve"><value>Bản vẽ mẫu</value></data>
+  <data name="sample_subtitle" xml:space="preserve"><value>Chi tiết lắp đặt MEP. Thử Tìm, Đo, Layer và Ghi chú.</value></data>
   <data name="loading" xml:space="preserve"><value>Đang tải…</value></data>
   <data name="loading_file" xml:space="preserve"><value>Đang đọc {0}…</value></data>
   <data name="measure_clear" xml:space="preserve"><value>Xóa số đo</value></data>

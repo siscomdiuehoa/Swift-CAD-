@@ -62,6 +62,10 @@ Simulated or not built yet: reading real DWG/DXF files, account sign-in, direct 
   <data name="layer_none" xml:space="preserve"><value>No matching layers</value></data>
   <data name="layer_search" xml:space="preserve"><value>Find layer</value></data>
   <data name="layer_show_all" xml:space="preserve"><value>Show all</value></data>
+  <data name="layer_hide_all" xml:space="preserve"><value>Hide all</value></data>
+  <data name="layer_count" xml:space="preserve"><value>{0} of {1} layers shown</value></data>
+  <data name="sample_title" xml:space="preserve"><value>Sample drawing</value></data>
+  <data name="sample_subtitle" xml:space="preserve"><value>MEP installation details. Try Find, Measure, Layers and Notes.</value></data>
   <data name="loading" xml:space="preserve"><value>Loading…</value></data>
   <data name="loading_file" xml:space="preserve"><value>Reading {0}…</value></data>
   <data name="measure_clear" xml:space="preserve"><value>Clear</value></data>
