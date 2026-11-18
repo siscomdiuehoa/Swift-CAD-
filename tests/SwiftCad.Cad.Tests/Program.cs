@@ -402,5 +402,23 @@ Test("xuất ghi chú không có nội dung trả lỗi rõ ràng", () =>
     True(r.Error is not null, "phai bao loi");
 });
 
+Test("spline có dãy nút không bắt đầu từ 0 (biên HATCH bản vẽ mẫu): không kéo về gốc tọa độ", () =>
+{
+    // Dữ liệu thật từ 05. Installation details.dwg: bậc 3, nút 1806,6..2056,6, ACadSharp trả toàn (0,0).
+    var ctrl = new List<SwiftCad.Core.Point2> { new(258054, 51634), new(258022, 51647), new(257949, 51621), new(257877, 51646), new(257849, 51634) };
+    var knots = new List<double> { 1806.636, 1806.636, 1806.636, 1806.636, 1941.514, 2056.636, 2056.636, 2056.636, 2056.636 };
+    var pts = CadImporter.SplinePoints(3, knots, ctrl, null, [], 32);
+    True(pts.Count == 33, "so diem " + pts.Count);
+    Near(258054, pts[0].X, 1e-6, "diem dau x"); Near(51634, pts[0].Y, 1e-6, "diem dau y");
+    Near(257849, pts[^1].X, 1e-6, "diem cuoi x"); Near(51634, pts[^1].Y, 1e-6, "diem cuoi y");
+    True(pts.All(p => p.X > 257800 && p.X < 258100 && p.Y > 51600 && p.Y < 51660), "co diem ngoai bao loi dieu khien");
+});
+Test("spline nút sai: dùng điểm khớp hoặc nối điểm điều khiển", () =>
+{
+    var ctrl = new List<SwiftCad.Core.Point2> { new(0, 0), new(10, 5), new(20, 0) };
+    var pts = CadImporter.SplinePoints(3, [0, 1], ctrl, null, [], 16);
+    True(pts.Count == 3 && pts[1].X == 10, "phai noi diem dieu khien");
+});
+
 Console.WriteLine($"\n{passed} đạt, {failed} lỗi");
 return failed == 0 ? 0 : 1;

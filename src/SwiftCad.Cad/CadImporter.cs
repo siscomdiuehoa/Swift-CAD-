@@ -382,7 +382,12 @@ public static class CadImporter
                         foreach (var v in el.PolygonalVertexes(64)) AppendPoint(pts, P(v));
                         break;
                     case ACadSharp.Entities.Hatch.BoundaryPath.Spline sp:
-                        foreach (var v in sp.PolygonalVertexes(64)) AppendPoint(pts, P(v));
+                        // Không dùng PolygonalVertexes của ACadSharp: với nút không bắt đầu từ 0 nó trả toàn (0,0),
+                        // tạo đường kéo dài về gốc tọa độ (bản vẽ mẫu 05. Installation details).
+                        foreach (var v in SplinePoints(sp.Degree, sp.Knots, sp.ControlPoints.Select(c => new Point2(c.X, c.Y)).ToList(),
+                                     sp.IsRational ? sp.ControlPoints.Select(c => c.Z).ToList() : null,
+                                     sp.FitPoints.Select(f => new Point2(f.X, f.Y)).ToList(), 64))
+                            AppendPoint(pts, v);
                         break;
                     default:
                         Count(ctx.Skipped, "HATCH edge " + edge.GetType().Name);
@@ -431,10 +436,56 @@ public static class CadImporter
             EmitPoly(fit, false, ctx.Xf, layer, color, ctx);
             return;
         }
-        var pts = sp.PolygonalVertexes(64).Select(P).ToList();
+        var weights = sp.Weights.Count == sp.ControlPoints.Count ? sp.Weights.ToList() : null;
+        var pts = SplinePoints(sp.Degree, sp.Knots, sp.ControlPoints.Select(P).ToList(), weights,
+            sp.FitPoints.Select(f => new Point2(f.X, f.Y)).ToList(), 64);
         if (pts.Count < 2) { Count(ctx.Skipped, "Spline"); return; }
         Count(ctx.Approx, "SPLINE xấp xỉ bằng đoạn thẳng");
         EmitPoly(pts, sp.IsClosed, ctx.Xf, layer, color, ctx);
+    }
+
+    /// <summary>
+    /// Lấy mẫu đường B-spline (thuật toán de Boor) theo đúng dãy nút của tệp, không chuẩn hóa nút về 0..1.
+    /// Dãy nút hoặc trọng số không hợp lệ: dùng điểm khớp, không có thì nối các điểm điều khiển.
+    /// </summary>
+    public static List<Point2> SplinePoints(int degree, IReadOnlyList<double> knots, IReadOnlyList<Point2> ctrl,
+        IReadOnlyList<double>? weights, IReadOnlyList<Point2> fit, int samples)
+    {
+        var n = ctrl.Count;
+        var valid = degree >= 1 && n > degree && knots.Count == n + degree + 1
+            && (weights is null || (weights.Count == n && weights.All(w => w > 0)))
+            && knots.Zip(knots.Skip(1), (a, b) => b >= a).All(x => x) && knots.All(double.IsFinite)
+            && ctrl.All(c => double.IsFinite(c.X) && double.IsFinite(c.Y));
+        if (!valid) return fit.Count >= 2 ? fit.ToList() : ctrl.ToList();
+        var t0 = knots[degree]; var t1 = knots[n];
+        if (!(t1 > t0)) return fit.Count >= 2 ? fit.ToList() : ctrl.ToList();
+        var result = new List<Point2>(samples + 1);
+        for (var i = 0; i <= samples; i++)
+        {
+            var t = i == samples ? t1 : t0 + (t1 - t0) * i / samples;
+            // Khoảng nút k với knots[k] <= t < knots[k+1]; điểm cuối dùng khoảng cuối khác rỗng.
+            var k = degree;
+            while (k < n - 1 && t >= knots[k + 1]) k++;
+            var dx = new double[degree + 1]; var dy = new double[degree + 1]; var dw = new double[degree + 1];
+            for (var j = 0; j <= degree; j++)
+            {
+                var w = weights?[k - degree + j] ?? 1.0;
+                var c = ctrl[k - degree + j];
+                dx[j] = c.X * w; dy[j] = c.Y * w; dw[j] = w;
+            }
+            for (var r = 1; r <= degree; r++)
+                for (var j = degree; j >= r; j--)
+                {
+                    var lo = knots[k - degree + j]; var hi = knots[k + 1 + j - r];
+                    var a = hi - lo < 1e-15 ? 0 : (t - lo) / (hi - lo);
+                    dx[j] = (1 - a) * dx[j - 1] + a * dx[j];
+                    dy[j] = (1 - a) * dy[j - 1] + a * dy[j];
+                    dw[j] = (1 - a) * dw[j - 1] + a * dw[j];
+                }
+            if (Math.Abs(dw[degree]) < 1e-15) continue;
+            result.Add(new Point2(dx[degree] / dw[degree], dy[degree] / dw[degree]));
+        }
+        return result.Count >= 2 ? result : (fit.Count >= 2 ? fit.ToList() : ctrl.ToList());
     }
 
     private static void Count(Dictionary<string, int> d, string k) => d[k] = d.GetValueOrDefault(k) + 1;
