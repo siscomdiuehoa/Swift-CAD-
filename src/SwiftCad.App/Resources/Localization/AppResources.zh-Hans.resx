@@ -58,6 +58,10 @@
   <data name="layer_none" xml:space="preserve"><value>没有匹配的图层</value></data>
   <data name="layer_search" xml:space="preserve"><value>搜索图层</value></data>
   <data name="layer_show_all" xml:space="preserve"><value>全部显示</value></data>
+  <data name="layer_hide_all" xml:space="preserve"><value>全部隐藏</value></data>
+  <data name="layer_count" xml:space="preserve"><value>显示 {0}/{1} 个图层</value></data>
+  <data name="sample_title" xml:space="preserve"><value>示例图纸</value></data>
+  <data name="sample_subtitle" xml:space="preserve"><value>MEP 安装详图。试用查找、测量、图层和注释。</value></data>
   <data name="loading" xml:space="preserve"><value>正在加载…</value></data>
   <data name="loading_file" xml:space="preserve"><value>正在读取 {0}…</value></data>
   <data name="measure_clear" xml:space="preserve"><value>清除</value></data>

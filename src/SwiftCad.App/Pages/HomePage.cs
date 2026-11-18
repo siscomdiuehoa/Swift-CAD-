@@ -94,6 +94,9 @@ public partial class HomePage : ContentPage
         anyFile.Tap(() => _ = PickAsync(anyType: true));
         col.Add(anyFile);
 
+        // Bản vẽ mẫu có sẵn trong ứng dụng (tệp thật, đọc bằng cùng bộ đọc DWG): dùng thử Tìm/Đo/Layer/Ghi chú không cần tệp riêng.
+        col.Add(new DrawingRow(L.T("sample_title"), L.T("sample_subtitle"), demo: false,
+            L.F("a11y_open_file", L.T("sample_title")), () => _ = OpenSampleAsync()));
 
         var recentHeader = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) } };
         recentHeader.Add(Heading(L.T("recent"), 18), 0);
@@ -133,6 +136,23 @@ public partial class HomePage : ContentPage
     private DrawingRow Row(RecentFile f) => new(f.DisplayName, Ui.FileSubtitle(f), demo: false,
         L.F("a11y_open_file", f.DisplayName), () => _ = OpenRecentAsync(f),
         L.F("a11y_file_menu", f.DisplayName), () => _ = MenuAsync(f));
+
+    /// <summary>Tệp mẫu đóng gói trong ứng dụng (Resources/Raw); tên hiển thị là tên tệp gốc, không dịch.</summary>
+    private const string SampleAsset = "Installation-details.dwg";
+    private const string SampleName = "05. Installation details.dwg";
+
+    private async Task OpenSampleAsync()
+    {
+        try
+        {
+            await using var s = await FileSystem.OpenAppPackageFileAsync(SampleAsset);
+            await HandleImportAsync(await Files.ImportAsync(s, SampleName));
+        }
+        catch (Exception)
+        {
+            await DisplayAlertAsync(L.T("error_open_title"), L.T("error_open_message"), L.T("ok"));
+        }
+    }
 
     private async Task PickAsync(bool anyType = false) => await HandleImportAsync(await Files.PickAndImportAsync(anyType));
 

@@ -58,6 +58,10 @@
   <data name="layer_none" xml:space="preserve"><value>Tidak ada layer yang cocok</value></data>
   <data name="layer_search" xml:space="preserve"><value>Cari layer</value></data>
   <data name="layer_show_all" xml:space="preserve"><value>Tampilkan semua</value></data>
+  <data name="layer_hide_all" xml:space="preserve"><value>Sembunyikan semua</value></data>
+  <data name="layer_count" xml:space="preserve"><value>{0} dari {1} layer ditampilkan</value></data>
+  <data name="sample_title" xml:space="preserve"><value>Gambar contoh</value></data>
+  <data name="sample_subtitle" xml:space="preserve"><value>Detail instalasi MEP. Coba Cari, Ukur, Layer, dan Catatan.</value></data>
   <data name="loading" xml:space="preserve"><value>Memuat…</value></data>
   <data name="loading_file" xml:space="preserve"><value>Membaca {0}…</value></data>
   <data name="measure_clear" xml:space="preserve"><value>Hapus</value></data>
